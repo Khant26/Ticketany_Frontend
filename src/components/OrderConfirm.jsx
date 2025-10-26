@@ -79,7 +79,7 @@ function OrderConfirm({ isOpen, onClose, onAddMore, onConfirmOrder, allOrders, e
                 <button
                   onClick={() => onEditOrder(currentOrderIndex)}
                   className='px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-all duration-200'
-                  style={{backgroundColor: '#feb1c3'}}
+                  style={{backgroundColor: '#e51f4b'}}
                 >
                   {t('order.Edit')}
                 </button>
@@ -197,13 +197,13 @@ function OrderConfirm({ isOpen, onClose, onAddMore, onConfirmOrder, allOrders, e
           <button
             onClick={()=>setShowPrompt(true)}
             className='min-h-[65px] min-w-[170px] px-10 py-4 text-white rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 transition mr-5'
-            style={{ background:'#feb1c3' }}>
+            style={{ background:'#e51f4b' }}>
             {t('order.Confirm')}
           </button>
           <button
             onClick={onAddMore}
             className='min-h-[65px] min-w-[170px] px-10 py-4 text-white rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 transition'
-            style={{ background:'#feb1c3' }}>
+            style={{ background:'#e51f4b' }}>
             {t('order.AddMore')}
           </button>
         </div>

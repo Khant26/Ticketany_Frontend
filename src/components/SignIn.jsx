@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Logo from '../assets/logo.jpg'
-import { Link, useParams } from 'react-router'
+// Removed unused Link/useParams import to keep component clean
 import { useTranslation } from 'react-i18next'
 
 
@@ -11,6 +11,8 @@ function SignIn({ isOpen, onClose, onSwitchToSignUp, onSwitchToForgotPassword, o
     email: '',
     password: ''
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -19,20 +21,66 @@ function SignIn({ isOpen, onClose, onSwitchToSignUp, onSwitchToForgotPassword, o
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    
-    // Simple auto-login - just call onLogin if it exists
-    if (onLogin) {
-      onLogin();
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/auth/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store access token for future requests
+        if (data.access_token || data.token || data.access) {
+          const token = data.access_token || data.token || data.access;
+          localStorage.setItem('access_token', token);
+          localStorage.setItem('user_data', JSON.stringify(data));
+        }
+
+        // Derive a display name string for Navbar (avoid passing whole object)
+        const extractDisplayName = (payload) => {
+          if (!payload) return null;
+          const candidates = [
+            payload.name,
+            payload.username,
+            payload.user?.name,
+            payload.user?.username,
+            payload.user?.email,
+            payload.email,
+          ];
+          const first = candidates.find(v => typeof v === 'string' && v.trim().length > 0);
+          if (!first) return null;
+          return first.includes('@') ? first.split('@')[0] : first;
+        };
+
+        const displayName = extractDisplayName(data) || 'User';
+
+        // Call parent onLogin callback with a string
+        if (onLogin) onLogin(displayName);
+
+        // Close modal and clear form
+        onClose && onClose();
+        setFormData({ email: '', password: '' });
+      } else {
+        setError(data.error || data.detail || data.message || 'Authentication failed');
+      }
+    } catch (err) {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    
-    // Clear form
-    setFormData({
-      email: '',
-      password: ''
-    });
   };
 
   const handleBackdropClick = (e) => {
@@ -72,7 +120,7 @@ function SignIn({ isOpen, onClose, onSwitchToSignUp, onSwitchToForgotPassword, o
           <h2 className='text-2xl text-gray-800 mt-7 ml-1'>{t('signIn.title')}</h2>
         </div>
 
-        <form onSubmit={handleSubmit} className='space-y-4'>
+  <form onSubmit={handleSubmit} className='space-y-4'>
           <div>
             <label htmlFor='email' className='block text-2xl font-medium text-gray-700 mb-1'>
               Email
@@ -120,14 +168,21 @@ function SignIn({ isOpen, onClose, onSwitchToSignUp, onSwitchToForgotPassword, o
               {t('signIn.forgotPassword')}
             </button>
           </div>
+          {error && (
+            <div className='text-red-600 text-sm text-center bg-red-50 border border-red-200 rounded-md p-2'>
+              {error}
+            </div>
+          )}
+
           <button
             type='submit'
             className='w-full text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200'
             style={{ 
-              backgroundColor: '#feb1c3',              
+              backgroundColor: '#ee6786ff',              
             }}
+            disabled={loading}
           >
-            {t('signIn.signIn')}
+            {loading ? t('signIn.signingIn') || 'Signing in...' : t('signIn.signIn')}
           </button>
 
         <div>

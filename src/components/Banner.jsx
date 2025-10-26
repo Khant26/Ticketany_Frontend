@@ -1,32 +1,42 @@
 import { useState, useEffect } from "react";
-import Banner1 from "../assets/Banner1.jpg";
 import ImageSlider from "./ImageSlider";
+import axios from "axios";
 
 function Banner() {
   const [banner, setBanner] = useState([]);
 
   useEffect(() => {
-    setBanner([
-      { id: 1, image: Banner1, description: "Tomorrowland" },
-      {
-        id: 2,
-        image:
-          "https://www.tomorrowland.com/home/media/Z2GcI5bqstJ98m8a_1721687209357_c03adfb8-e1c1-45ca-83cd-e6e3611e6b56.jpg_0_13155614510499255711-min.jpg?auto=format,compress&rect=0,734,4096,1264&w=1296&h=400",
-        description: "Tomorrowland",
-      },
-      { id: 3, image: Banner1, description: "Tomorrowland" },
-      {
-        id: 4,
-        image:
-          "https://www.tomorrowland.com/home/media/Z2GcI5bqstJ98m8a_1721687209357_c03adfb8-e1c1-45ca-83cd-e6e3611e6b56.jpg_0_13155614510499255711-min.jpg?auto=format,compress&rect=0,734,4096,1264&w=1296&h=400",
-        description: "Tomorrowland",
-      },
-      { id: 5, image: Banner1, description: "Tomorrowland" },
-    ]);
+    const fetchBanners = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/api/banners/");
+        const bannerData = response.data.map((b) => ({
+          id: b.id,
+          image:
+            b.banner_image && b.banner_image.length > 0
+              ? b.banner_image[0] // use base64 directly
+              : "https://via.placeholder.com/1200x400",
+          description: b.banner_name || "Event Banner",
+        }));
+        console.log(
+          "Banner images:",
+          bannerData.map((b) => b.image)
+        );
+        setBanner(bannerData);
+      } catch (error) {
+        console.error("Error fetching banners:", error);
+      }
+    };
+
+    fetchBanners();
   }, []);
 
+  if (banner.length === 0) return null;
+
   return (
-    <div className="relative w-[85%] h-64 overflow-hidden rounded-xl group">
+    <div
+      className="relative group mx-auto rounded-xl
+             w-full max-w-[1060px] "
+    >
       <ImageSlider banner={banner} />
     </div>
   );

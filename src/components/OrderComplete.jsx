@@ -115,14 +115,6 @@ function OrderComplete({
         className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-2xl relative max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-2xl font-bold text-gray-400 hover:text-gray-600"
-          style={{ backgroundColor: 'transparent', border: 'none', outline: 'none' }}
-          aria-label="Close"
-        >
-          ×
-        </button>
 
         <div
           ref={receiptRef}
@@ -208,7 +200,7 @@ function OrderComplete({
             onClick={saveImage}
             disabled={saving}
             className="px-10 py-4 w-100 h-15 text-white rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-pink-500 transition"
-            style={{ background: '#feb1c3' }}
+            style={{ background: '#e51f4b' }}
           >
             {saving ? 'Saving...' : 'Save Image'}
           </button>

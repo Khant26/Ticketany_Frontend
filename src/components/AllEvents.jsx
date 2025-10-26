@@ -5,7 +5,8 @@ const IMAGE_SEPARATOR = "|||SEPARATOR|||";
 
 export default function AllEvents() {
   const { category } = useParams();
-  const { search } = useLocation();
+  const { pathname, search } = useLocation();
+  const isAdmin = pathname.startsWith("/admin");
 
   const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -62,7 +63,7 @@ export default function AllEvents() {
     return null;
   };
 
-  const cardHref = (id) => `/EventPageDetails/${id}`;
+  const cardHref = (id) => (isAdmin ? `/admin/events/${id}/edit` : `/EventPageDetails/${id}`);
 
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1060px] px-4 sm:px-6 lg:px-8 pt-20 pb-10">

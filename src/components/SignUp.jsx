@@ -97,7 +97,7 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
           <button
             type='submit'
             className='w-full text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 mt-4'
-            style={{ backgroundColor: '#feb1c3' }}
+            style={{ backgroundColor: '#ee6786ff' }}
           >
             {t('signUp.signUp')}
           </button>

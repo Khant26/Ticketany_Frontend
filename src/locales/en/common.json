@@ -6,7 +6,7 @@
   "event.date": "Date",
   "event.time": "Time",
   "event.location": "Location",
-  "event.sale": "Sale",
+  "event.sale": "Sale Date",
   "event.price": "Price",
   "event.orderNow": "Order Now",
   "generic.noEvent": "No event selected",
@@ -54,6 +54,7 @@
   "profile.name": "Name",
   "profile.facebookName": "Facebook Name",
   "profile.memberCode": "Member Code",
+  "profile.priorityDate": "Priority Date",
   "profile.price": "Price",
   "changepw.title": "Change Your Password",
   "changepw.oldPassword": "Your old password",
@@ -61,4 +62,5 @@
   "changepw.confirmPassword": "Confirm Password",
   "changepw.sendVerification": "Verify Code sent to your email",
   "nav.signOut": "Sign Out"
+
 }
