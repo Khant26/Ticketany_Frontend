@@ -187,20 +187,8 @@ function Navbar() {
           <button
             type="button"
             onClick={handleSearch}
-            className="text-white px-4 sm:px-6 py-2 sm:py-3 rounded ml-2 sm:ml-3 transition-colors-transform duration-200 hover:scale-105"
-            style={{ backgroundColor: "#ee6786ff" }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "#ee678699")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "#ee6786ff")
-            }
-            onMouseDown={(e) =>
-              (e.currentTarget.style.backgroundColor = "#ee678665")
-            }
-            onMouseUp={(e) =>
-              (e.currentTarget.style.backgroundColor = "#ee6786ff")
-            }
+            disabled={!searchQuery.trim()}
+            className="text-white px-4 sm:px-6 py-2 sm:py-3 rounded ml-2 sm:ml-3 transition-colors-transform duration-200 hover:scale-105 bg-[#ee6786] hover:opacity-80 active:bg-[#d45573]"
           >
             {t("nav.search")}
           </button>

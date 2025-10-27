@@ -36,6 +36,7 @@ function OrderForm({
   const [orderId, setOrderId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [showBackButton, setShowBackButton] = useState(false);
 
   const orderCounterRef = useRef(0);
   const ORDER_ID_LENGTH = 5;
@@ -83,6 +84,7 @@ function OrderForm({
       onClose();
       resetForm();
       setAllOrders([]);
+      setShowBackButton(false);
     }
   };
 
@@ -93,7 +95,7 @@ function OrderForm({
   const handleAddMore = () => {
     setShowOrderConfirm(false);
     resetForm();
-    // Form stays open for adding another order
+    setShowBackButton(true);
   };
 
   const handleEditOrder = (index) => {
@@ -465,14 +467,18 @@ function OrderForm({
                 </div>
 
                 {/* Submit Button */}
-                <div className="flex justify-center mt-10">
+                <div className="flex space-x-8 justify-center mt-10">
                   <button
                     type="submit"
-                    className="w-1/2 text-white py-4 px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-lg"
-                    style={{ backgroundColor: "#e51f4b" }}
+                    className="w-1/2 text-white py-4 px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-lg bg-[#ee6786] active:bg-[#d45573]"
                   >
                     {isEditingOrder !== null ? "Update Order" : "Next"}
                   </button>
+                  {showBackButton && (
+                    <button onClick={()=> {setShowBackButton(false); setShowOrderConfirm(true);}}
+                     className="w-1/2 text-white py-4 px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-lg bg-[#ee6786] active:bg-[#d45573]">
+                     Back to Orders</button>
+                    )}
                 </div>
               </form>
             </div>

@@ -27,6 +27,8 @@
   "select.3rdPriorityTicket": "Select 3rd priority (optional)",
   "order.Confirm": "Confirm Order",
   "order.AddMore": "Add More",
+  "order.addedOrders_one": "You have added 1 order",
+  "order.addedOrders_other": "You have added {{count}} orders",
   "order.Delete": "Delete Order",
   "order.Edit": "Edit Order",
   "order.EditingOrder": "Editing Order",

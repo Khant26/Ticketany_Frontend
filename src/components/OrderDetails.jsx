@@ -104,8 +104,7 @@ function OrderDetails({
         {/* Bottom action bar */}
         <div className="mt-8 sm:mt-12">
           <button
-            className="w-full rounded-md py-5 text-[15px] font-medium flex items-center justify-center gap-3"
-            style={{ backgroundColor: "#feb1c3", color: "#000" }}
+            className="w-full rounded-md py-5 text-[15px] font-medium flex items-center justify-center gap-3 bg-[#ee6786] active:bg-[#d45573]"
             onClick={() => {}}
           >
             Payment info at ‘Tickets Anywhere’

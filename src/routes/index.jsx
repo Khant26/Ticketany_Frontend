@@ -8,6 +8,7 @@ import SignIn from "../components/SignIn"
 import Profile from "../components/Profile"
 import Testing from "../testings/Testing"
 import LoginTest from "../testings/LoginTest"
+import AllEvents from "../components/AllEvents"
 
 let router = createBrowserRouter([
   {
@@ -33,6 +34,9 @@ let router = createBrowserRouter([
       {
         path: "/profile",
         Component: Profile,
+      },
+      { path: "/events/:category",
+        Component: AllEvents,
       },
       {
         path: "/testing",

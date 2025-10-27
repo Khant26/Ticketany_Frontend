@@ -26,6 +26,8 @@
   "select.2ndPriorityTicket": "ဒုတိယဦးစားပေးလက်မှတ် (Optional)",
   "select.3rdPriorityTicket": "တတိယဦးစားပေးလက်မှတ် (Optional)",
   "order.Confirm": "Order အတည်ပြုရန်",
+   "order.addedOrders_one": "Order 1 ခု ထည့်ပြီးပါပြီ",
+  "order.addedOrders_other": "Order {{count}} ခု ထည့်ပြီးပါပြီ",
   "order.AddMore": "ထပ်ထည့်ရန်",
   "order.Delete": "Order ဖျက်ရန်",
   "order.Edit": "Order ပြန်ပြင်ရန်",

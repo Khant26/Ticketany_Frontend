@@ -75,11 +75,11 @@ function OrderConfirm({ isOpen, onClose, onAddMore, onConfirmOrder, allOrders, e
               <h3 className='text-xl font-bold text-gray-800'>
                 {currentOrderIndex + 1}.
               </h3>
+              
               <div className='flex space-x-2'>
                 <button
                   onClick={() => onEditOrder(currentOrderIndex)}
-                  className='px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-all duration-200'
-                  style={{backgroundColor: '#e51f4b'}}
+                  className='px-3 py-1 border-2 border-gray-350 rounded text-sm hover:scale-105 transition-all duration-200 '
                 >
                   {t('order.Edit')}
                 </button>
@@ -91,7 +91,7 @@ function OrderConfirm({ isOpen, onClose, onAddMore, onConfirmOrder, allOrders, e
                         setCurrentOrderIndex(Math.max(0, allOrders.length - 2));
                       }
                     }}
-                    className='px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition-all duration-200'
+                    className='px-3 py-1 border-2 border-red-400 text-red-400 hover:scale-105 rounded text-sm transition-all duration-200'
                   >
                     {t('order.Delete')}
                   </button>
@@ -196,33 +196,39 @@ function OrderConfirm({ isOpen, onClose, onAddMore, onConfirmOrder, allOrders, e
         <div className='flex gap-15 justify-center mt-4'>
           <button
             onClick={()=>setShowPrompt(true)}
-            className='min-h-[65px] min-w-[170px] px-10 py-4 text-white rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 transition mr-5'
-            style={{ background:'#e51f4b' }}>
+            className='min-h-[65px] min-w-[170px] px-10 py-4 text-white rounded-lg font-semibold hover:opacity-80 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 transition mr-5 bg-[#ee6786] active:bg-[#d45573]'>
             {t('order.Confirm')}
           </button>
           <button
             onClick={onAddMore}
-            className='min-h-[65px] min-w-[170px] px-10 py-4 text-white rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 transition'
-            style={{ background:'#e51f4b' }}>
+            className='min-h-[65px] min-w-[170px] px-10 py-4 text-white rounded-lg font-semibold hover:opacity-80 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 transition bg-[#ee6786] active:bg-[#d45573]'>
             {t('order.AddMore')}
           </button>
         </div>
 
         {showPrompt && (
-          <div className='absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-lg'>
-            <div className='bg-white border border-gray-200 rounded-lg p-6 w-full max-w-sm shadow-lg'>
+          <div className='absolute inset-0 flex items-center justify-center rounded-lg'style={{ 
+        zIndex: 9999,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)'
+      }}onClick={(e) => {
+      if (e.target === e.currentTarget) {
+        setShowPrompt(false);
+       
+      }
+    }} >
+            <div className='bg-white border border-gray-200 rounded-lg p-6 w-full max-w-sm shadow-lg' onClick={(e) => e.stopPropagation()}>
               <p className='text-lg font-semibold text-center mb-6 text-black'>{t('order.Confirm')} ?</p>
               <div className='flex gap-4'>
                 <button
                   onClick={()=>{ setShowPrompt(false); onConfirmOrder(); }}
-                  className='flex-1 py-3 rounded-md text-black font-medium hover:opacity-90'
+                  className='flex-1 py-3 rounded-md text-black font-medium transition-all duration-200 hover:opacity-90 hover:scale-105'
                   style={{ backgroundColor: 'white', border: '1px solid' }}
                   >
                   Yes
                 </button>
                 <button
                   onClick={()=>setShowPrompt(false)}
-                  className='flex-1 py-3 rounded-md text-black font-medium border border-gray-300 hover:bg-gray-50'
+                  className='flex-1 py-3 rounded-md text-black font-medium transition-all duration-200 hover:bg-gray-50 hover:scale-105'
                   style={{ backgroundColor: 'white', border: '1px solid' }}>
                   No
                 </button>
