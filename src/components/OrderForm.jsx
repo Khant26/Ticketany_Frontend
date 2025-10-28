@@ -438,9 +438,11 @@ function OrderForm({
                     className="flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
                   >
                     <option value="">{t("select.2ndPriorityTicket")}</option>
-                    <option value="VIP">VIP - 2799THB</option>
-                    <option value="Premium">Premium - 1799THB</option>
-                    <option value="Standard">Standard - 799THB</option>
+                    {availablePrices.map((price, index) => (
+                      <option key={index} value={price}>
+                        {price}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -460,9 +462,11 @@ function OrderForm({
                     className="flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
                   >
                     <option value="">{t("select.3rdPriorityTicket")}</option>
-                    <option value="VIP">VIP - 2799THB</option>
-                    <option value="Premium">Premium - 1799THB</option>
-                    <option value="Standard">Standard - 799THB</option>
+                    {availablePrices.map((price, index) => (
+                      <option key={index} value={price}>
+                        {price}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
