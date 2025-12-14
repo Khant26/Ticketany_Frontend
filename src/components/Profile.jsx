@@ -364,7 +364,7 @@ function Profile() {
 
   // Compute groups to display based on active tab and ticket status
   const displayedGroups = useMemo(() => {
-    const desiredStatus = activeTab === "orders" ? "pending" : "received";
+    const desiredStatus = activeTab === "orders" ? "pending" : "complete";
     const normalized = (s) =>
       typeof s === "string" ? s.trim().toLowerCase() : "";
 

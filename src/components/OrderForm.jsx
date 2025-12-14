@@ -116,6 +116,12 @@ function OrderForm({
     setSubmitError("");
 
     try {
+      // Normalize backend status choices; keep hidden default as PENDING
+      const STATUS_MAP = {
+        pending: "PENDING",
+        confirmed: "CONFIRMED",
+        cancelled: "CANCELLED",
+      };
       // Create order first
       let customerId = null;
       try {
@@ -167,7 +173,7 @@ function OrderForm({
           fst_pt: entry.firstPriorityTicket || null,
           snd_pt: entry.secondPriorityTicket || null,
           trd_pt: entry.thirdPriorityTicket || null,
-          status: "Pending",
+          // Omit status to allow backend default choice
           event: eventId ?? null,
           order: createdOrderId,
         };
