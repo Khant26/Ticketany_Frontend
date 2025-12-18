@@ -594,7 +594,7 @@ function Profile() {
                             type="button"
                             onClick={() => openOrderDetails(orderGroup, ticket)}
                             className={`inline-block px-3 py-1 rounded border text-sm lg:text-lg font-medium cursor-pointer ${getStatusColor(
-                              ticket  // Pass full ticket object
+                              ticket // Pass full ticket object
                             )} hover:scale-105 hover:opacity-90 transition-all duration-200`}
                             style={{ background: "transparent" }}
                           >
@@ -671,7 +671,7 @@ function Profile() {
                             type="button"
                             onClick={() => openOrderDetails(orderGroup, ticket)}
                             className={`px-3 py-1 rounded border text-sm font-medium ${getStatusColor(
-                              ticket  // Pass full ticket object
+                              ticket // Pass full ticket object
                             )} hover:opacity-90 transition-colors duration-200`}
                             style={{ background: "transparent" }}
                           >
