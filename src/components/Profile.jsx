@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation, initReactI18next } from "react-i18next";
 import OrderDetails from "./OrderDetails";
 import Logo from "../assets/logo.jpg";
 
@@ -142,7 +142,7 @@ function Profile() {
   }, [userId]);
 
   // 2) Fetch from backend: orders, tickets, and events, scoped to current user
-  useEffect(() => {
+  const fetchData = async () => {
     const API_BASE_URL = "http://127.0.0.1:8000";
     if (!userId) {
       setOrders([]);
@@ -155,172 +155,183 @@ function Profile() {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
 
-    const fetchData = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        // Fetch all orders, tickets, and events, then filter/group client-side
-        const [ordersRes, ticketsRes, eventsRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/api/orders/`, { headers }),
-          fetch(`${API_BASE_URL}/api/tickets/`, { headers }),
-          fetch(`${API_BASE_URL}/api/events/`, { headers }),
-        ]);
+    setLoading(true);
+    setError("");
+    try {
+      // Fetch all orders, tickets, and events, then filter/group client-side
+      const [ordersRes, ticketsRes, eventsRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/orders/`, { headers }),
+        fetch(`${API_BASE_URL}/api/tickets/`, { headers }),
+        fetch(`${API_BASE_URL}/api/events/`, { headers }),
+      ]);
 
-        const parseMaybeJson = async (res) => {
-          const ct = res.headers.get("content-type") || "";
-          if (ct.includes("application/json")) return res.json();
-          const text = await res.text();
-          try {
-            return JSON.parse(text);
-          } catch {
-            return text;
-          }
-        };
+      const parseMaybeJson = async (res) => {
+        const ct = res.headers.get("content-type") || "";
+        if (ct.includes("application/json")) return res.json();
+        const text = await res.text();
+        try {
+          return JSON.parse(text);
+        } catch {
+          return text;
+        }
+      };
 
-        const [ordersDataRaw, ticketsDataRaw, eventsDataRaw] =
-          await Promise.all([
-            parseMaybeJson(ordersRes),
-            parseMaybeJson(ticketsRes),
-            parseMaybeJson(eventsRes),
-          ]);
+      const [ordersDataRaw, ticketsDataRaw, eventsDataRaw] = await Promise.all([
+        parseMaybeJson(ordersRes),
+        parseMaybeJson(ticketsRes),
+        parseMaybeJson(eventsRes),
+      ]);
 
-        if (!ordersRes.ok)
-          throw new Error(
-            typeof ordersDataRaw === "string"
-              ? ordersDataRaw
-              : JSON.stringify(ordersDataRaw)
-          );
-        if (!ticketsRes.ok)
-          throw new Error(
-            typeof ticketsDataRaw === "string"
-              ? ticketsDataRaw
-              : JSON.stringify(ticketsDataRaw)
-          );
-        if (!eventsRes.ok)
-          throw new Error(
-            typeof eventsDataRaw === "string"
-              ? eventsDataRaw
-              : JSON.stringify(eventsDataRaw)
-          );
+      if (!ordersRes.ok)
+        throw new Error(
+          typeof ordersDataRaw === "string"
+            ? ordersDataRaw
+            : JSON.stringify(ordersDataRaw)
+        );
+      if (!ticketsRes.ok)
+        throw new Error(
+          typeof ticketsDataRaw === "string"
+            ? ticketsDataRaw
+            : JSON.stringify(ticketsDataRaw)
+        );
+      if (!eventsRes.ok)
+        throw new Error(
+          typeof eventsDataRaw === "string"
+            ? eventsDataRaw
+            : JSON.stringify(eventsDataRaw)
+        );
 
-        const toArray = (data) => {
-          if (Array.isArray(data)) return data;
-          if (data && Array.isArray(data.results)) return data.results;
-          // Some DRF paginations use 'data' or 'items'
-          if (data && Array.isArray(data.data)) return data.data;
-          if (data && Array.isArray(data.items)) return data.items;
-          return [];
-        };
+      const toArray = (data) => {
+        if (Array.isArray(data)) return data;
+        if (data && Array.isArray(data.results)) return data.results;
+        // Some DRF paginations use 'data' or 'items'
+        if (data && Array.isArray(data.data)) return data.data;
+        if (data && Array.isArray(data.items)) return data.items;
+        return [];
+      };
 
-        const allOrdersArray = toArray(ordersDataRaw);
-        const allTicketsArray = toArray(ticketsDataRaw);
-        const allEventsArray = toArray(eventsDataRaw);
+      const allOrdersArray = toArray(ordersDataRaw);
+      const allTicketsArray = toArray(ticketsDataRaw);
+      const allEventsArray = toArray(eventsDataRaw);
 
-        // Build a quick lookup for events by id
-        const eventsById = allEventsArray.reduce((acc, ev) => {
-          const id = normalizeId(ev?.id);
-          if (id) acc[id] = ev;
-          return acc;
-        }, {});
+      // Build a quick lookup for events by id
+      const eventsById = allEventsArray.reduce((acc, ev) => {
+        const id = normalizeId(ev?.id);
+        if (id) acc[id] = ev;
+        return acc;
+      }, {});
 
-        // Only orders for this user
-        const myOrders = allOrdersArray.filter((o) => {
-          const customerId = normalizeId(o?.customer);
-          return Number(customerId) === Number(userId);
-        });
+      // Only orders for this user
+      const myOrders = allOrdersArray.filter((o) => {
+        const customerId = normalizeId(o?.customer);
+        return Number(customerId) === Number(userId);
+      });
 
-        // Group tickets by order id
-        const ticketsByOrder = allTicketsArray.reduce((acc, t) => {
-          const orderId = normalizeId(t?.order);
-          if (!orderId) return acc;
-          if (!acc[orderId]) acc[orderId] = [];
-          acc[orderId].push(t);
-          return acc;
-        }, {});
+      // Group tickets by order id
+      const ticketsByOrder = allTicketsArray.reduce((acc, t) => {
+        const orderId = normalizeId(t?.order);
+        if (!orderId) return acc;
+        if (!acc[orderId]) acc[orderId] = [];
+        acc[orderId].push(t);
+        return acc;
+      }, {});
 
-        // Map into UI groups expected by this component
-        const mapped = myOrders.map((o) => {
-          const oid = o?.id;
-          const tickets = ticketsByOrder[oid] || [];
-          const mappedTickets = tickets.map((t) => ({
-            userName: t?.passport_name || "—",
-            facebookName: t?.facebook_name || "—",
-            memberCode: t?.member_code || "—",
-            priorityDate: t?.priority_date || "",
-            firstPriorityTicket: t?.fst_pt || "",
-            secondPriorityTicket: t?.snd_pt || "",
-            thirdPriorityTicket: t?.trd_pt || "",
-            price: t?.fst_pt || "",
-            status: t?.status || "Pending",
-          }));
+      // Map into UI groups expected by this component
+      const mapped = myOrders.map((o) => {
+        const oid = o?.id;
+        const tickets = ticketsByOrder[oid] || [];
+        const mappedTickets = tickets.map((t) => ({
+          userName: t?.passport_name || "—",
+          facebookName: t?.facebook_name || "—",
+          memberCode: t?.member_code || "—",
+          priorityDate: t?.priority_date || "",
+          firstPriorityTicket: t?.fst_pt || "",
+          secondPriorityTicket: t?.snd_pt || "",
+          thirdPriorityTicket: t?.trd_pt || "",
+          price: t?.fst_pt || "",
+          status: t?.status || "Pending",
+          refundStatus: t?.refund_status || "none", // NEW: Include refund status for cancelled tickets
+        }));
 
-          // Ensure we render at least one row per order even when there are no tickets yet
-          if (mappedTickets.length === 0) {
-            mappedTickets.push({
-              userName: "—",
-              facebookName: "—",
-              memberCode: "—",
-              priorityDate: "",
-              firstPriorityTicket: "",
-              secondPriorityTicket: "",
-              thirdPriorityTicket: "",
-              status: "Pending",
-            });
-          }
+        // Ensure we render at least one row per order even when there are no tickets yet
+        if (mappedTickets.length === 0) {
+          mappedTickets.push({
+            userName: "—",
+            facebookName: "—",
+            memberCode: "—",
+            priorityDate: "",
+            firstPriorityTicket: "",
+            secondPriorityTicket: "",
+            thirdPriorityTicket: "",
+            status: "Pending",
+            refundStatus: "none",
+          });
+        }
 
-          // Determine the event id for this order: prefer order.event, else infer from tickets
-          let eventId = normalizeId(o?.event);
-          if (!eventId) {
-            // Try to infer from any ticket belonging to this order
-            for (const t of tickets) {
-              const tid = normalizeId(t?.event);
-              if (tid) {
-                eventId = tid;
-                break;
-              }
+        // Determine the event id for this order: prefer order.event, else infer from tickets
+        let eventId = normalizeId(o?.event);
+        if (!eventId) {
+          // Try to infer from any ticket belonging to this order
+          for (const t of tickets) {
+            const tid = normalizeId(t?.event);
+            if (tid) {
+              eventId = tid;
+              break;
             }
           }
-
-          const ev = eventId ? eventsById[eventId] : undefined;
-          const eventTitle = ev?.event_name || "Event";
-          const normalizedMeta = ev
-            ? {
-                date: ev.event_date,
-                time: ev.event_time,
-                venue: ev.event_location,
-                image: ev.event_image,
-              }
-            : undefined;
-
-          return {
-            orderId: oid,
-            eventTitle,
-            eventMeta: normalizedMeta,
-            allOrders: mappedTickets,
-          };
-        });
-
-        setOrders(mapped);
-        // Persist a snapshot locally per-user
-        try {
-          const cacheKey = `userOrders_${userId}`;
-          localStorage.setItem(cacheKey, JSON.stringify(mapped));
-          // Clean up old global cache to avoid future confusion
-          if (localStorage.getItem("userOrders")) {
-            localStorage.removeItem("userOrders");
-          }
-        } catch {
-          // ignore quota or serialization errors
         }
-      } catch (e) {
-        console.error("Failed to load profile orders:", e);
-        setError(e?.message || "Failed to load");
-      } finally {
-        setLoading(false);
-      }
-    };
 
+        const ev = eventId ? eventsById[eventId] : undefined;
+        const eventTitle = ev?.event_name || "Event";
+        const normalizedMeta = ev
+          ? {
+              date: ev.event_date,
+              time: ev.event_time,
+              venue: ev.event_location,
+              image: ev.event_image,
+            }
+          : undefined;
+
+        return {
+          orderId: oid,
+          eventTitle,
+          eventMeta: normalizedMeta,
+          allOrders: mappedTickets,
+        };
+      });
+
+      setOrders(mapped);
+      // Persist a snapshot locally per-user
+      try {
+        const cacheKey = `userOrders_${userId}`;
+        localStorage.setItem(cacheKey, JSON.stringify(mapped));
+        // Clean up old global cache to avoid future confusion
+        if (localStorage.getItem("userOrders")) {
+          localStorage.removeItem("userOrders");
+        }
+      } catch {
+        // ignore quota or serialization errors
+      }
+    } catch (e) {
+      console.error("Failed to load profile orders:", e);
+      setError(e?.message || "Failed to load");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial fetch on mount/userId change
+  useEffect(() => {
     fetchData();
+  }, [userId]);
+
+  // NEW: Polling to refetch data every 10 seconds for near-real-time updates
+  useEffect(() => {
+    if (!userId) return;
+    const interval = setInterval(() => {
+      fetchData();
+    }, 10000); // Adjust interval as needed (e.g., 5000 for 5 seconds)
+    return () => clearInterval(interval); // Cleanup on unmount
   }, [userId]);
 
   const openOrderDetails = (orderGroup, ticket) => {
@@ -340,16 +351,23 @@ function Profile() {
 
   const user = { name: getDisplayName() };
 
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
+  const getStatusColor = (ticket) => {
+    const status = ticket.status?.toLowerCase();
+    const refund = ticket.refundStatus?.toLowerCase();
+    switch (status) {
       case "pending":
         return "border-orange-500 text-orange-600";
       case "paid":
         return "border-green-500 text-green-600";
-      case "received":
-        return "border-pink-500 text-pink-600";
-      case "cancelled":
-        return "border-red-500 text-red-600";
+      case "complete":
+        return "border-green-500 text-green-600"; // Changed to green for success
+      case "cancel":
+        if (refund === "refunded") {
+          return "border-blue-500 text-blue-600"; // Positive for refunded
+        }
+        if (refund === "in_process") {
+          return "border-red-500 text-red-600"; // Neutral for in process
+        }
       default:
         return "border-gray-500 text-gray-600";
     }
@@ -362,16 +380,30 @@ function Profile() {
     return "—";
   };
 
+  // NEW: Helper to get display status, including refund details for cancelled
+  const getDisplayStatus = (ticket) => {
+    const status = ticket.status || "Pending";
+    if (status.toLowerCase() === "cancel") {
+      const refund = ticket.refundStatus || "none";
+      if (refund === "in_process") return "Cancelled (In Process)";
+      if (refund === "refunded") return "Cancelled (Refunded)";
+      return "Cancelled";
+    }
+    return status.charAt(0).toUpperCase() + status.slice(1); // Capitalize for consistency
+  };
+
   // Compute groups to display based on active tab and ticket status
+  // UPDATED: Include "paid" status in "orders" tab alongside "pending" and "cancel"
   const displayedGroups = useMemo(() => {
-    const desiredStatus = activeTab === "orders" ? "pending" : "complete";
+    const desiredStatuses =
+      activeTab === "orders" ? ["pending", "paid", "cancel"] : ["complete"]; // Show pending, paid, and cancelled in "My Orders"
     const normalized = (s) =>
       typeof s === "string" ? s.trim().toLowerCase() : "";
 
     return orders
       .map((group) => {
-        const filteredTickets = (group.allOrders || []).filter(
-          (t) => normalized(t.status) === desiredStatus
+        const filteredTickets = (group.allOrders || []).filter((t) =>
+          desiredStatuses.includes(normalized(t.status))
         );
         return { ...group, allOrders: filteredTickets };
       })
@@ -406,7 +438,7 @@ function Profile() {
 
             {/* Name & Actions */}
             <div className="flex flex-wrap items-center gap-1 sm:gap-3">
-              <h1 className="text-xl sm:text-2xl font-semibold text-black relative pb-4 sm:pb-2 after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-full after:bg-[#ee6786ff] transition-all duration-300 cursor-default">
+              <h1 className="text-xl sm:text-2xl font-semibold text-black relative pb-4 sm:pb-2 after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-[#ee6786ff] transition-all duration-300 cursor-default">
                 {user.name}
               </h1>
               <button className="sm:mb-1.5 absolute-right w-6 h-6 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-100 transition">
@@ -510,7 +542,7 @@ function Profile() {
             {!loading && displayedGroups.length === 0 && (
               <div className="text-center py-12 text-gray-500 transition-all duration-300">
                 {activeTab === "orders"
-                  ? "No pending tickets found."
+                  ? "No pending or cancelled tickets found."
                   : "No received tickets found."}
               </div>
             )}
@@ -521,7 +553,7 @@ function Profile() {
                 className="border border-gray-500 md:border-gray-400 rounded-lg p-4 md:p-4"
               >
                 {orderGroup.allOrders?.map((ticket, ticketIndex) => {
-                  const status = ticket.status || "Pending";
+                  const displayStatus = getDisplayStatus(ticket); // UPDATED: Use new helper for status display
                   const price = getPrice(ticket);
 
                   return (
@@ -562,11 +594,11 @@ function Profile() {
                             type="button"
                             onClick={() => openOrderDetails(orderGroup, ticket)}
                             className={`inline-block px-3 py-1 rounded border text-sm lg:text-lg font-medium cursor-pointer ${getStatusColor(
-                              status
+                              ticket  // Pass full ticket object
                             )} hover:scale-105 hover:opacity-90 transition-all duration-200`}
                             style={{ background: "transparent" }}
                           >
-                            {status}
+                            {displayStatus} {/* UPDATED: Use displayStatus */}
                           </button>
                         </div>
                       </div>
@@ -639,11 +671,11 @@ function Profile() {
                             type="button"
                             onClick={() => openOrderDetails(orderGroup, ticket)}
                             className={`px-3 py-1 rounded border text-sm font-medium ${getStatusColor(
-                              status
+                              ticket  // Pass full ticket object
                             )} hover:opacity-90 transition-colors duration-200`}
                             style={{ background: "transparent" }}
                           >
-                            {status}
+                            {displayStatus} {/* UPDATED: Use displayStatus */}
                           </button>
                         </div>
                       </div>
