@@ -42,9 +42,30 @@ function OrderForm({
   const ORDER_ID_LENGTH = 5;
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
+    const { name, value } = e.target;
+    setFormData((prev) => {
+      const next = {
+        ...prev,
+        [name]: value,
+      };
+
+      if (name === "firstPriorityTicket") {
+        if (next.secondPriorityTicket === value) next.secondPriorityTicket = "";
+        if (next.thirdPriorityTicket === value) next.thirdPriorityTicket = "";
+      }
+
+      if (name === "secondPriorityTicket") {
+        if (value && value === next.firstPriorityTicket) next.secondPriorityTicket = "";
+        if (next.thirdPriorityTicket === value) next.thirdPriorityTicket = "";
+      }
+
+      if (name === "thirdPriorityTicket") {
+        if (value && (value === next.firstPriorityTicket || value === next.secondPriorityTicket)) {
+          next.thirdPriorityTicket = "";
+        }
+      }
+
+      return next;
     });
   };
 
@@ -261,6 +282,12 @@ function OrderForm({
   };
   const availableDates = parseDates(eventDates);
   const availablePrices = parsePrices(eventPrices);
+  const availablePricesForSecond = availablePrices.filter(
+    (price) => price !== formData.firstPriorityTicket
+  );
+  const availablePricesForThird = availablePrices.filter(
+    (price) => price !== formData.firstPriorityTicket && price !== formData.secondPriorityTicket
+  );
 
   return (
     <>
@@ -444,7 +471,7 @@ function OrderForm({
                     className="flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
                   >
                     <option value="">{t("select.2ndPriorityTicket")}</option>
-                    {availablePrices.map((price, index) => (
+                    {availablePricesForSecond.map((price, index) => (
                       <option key={index} value={price}>
                         {price}
                       </option>
@@ -468,7 +495,7 @@ function OrderForm({
                     className="flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
                   >
                     <option value="">{t("select.3rdPriorityTicket")}</option>
-                    {availablePrices.map((price, index) => (
+                    {availablePricesForThird.map((price, index) => (
                       <option key={index} value={price}>
                         {price}
                       </option>

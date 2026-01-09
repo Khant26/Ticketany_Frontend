@@ -1,10 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 function Category({ selectedCategory, setSelectedCategory }) {
   const [categories, setCategories] = useState([]);
-  const containerRef = useRef(null);
-  const buttonRefs = useRef([]);
-  const [underlineStyle, setUnderlineStyle] = useState({});
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -19,31 +16,16 @@ function Category({ selectedCategory, setSelectedCategory }) {
     fetchCategories();
   }, []);
 
-  useEffect(() => {
-    const index = categories.findIndex(
-      (cat) => cat.category_name === selectedCategory
-    );
-    const button = buttonRefs.current[index];
-    if (button) {
-      setUnderlineStyle({
-        width: `${button.offsetWidth}px`,
-        left: `${button.offsetLeft}px`,
-      });
-    }
-  }, [selectedCategory, categories]);
-
   return (
-    <div className="relative flex flex-wrap justify-center gap-6 mb-20
-    " ref={containerRef}>
+    <div className="relative flex flex-wrap justify-center gap-6 mb-20">
       {categories.map((cat, index) => (
         <button
           key={cat.id}
-          ref={(el) => (buttonRefs.current[index] = el)}
           onClick={() => setSelectedCategory(cat.category_name)}
           className={`relative flex items-center gap-2 px-4 py-2 rounded-xl transition-colors duration-300 mb-2
             ${
               selectedCategory === cat.category_name
-                ? "text-gray-800 font-semibold"
+                ? "text-gray-800 font-semibold after:content-[''] after:absolute after:left-0 after:-bottom-2 after:h-1 after:w-full after:rounded-full after:bg-[#ee6786ff] after:transition-all after:duration-300"
                 : "text-gray-500 font-semibold hover:text-[#e51f4b] cursor-pointer"
             }`}
         >
@@ -58,11 +40,7 @@ function Category({ selectedCategory, setSelectedCategory }) {
         </button>
       ))}
 
-      <span
-  className="absolute bottom-0 h-1 rounded-full transition-all duration-300 ease-in-out bg-[#ee6786ff]"
-  style={underlineStyle}
-/>
-</div>
+    </div>
   );
 }
 

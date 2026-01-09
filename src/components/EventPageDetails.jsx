@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import BP1 from "../assets/BP1.jpg";
 import BP2 from "../assets/BP2.jpeg";
@@ -18,6 +18,8 @@ function EventPageDetails() {
   let { id } = useParams();
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isImageFading, setIsImageFading] = useState(false);
+  const fadeTimeoutRef = useRef(null);
   const [showOrderForm, setShowOrderForm] = useState(false);
 
   const [eventDetails, setEventDetails] = useState([]);
@@ -46,6 +48,14 @@ function EventPageDetails() {
     };
     fetchEvents();
   }, [id]);
+
+  useEffect(() => {
+    return () => {
+      if (fadeTimeoutRef.current) {
+        clearTimeout(fadeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const eventDetail =
     eventDetails.find((event) => event.id === parseInt(id)) || eventDetails[0];
@@ -137,12 +147,25 @@ function EventPageDetails() {
   const images = eventDetail ? getEventImages(eventDetail) : [];
   console.log("EventPageDetails - Final images array:", images.length, "items");
 
+  const goToImage = (nextIndex) => {
+    if (!images.length) return;
+    if (nextIndex === currentImageIndex) return;
+
+    setIsImageFading(true);
+    if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current);
+    fadeTimeoutRef.current = setTimeout(() => {
+      setCurrentImageIndex(nextIndex);
+    }, 80);
+  };
+
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    const nextIndex = currentImageIndex === images.length - 1 ? 0 : currentImageIndex + 1;
+    goToImage(nextIndex);
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    const nextIndex = currentImageIndex === 0 ? images.length - 1 : currentImageIndex - 1;
+    goToImage(nextIndex);
   };
 
   return (
@@ -160,7 +183,10 @@ function EventPageDetails() {
               <img
                 src={images[currentImageIndex]}
                 alt={`${eventDetail?.event_name || "Event"} - Image ${currentImageIndex + 1}`}
-                className="w-full h-64 md:h-80 lg:h-150 object-cover rounded-lg"
+                className={`w-full h-64 md:h-80 lg:h-150 object-cover rounded-lg transition-opacity duration-150 ease-out ${
+                  isImageFading ? "opacity-80" : "opacity-100"
+                }`}
+                onLoad={() => setIsImageFading(false)}
                 onError={(e) => { e.target.style.display = "none"; }}
               />
             ) : (
@@ -179,7 +205,7 @@ function EventPageDetails() {
                 </button>
                 <div className="flex items-center gap-2">
                   {images.map((_, index) => (
-                    <button key={index} onClick={() => setCurrentImageIndex(index)} className="p-0 m-0 focus:outline-none">
+                    <button key={index} onClick={() => goToImage(index)} className="p-0 m-0 focus:outline-none">
                       <span className={`block rounded-full transition-all duration-200 ${currentImageIndex === index ? "w-3 h-3 bg-[#ee6786ff] scale-110 shadow-[0_0_0_3px_rgba(238,103,134,0.4)]" : "w-2.5 h-2.5 bg-black/50 hover:bg-black/70"}`}/>
                     </button>
                   ))}
@@ -218,7 +244,7 @@ function EventPageDetails() {
               <div className="flex items-start">
                 <span className="text-lg font-semibold min-w-[80px]">{t("event.price")}</span>
                 <span className="text-lg font-semibold ml-4 break-words line-clamp-2">
-                  {eventDetail?.ticket_price ? `$${eventDetail?.ticket_price}` : "TBD"}
+                  {eventDetail?.ticket_price ? `${eventDetail?.ticket_price}` : "TBD"}
                 </span>
               </div>
             </div>
