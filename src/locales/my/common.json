@@ -58,10 +58,13 @@
   "profile.memberCode": "အဖွဲ့ဝင်ကုဒ်",
   "profile.priorityDate": "ဦးစားပေးနေ့",
   "profile.price": "စျေးနှုန်း",
+  "profile.status": "လက်မှတ်အခြေအနေ",
   "changepw.title": "သင့် Password ကို ပြောင်းရန်",
   "changepw.oldPassword": "သင့်ရဲ့ Password အဟောင်း ",
   "changepw.newPassword": "သင့်ရဲ့ Password အသစ်",
   "changepw.confirmPassword": "သင့်ရဲ့ Password အသစ်ကို အတည်ပြုပါ",
   "changepw.sendVerification": "Verification Code ထည့်ပါ",
-  "nav.signOut": "အကောင့်ထွက်ရန်"
+  "nav.signOut": "အကောင့်ထွက်ရန်",
+  "home.eventsTitle": "ပွဲများ",
+  "home.category": "နိုင်ငံများ"
 }

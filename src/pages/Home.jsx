@@ -3,9 +3,11 @@ import { useState } from "react";
 import Banner from "../components/Banner";
 import Category from "../components/Category";
 import EventGrid from "../components/EventGrid";
+import { useTranslation } from 'react-i18next'
 
 function Home() {
   const [selectedCategory, setSelectedCategory] = useState("Justin Bieber");
+  const { t } = useTranslation();
 
   return (
     <>
@@ -20,7 +22,7 @@ function Home() {
         {/*Category*/}
         <div>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 text-center mb-8 sm:mb-12">
-            Category
+            {t('home.category')}
           </h1>
           <Category
             selectedCategory={selectedCategory}
@@ -30,7 +32,7 @@ function Home() {
         {/* Event Main container */}
         <div className="mx-auto w-[85%]  px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 text-center mb-8 sm:mb-12">
-            Featured Events
+            {t('home.eventsTitle')}
           </h1>
           <EventGrid selectedCategory={selectedCategory} />
         </div>

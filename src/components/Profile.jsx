@@ -375,7 +375,7 @@ function Profile() {
 
   const getPrice = (ticket) => {
     if (ticket?.price) {
-      return `${ticket.price} THB`;
+      return `${ticket.price}`;
     }
     return "—";
   };
@@ -524,7 +524,7 @@ function Profile() {
                   {t("profile.price")}
                 </div>
                 <div className="font-semibold text-gray-700 text-sm lg:text-lg pl-6">
-                  Status
+                  {t("profile.status")}
                 </div>
               </div>
             </div>
@@ -586,7 +586,7 @@ function Profile() {
                         <div className="text-base lg:text-lg font-medium text-black truncate whitespace-nowrap">
                           {ticket.priorityDate || "—"}
                         </div>
-                        <div className="text-base lg:text-lg font-medium text-black truncate whitespace-nowrap">
+                        <div className="text-base lg:text-lg font-medium text-black whitespace-normal break-words leading-snug">
                           {price}
                         </div>
                         <div className="text-base lg:text-lg pl-3">
@@ -661,7 +661,7 @@ function Profile() {
                           <span className="font-semibold">
                             {t("profile.price")}
                           </span>
-                          <span className="font-medium text-black">
+                          <span className="font-medium text-black max-w-[55%] text-right break-words">
                             {price}
                           </span>
                         </div>

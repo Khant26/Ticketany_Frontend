@@ -58,11 +58,14 @@
   "profile.memberCode": "Member Code",
   "profile.priorityDate": "Priority Date",
   "profile.price": "Price",
+  "profile.status": "Status",
   "changepw.title": "Change Your Password",
   "changepw.oldPassword": "Your old password",
   "changepw.newPassword": "New Password",
   "changepw.confirmPassword": "Confirm Password",
   "changepw.sendVerification": "Verify Code sent to your email",
-  "nav.signOut": "Sign Out"
+  "nav.signOut": "Sign Out",
+  "home.eventsTitle": "Featured Events",
+  "home.category": "Category"
 
 }
