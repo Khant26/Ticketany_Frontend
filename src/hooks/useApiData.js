@@ -7,25 +7,18 @@ export const useOrdersData = (autoFetch = true) => {
     const [error, setError] = useState(null);
     const [initialized, setInitialized] = useState(false);
 
-    // Initialize the service with credentials
-    const initializeService = useCallback(async (email, password) => {
-        try {
-            apiService.setCredentials(email, password);
-            const authResult = await apiService.authenticate();
-            
-            if (authResult.success) {
-                setInitialized(true);
-                setError(null);
-                return { success: true };
-            } else {
-                setError(authResult.error);
-                return { success: false, error: authResult.error };
-            }
-        } catch (err) {
-            const errorMsg = 'Failed to initialize service';
-            setError(errorMsg);
-            return { success: false, error: errorMsg };
+    // Initialize the service (user-side): ensure access_token exists
+    const initializeService = useCallback(async () => {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            const msg = 'Not logged in. Please sign in first.';
+            setError(msg);
+            setInitialized(false);
+            return { success: false, error: msg };
         }
+        setInitialized(true);
+        setError(null);
+        return { success: true };
     }, []);
 
     // Fetch orders
@@ -149,25 +142,18 @@ export const useTicketsData = (autoFetch = true) => {
     const [error, setError] = useState(null);
     const [initialized, setInitialized] = useState(false);
 
-    // Initialize the service
-    const initializeService = useCallback(async (email, password) => {
-        try {
-            apiService.setCredentials(email, password);
-            const authResult = await apiService.authenticate();
-            
-            if (authResult.success) {
-                setInitialized(true);
-                setError(null);
-                return { success: true };
-            } else {
-                setError(authResult.error);
-                return { success: false, error: authResult.error };
-            }
-        } catch (err) {
-            const errorMsg = 'Failed to initialize service';
-            setError(errorMsg);
-            return { success: false, error: errorMsg };
+    // Initialize the service (user-side): ensure access_token exists
+    const initializeService = useCallback(async () => {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            const msg = 'Not logged in. Please sign in first.';
+            setError(msg);
+            setInitialized(false);
+            return { success: false, error: msg };
         }
+        setInitialized(true);
+        setError(null);
+        return { success: true };
     }, []);
 
     // Fetch tickets

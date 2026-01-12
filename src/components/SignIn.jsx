@@ -43,11 +43,12 @@ function SignIn({ isOpen, onClose, onSwitchToSignUp, onSwitchToForgotPassword, o
 
       if (response.ok) {
         // Store access token for future requests
-        if (data.access_token || data.token || data.access) {
-          const token = data.access_token || data.token || data.access;
-          localStorage.setItem('access_token', token);
-          localStorage.setItem('user_data', JSON.stringify(data));
-        }
+        const access = data.access_token || data.token || data.access;
+        const refresh = data.refresh_token || data.refresh;
+
+        if (access) localStorage.setItem('access_token', access);
+        if (refresh) localStorage.setItem('refresh_token', refresh);
+        localStorage.setItem('user_data', JSON.stringify(data));
 
         // Derive a display name string for Navbar (avoid passing whole object)
         const extractDisplayName = (payload) => {

@@ -1,84 +1,38 @@
-import { API_CONFIG, getApiUrl, buildEndpoint } from '../config/api';
+import { API_CONFIG, buildEndpoint } from "../config/api";
+import { authFetch } from "./apiClient";
 
 class ApiService {
     constructor() {
         this.baseURL = API_CONFIG.baseURL;
-        this.token = null;
-        this.credentials = {
-            email: API_CONFIG.serviceAccount.email,
-            password: API_CONFIG.serviceAccount.password
-        };
+        // User-side app: token comes from user login (localStorage)
     }
 
-    // Internal authentication - not user-facing
+    // Backwards compatible no-op (older hooks call these)
     async authenticate() {
-        try {
-            const response = await fetch(getApiUrl(API_CONFIG.endpoints.auth.login), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify(this.credentials)
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                this.token = data.access_token || data.token || data.access;
-                console.log('Service authenticated successfully');
-                return { success: true, token: this.token };
-            } else {
-                console.error('Authentication failed:', data);
-                return { success: false, error: data.error || data.detail || 'Authentication failed' };
-            }
-        } catch (error) {
-            console.error('Authentication error:', error);
-            return { success: false, error: 'Network error during authentication' };
-        }
+        return { success: true };
     }
 
-    // Set service credentials (call this during app initialization)
-    setCredentials(email, password) {
-        this.credentials = { email, password };
+    setCredentials() {
+        // no-op in user app
     }
 
-    // Ensure we have a valid token
     async ensureAuthenticated() {
-        if (!this.token) {
-            const authResult = await this.authenticate();
-            if (!authResult.success) {
-                throw new Error(authResult.error);
-            }
-        }
-        return this.token;
+        // no-op: authFetch reads token from localStorage
+        return true;
     }
 
     // Generic API request with authentication
     async apiRequest(endpoint, options = {}) {
-        await this.ensureAuthenticated();
-
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${this.token}`,
-                ...options.headers
-            },
-            ...options
-        };
-
         try {
-            const response = await fetch(`${this.baseURL}${endpoint}`, config);
-            
-            // If unauthorized, try to re-authenticate once
-            if (response.status === 401) {
-                this.token = null;
-                await this.ensureAuthenticated();
-                config.headers['Authorization'] = `Bearer ${this.token}`;
-                const retryResponse = await fetch(`${this.baseURL}${endpoint}`, config);
-                return await this.handleResponse(retryResponse);
-            }
+            const response = await authFetch(endpoint, {
+                auth: true,
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    ...options.headers
+                }
+            });
 
             return await this.handleResponse(response);
         } catch (error) {
@@ -174,7 +128,9 @@ class ApiService {
     // Fetch user orders (if user-specific endpoint exists)
     async fetchUserOrders(userId) {
         try {
-            const result = await this.apiRequest(`/users/${userId}/orders/`);
+            // Backend in this project doesn't expose /users/{id}/orders/; keep method for compatibility.
+            const endpoint = buildEndpoint(API_CONFIG.endpoints.orders.userOrders, { userId });
+            const result = await this.apiRequest(endpoint);
             
             if (result.success) {
                 return { success: true, orders: result.data };

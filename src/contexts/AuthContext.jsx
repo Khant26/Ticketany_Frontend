@@ -3,31 +3,35 @@ import axios from "axios";
 
 const AuthContext = createContext();
 
+const API_BASE = "http://127.0.0.1:8000/api";
+
 const AuthContextProvider = ({ children}) => {
     let [user, setUser] = useState(null);
     let [loading, setLoading] = useState(false);
 
-    let getUser = async (token) => {
+    let getUser = async () => {
         try {
-            let res = await axios.get('http://127.0.0.1:8000/api/users', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                setUser(null);
+                return;
+            }
+
+            // Use the existing customers endpoint; many setups return a list
+            let res = await axios.get(`${API_BASE}/customers/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             
             if (res.status === 200) {
-                if (res.data && res.data.length > 0) {
-                    setUser(res.data[0]); 
-                } else {
-                    console.log('No user data found');
-                    setUser(null);
-                }
+                if (Array.isArray(res.data)) setUser(res.data[0] || null);
+                else setUser(res.data || null);
             }
         } catch (error) {
             // Handle authentication errors
             if (error.response?.status === 401) {
                 console.log('Unauthenticated - invalid token');
-                localStorage.removeItem("token");
+                localStorage.removeItem("access_token");
+                localStorage.removeItem("refresh_token");
                 setUser(null);
             } else {
                 console.error('Error fetching user:', error);
@@ -39,19 +43,26 @@ const AuthContextProvider = ({ children}) => {
     let login = async (credentials) => {
         setLoading(true);
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/login', credentials);
-            
-            if (response.status === 200 && response.data.token) {
-                localStorage.setItem('token', response.data.token);
-                await getUser(response.data.token);
+            const response = await axios.post(`${API_BASE}/auth/login/`, credentials, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (response.status === 200) {
+                const access = response.data?.access_token || response.data?.access || response.data?.token;
+                const refresh = response.data?.refresh_token || response.data?.refresh;
+
+                if (access) localStorage.setItem('access_token', access);
+                if (refresh) localStorage.setItem('refresh_token', refresh);
+                localStorage.setItem('user_data', JSON.stringify(response.data));
+                await getUser();
                 return { success: true };
-            } else {
-                return { success: false, error: 'Login failed. Please check your credentials.' };
             }
+
+            return { success: false, error: 'Login failed. Please check your credentials.' };
         } catch (error) {
             return { 
                 success: false, 
-                error: error.response?.data?.message || 'Login failed. Please try again.' 
+                error: error.response?.data?.detail || error.response?.data?.error || error.response?.data?.message || 'Login failed. Please try again.' 
             };
         } finally {
             setLoading(false);
@@ -59,15 +70,15 @@ const AuthContextProvider = ({ children}) => {
     }
 
     let logout = () => {
-        localStorage.removeItem("token");
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("user_data");
         setUser(null);
     }
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            getUser(token);
-        }
+        const token = localStorage.getItem('access_token');
+        if (token) getUser();
     }, [])
 
     console.log(user)
