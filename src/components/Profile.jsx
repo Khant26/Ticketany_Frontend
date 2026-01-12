@@ -144,19 +144,12 @@ function Profile() {
   // 2) Fetch from backend: orders, tickets, and events, scoped to current user
   const fetchData = async () => {
     const API_BASE_URL = "http://127.0.0.1:8000";
-    // Note: backend already scopes /api/tickets/ and /api/orders/ to the logged-in user.
-    // Don't block fetching on userId; userId may be missing until after login completes.
-    const derivedUserId = getCurrentUserId() ?? getUserIdFromToken();
-    if (derivedUserId != null && derivedUserId !== userId) {
-      setUserId(derivedUserId);
+    if (!userId) {
+      setOrders([]);
+      return;
     }
 
     const token = localStorage.getItem("access_token");
-    if (!token) {
-      setOrders([]);
-      setError("Please sign in to view your orders.");
-      return;
-    }
     const headers = {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -165,9 +158,9 @@ function Profile() {
     setLoading(true);
     setError("");
     try {
-      // Tickets contain the fields used by the table (passport_name, facebook_name, member_code, ...)
-      // Grouping by ticket.order is the most reliable way to show rows.
-      const [ticketsRes, eventsRes] = await Promise.all([
+      // Fetch all orders, tickets, and events, then filter/group client-side
+      const [ordersRes, ticketsRes, eventsRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/orders/`, { headers }),
         fetch(`${API_BASE_URL}/api/tickets/`, { headers }),
         fetch(`${API_BASE_URL}/api/events/`, { headers }),
       ]);
@@ -183,28 +176,30 @@ function Profile() {
         }
       };
 
-      const [ticketsDataRaw, eventsDataRaw] = await Promise.all([
+      const [ordersDataRaw, ticketsDataRaw, eventsDataRaw] = await Promise.all([
+        parseMaybeJson(ordersRes),
         parseMaybeJson(ticketsRes),
         parseMaybeJson(eventsRes),
       ]);
 
-      if (!ticketsRes.ok) {
-        const msg =
-          ticketsRes.status === 401 || ticketsRes.status === 403
-            ? "Unauthorized. Please sign in again."
-            : typeof ticketsDataRaw === "string"
-              ? ticketsDataRaw
-              : JSON.stringify(ticketsDataRaw);
-        throw new Error(msg);
-      }
-
-      if (!eventsRes.ok) {
-        const msg =
+      if (!ordersRes.ok)
+        throw new Error(
+          typeof ordersDataRaw === "string"
+            ? ordersDataRaw
+            : JSON.stringify(ordersDataRaw)
+        );
+      if (!ticketsRes.ok)
+        throw new Error(
+          typeof ticketsDataRaw === "string"
+            ? ticketsDataRaw
+            : JSON.stringify(ticketsDataRaw)
+        );
+      if (!eventsRes.ok)
+        throw new Error(
           typeof eventsDataRaw === "string"
             ? eventsDataRaw
-            : JSON.stringify(eventsDataRaw);
-        throw new Error(msg);
-      }
+            : JSON.stringify(eventsDataRaw)
+        );
 
       const toArray = (data) => {
         if (Array.isArray(data)) return data;
@@ -215,6 +210,7 @@ function Profile() {
         return [];
       };
 
+      const allOrdersArray = toArray(ordersDataRaw);
       const allTicketsArray = toArray(ticketsDataRaw);
       const allEventsArray = toArray(eventsDataRaw);
 
@@ -225,118 +221,89 @@ function Profile() {
         return acc;
       }, {});
 
-      const pick = (obj, keys, fallback = null) => {
-        for (const k of keys) {
-          const v = obj?.[k];
-          if (v !== undefined && v !== null && v !== "") return v;
-        }
-        return fallback;
-      };
+      // Only orders for this user
+      const myOrders = allOrdersArray.filter((o) => {
+        const customerId = normalizeId(o?.customer);
+        return Number(customerId) === Number(userId);
+      });
 
-      // Group tickets by order id (this is the key join in your sample JSON)
+      // Group tickets by order id
       const ticketsByOrder = allTicketsArray.reduce((acc, t) => {
-        const orderId = normalizeId(pick(t, ["order", "order_id", "orderId"], null));
+        const orderId = normalizeId(t?.order);
         if (!orderId) return acc;
         if (!acc[orderId]) acc[orderId] = [];
         acc[orderId].push(t);
         return acc;
       }, {});
 
-      const mapTicketRow = (t, normalizedMeta) => {
-        const selling = pick(t, ["selling_price", "sellingPrice"], null);
-        const fst = pick(t, ["fst_pt", "fstPt"], null);
-        const eventPrice = normalizedMeta?.ticket_price ?? "—";
+      // Map into UI groups expected by this component
+      const mapped = myOrders.map((o) => {
+        const oid = o?.id;
+        const tickets = ticketsByOrder[oid] || [];
+        const mappedTickets = tickets.map((t) => ({
+          userName: t?.passport_name || "—",
+          facebookName: t?.facebook_name || "—",
+          memberCode: t?.member_code || "—",
+          priorityDate: t?.priority_date || "",
+          firstPriorityTicket: t?.fst_pt || "",
+          secondPriorityTicket: t?.snd_pt || "",
+          thirdPriorityTicket: t?.trd_pt || "",
+          price: t?.fst_pt || "",
+          status: t?.status || "Pending",
+          refundStatus: t?.refund_status || "none", // NEW: Include refund status for cancelled tickets
+        }));
+
+        // Ensure we render at least one row per order even when there are no tickets yet
+        if (mappedTickets.length === 0) {
+          mappedTickets.push({
+            userName: "—",
+            facebookName: "—",
+            memberCode: "—",
+            priorityDate: "",
+            firstPriorityTicket: "",
+            secondPriorityTicket: "",
+            thirdPriorityTicket: "",
+            status: "Pending",
+            refundStatus: "none",
+          });
+        }
+
+        // Determine the event id for this order: prefer order.event, else infer from tickets
+        let eventId = normalizeId(o?.event);
+        if (!eventId) {
+          // Try to infer from any ticket belonging to this order
+          for (const t of tickets) {
+            const tid = normalizeId(t?.event);
+            if (tid) {
+              eventId = tid;
+              break;
+            }
+          }
+        }
+
+        const ev = eventId ? eventsById[eventId] : undefined;
+        const eventTitle = ev?.event_name || "Event";
+        const normalizedMeta = ev
+          ? {
+              date: ev.event_date,
+              time: ev.event_time,
+              venue: ev.event_location,
+              image: ev.event_image,
+            }
+          : undefined;
 
         return {
-          userName: pick(t, ["passport_name", "passportName"], "—"),
-          facebookName: pick(t, ["facebook_name", "facebookName"], "—"),
-          memberCode: pick(t, ["member_code", "memberCode"], "—"),
-          priorityDate: pick(t, ["priority_date", "priorityDate"], "—"),
-          firstPriorityTicket: pick(t, ["fst_pt", "fstPt"], ""),
-          secondPriorityTicket: pick(t, ["snd_pt", "sndPt"], ""),
-          thirdPriorityTicket: pick(t, ["trd_pt", "trdPt"], ""),
-          // Your sample JSON encodes price inside fst_pt like "Zone1 - 1000THB"
-          price:
-            selling ??
-            fst ??
-            (typeof eventPrice === "string" || typeof eventPrice === "number"
-              ? String(eventPrice)
-              : JSON.stringify(eventPrice)),
-          status: pick(t, ["status"], "pending"),
-          refundStatus: pick(t, ["refund_status", "refundStatus"], "none"),
+          orderId: oid,
+          eventTitle,
+          eventMeta: normalizedMeta,
+          allOrders: mappedTickets,
         };
-      };
-
-      let mapped = [];
-
-      const hasOrderGrouping = Object.keys(ticketsByOrder).length > 0;
-
-      if (hasOrderGrouping) {
-        // Preferred: group by order id
-        mapped = Object.entries(ticketsByOrder)
-          .map(([orderId, tickets]) => {
-            const first = tickets?.[0];
-            const eventId = normalizeId(pick(first, ["event", "event_id", "eventId"], null));
-            const ev = eventId ? eventsById[eventId] : undefined;
-
-            const eventTitle =
-              ev?.event_name || pick(first, ["event_name", "eventName"], null) || "Event";
-
-            const normalizedMeta = ev
-              ? {
-                  date: ev.event_date,
-                  time: ev.event_time,
-                  venue: ev.event_location,
-                  image: ev.event_image,
-                  ticket_price: ev.ticket_price,
-                }
-              : undefined;
-
-            return {
-              orderId: Number(orderId),
-              eventTitle,
-              eventMeta: normalizedMeta,
-              allOrders: (tickets || []).map((t) => mapTicketRow(t, normalizedMeta)),
-            };
-          })
-          .sort((a, b) => Number(b.orderId || 0) - Number(a.orderId || 0));
-      } else {
-        // Fallback: if API doesn't return `order`, show each ticket under its own ID.
-        // This keeps the UI usable without changing backend.
-        mapped = allTicketsArray
-          .map((t) => {
-            const eventId = normalizeId(pick(t, ["event", "event_id", "eventId"], null));
-            const ev = eventId ? eventsById[eventId] : undefined;
-
-            const eventTitle =
-              ev?.event_name || pick(t, ["event_name", "eventName"], null) || "Event";
-
-            const normalizedMeta = ev
-              ? {
-                  date: ev.event_date,
-                  time: ev.event_time,
-                  venue: ev.event_location,
-                  image: ev.event_image,
-                  ticket_price: ev.ticket_price,
-                }
-              : undefined;
-
-            const ticketId = normalizeId(pick(t, ["id"], null));
-
-            return {
-              orderId: ticketId ?? null,
-              eventTitle,
-              eventMeta: normalizedMeta,
-              allOrders: [mapTicketRow(t, normalizedMeta)],
-            };
-          })
-          .sort((a, b) => Number(b.orderId || 0) - Number(a.orderId || 0));
-      }
+      });
 
       setOrders(mapped);
       // Persist a snapshot locally per-user
       try {
-        const cacheKey = `userOrders_${derivedUserId ?? "unknown"}`;
+        const cacheKey = `userOrders_${userId}`;
         localStorage.setItem(cacheKey, JSON.stringify(mapped));
         // Clean up old global cache to avoid future confusion
         if (localStorage.getItem("userOrders")) {
@@ -360,11 +327,12 @@ function Profile() {
 
   // NEW: Polling to refetch data every 10 seconds for near-real-time updates
   useEffect(() => {
+    if (!userId) return;
     const interval = setInterval(() => {
       fetchData();
     }, 10000); // Adjust interval as needed (e.g., 5000 for 5 seconds)
     return () => clearInterval(interval); // Cleanup on unmount
-  }, []);
+  }, [userId]);
 
   const openOrderDetails = (orderGroup, ticket) => {
     setSelectedOrder(orderGroup);
@@ -531,11 +499,6 @@ function Profile() {
 
           {/* Orders / Tickets Table */}
           <div className="px-4 sm:px-4 py-4 pb-1 overflow-x-auto ">
-            {error ? (
-              <div className="mb-4 rounded border border-red-200 bg-red-50 px-4 py-3 text-red-700">
-                {error}
-              </div>
-            ) : null}
             {/* Desktop Headers */}
             <div className="hidden md:block relative">
               <div className="grid grid-cols-8 pr-0 px-4 py-4 sm:pb-9">
@@ -600,7 +563,7 @@ function Profile() {
                         <div className="text-base lg:text-lg whitespace-nowrap">
                           {ticketIndex === 0 && (
                             <div className="font-medium text-black">
-                              {orderGroup.orderId ?? "—"}
+                              {orderGroup.orderId || "00001"}
                             </div>
                           )}
                         </div>
@@ -649,7 +612,7 @@ function Profile() {
                                 {t("profile.id")}
                               </span>
                               <span className="font-medium text-black">
-                                {orderGroup.orderId ?? "—"}
+                                {orderGroup.orderId || "00001"}
                               </span>
                             </div>
                             <div className="flex justify-between text-sm">
