@@ -137,105 +137,57 @@ function OrderForm({
     setSubmitError("");
 
     try {
-      // Normalize backend status choices; keep hidden default as PENDING
-      const STATUS_MAP = {
-        pending: "PENDING",
-        confirmed: "CONFIRMED",
-        cancelled: "CANCELLED",
-      };
-      // Create order first
-      let customerId = null;
-      try {
-        const raw = localStorage.getItem("user_data");
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          customerId = parsed?.id || parsed?.user?.id || null;
-        }
-      } catch (_) {
-        /* ignore parse errors */
-      }
-
+      // Get authentication token
       const token = localStorage.getItem("access_token");
-      const orderRes = await fetch(`${API_BASE_URL}/api/orders/`, {
+      
+      // Prepare all tickets for batch creation
+      const ticketsPayload = allOrders.map(entry => ({
+        passport_name: entry.userName,
+        facebook_name: entry.facebookName,
+        member_code: entry.memberCode || null,
+        priority_date: entry.priorityDate || null,
+        fst_pt: entry.firstPriorityTicket || null,
+        snd_pt: entry.secondPriorityTicket || null,
+        trd_pt: entry.thirdPriorityTicket || null,
+      }));
+
+      // Single API call to create all tickets in one order
+      const response = await fetch(`${API_BASE_URL}/api/tickets/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
-          customer: customerId,
-          event: eventId ?? null,
+          event: eventId,
+          tickets: ticketsPayload  // This triggers batch creation
         }),
       });
 
-      const orderData = await (async () => {
-        const ct = orderRes.headers.get("content-type") || "";
+      const responseData = await (async () => {
+        const ct = response.headers.get("content-type") || "";
         return ct.includes("application/json")
-          ? orderRes.json()
-          : orderRes.text();
+          ? response.json()
+          : response.text();
       })();
 
-      if (!orderRes.ok) {
+      if (!response.ok) {
         throw new Error(
-          typeof orderData === "string" ? orderData : JSON.stringify(orderData)
+          typeof responseData === "string" ? responseData : JSON.stringify(responseData)
         );
       }
 
-      const createdOrderId =
-        typeof orderData === "object" ? orderData.id : null;
-
-      // Create tickets for each collected entry
-      for (const entry of allOrders) {
-        const ticketPayload = {
-          passport_name: entry.userName,
-          facebook_name: entry.facebookName,
-          member_code: entry.memberCode || null,
-          priority_date: entry.priorityDate || null,
-          fst_pt: entry.firstPriorityTicket || null,
-          snd_pt: entry.secondPriorityTicket || null,
-          trd_pt: entry.thirdPriorityTicket || null,
-          // Omit status to allow backend default choice
-          event: eventId ?? null,
-          order: createdOrderId,
-        };
-
-        const ticketRes = await fetch(`${API_BASE_URL}/api/tickets/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify(ticketPayload),
-        });
-
-        const ticketData = await (async () => {
-          const ct = ticketRes.headers.get("content-type") || "";
-          return ct.includes("application/json")
-            ? ticketRes.json()
-            : ticketRes.text();
-        })();
-
-        if (!ticketRes.ok) {
-          throw new Error(
-            typeof ticketData === "string"
-              ? ticketData
-              : JSON.stringify(ticketData)
-          );
-        }
-      }
-
-      // Success: show completion with server order id
-      setOrderId(String(createdOrderId ?? ""));
+      // Success: show completion with the order id from response
+      setOrderId(String(responseData.order_id || ""));
       setShowOrderConfirm(false);
       setShowOrderComplete(true);
-      // Optionally clear local orders
-      // setAllOrders([]);
+      
+      console.log(`Successfully created ${responseData.total_tickets} tickets in order ${responseData.order_id}`);
+      
     } catch (err) {
       const msg = err?.message || "Failed to submit order";
       setSubmitError(msg);
       // Keep confirmation modal open so user can retry
-      // Lightweight fallback without altering layout
-      // eslint-disable-next-line no-alert
       alert(`Order submission failed: ${msg}`);
     } finally {
       setSubmitting(false);
