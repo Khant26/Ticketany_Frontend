@@ -82,23 +82,48 @@ function EventPageDetails() {
     );
   }
 
-  // Helper to get images array from event
+  // Function to format ticket prices for display
+  const formatTicketPrices = (priceData) => {
+    if (!priceData) return "TBD";
+    
+    try {
+      // If it's already a string, try to parse it
+      let prices = priceData;
+      if (typeof priceData === 'string') {
+        prices = JSON.parse(priceData);
+      }
+      
+      // Handle different price formats
+      if (typeof prices === 'number') {
+        return `$${prices}`;
+      }
+      
+      if (Array.isArray(prices)) {
+        return prices.map(price => `$${price}`).join(", ");
+      }
+      
+      if (typeof prices === 'object') {
+        return Object.entries(prices)
+          .map(([tier, price]) => `${tier.charAt(0).toUpperCase() + tier.slice(1)}: $${price}`)
+          .join(", ");
+      }
+      
+      return String(prices);
+    } catch (error) {
+      // If parsing fails, display as is
+      return String(priceData);
+    }
+  };
+    
+  // Function to get event images from various possible formats
   const getEventImages = (event) => {
-    if (!event) return [];
+    // Use the new images array structure with image_url
+    if (event?.images?.length > 0) {
+      console.log("getEventImages - Using images array with image_url");
+      return event.images.map(img => img.image_url).filter(Boolean);
+    }
 
-    console.log("getEventImages - Processing event:", event.event_name);
-    console.log(
-      "getEventImages - event_images:",
-      event.event_images,
-      typeof event.event_images
-    );
-    console.log(
-      "getEventImages - event_image:",
-      typeof event.event_image,
-      event.event_image?.substring?.(0, 100) + "..."
-    );
-
-    // WORKAROUND: Parse multiple images from comma-separated string in event_image
+    // FALLBACK: Parse multiple images from comma-separated string in event_image
     if (event.event_image && typeof event.event_image === "string") {
       if (event.event_image.includes("|||SEPARATOR|||")) {
         // Multiple images stored as separated string
@@ -244,7 +269,7 @@ function EventPageDetails() {
               <div className="flex items-start">
                 <span className="text-lg font-semibold min-w-[80px]">{t("event.price")}</span>
                 <span className="text-lg font-semibold ml-4 break-words line-clamp-2">
-                  {eventDetail?.ticket_price ? `${eventDetail?.ticket_price}` : "TBD"}
+                  {formatTicketPrices(eventDetail?.ticket_price)}
                 </span>
               </div>
             </div>
@@ -276,7 +301,7 @@ function EventPageDetails() {
         eventDates={eventDetail?.event_date || "TBD"}
         eventTime={eventDetail?.event_time || "TBD"}
         eventLocation={eventDetail?.event_location || "TBD"}
-        eventImage={images[0] || null}
+        eventImage={images?.length > 0 ? images[0] : null}
         eventPrices={eventDetail?.ticket_price || "TBD"}
         eventId={eventDetail?.id}
       />
@@ -285,3 +310,4 @@ function EventPageDetails() {
 }
 
 export default EventPageDetails;
+  

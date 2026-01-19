@@ -29,11 +29,14 @@ function Category({ selectedCategory, setSelectedCategory }) {
                 : "text-gray-500 font-semibold hover:text-[#e51f4b] cursor-pointer"
             }`}
         >
-          {cat.category_image && (
+          {cat.category_image_url && (
             <img
-              src={cat.category_image}
+              src={cat.category_image_url}
               alt={cat.category_name}
               className="w-8 h-8 rounded-full object-cover border border-gray-300"
+              onError={(e) => {
+                e.currentTarget.src = "https://placehold.co/32x32/e2e8f0/666?text=" + encodeURIComponent(cat.category_name.charAt(0));
+              }}
             />
           )}
           <span>{cat.category_name}</span>

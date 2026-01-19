@@ -217,20 +217,35 @@ function OrderForm({
   const parsePrices = (priceInput) => {
     if (!priceInput) return [];
 
-    if (Array.isArray(priceInput)) {
-      return priceInput
+    // If it's a string, try to parse as JSON first
+    let prices = priceInput;
+    if (typeof priceInput === "string") {
+      try {
+        prices = JSON.parse(priceInput);
+      } catch {
+        // If not valid JSON, treat as comma-separated string
+        return priceInput
+          .split(",")
+          .map((p) => p.trim())
+          .filter((p) => p.length > 0);
+      }
+    }
+
+    if (Array.isArray(prices)) {
+      return prices
         .map((p) => String(p).trim())
         .filter((p) => p.length > 0);
     }
 
-    if (typeof priceInput === "string") {
-      return priceInput
-        .split(",")
-        .map((p) => p.trim())
+    if (typeof prices === "object" && prices !== null) {
+      // Handle price objects like {"vip": 100, "regular": 50}
+      return Object.values(prices)
+        .map((p) => String(p).trim())
         .filter((p) => p.length > 0);
     }
 
-    return [];
+    // Single number or string
+    return [String(prices).trim()].filter((p) => p.length > 0);
   };
   const availableDates = parseDates(eventDates);
   const availablePrices = parsePrices(eventPrices);

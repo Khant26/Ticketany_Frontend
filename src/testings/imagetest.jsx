@@ -41,9 +41,14 @@ function ImageTest() { // Capitalized component name
   const getEventImages = (event) => {
     if (!event) return [];
     
-    // Check if event has multiple images in event_images array
+    // Use the new images array structure with image_url
+    if (event.images && Array.isArray(event.images) && event.images.length > 0) {
+      return event.images.map(img => img.image_url).filter(Boolean);
+    }
+    
+    // Check if event has multiple images in event_images array (fallback)
     if (event.event_images && Array.isArray(event.event_images) && event.event_images.length > 0) {
-      return event.event_images.map(img => img.data || img.image || img);
+      return event.event_images.map(img => img.data || img.image_url || img);
     }
     // Fallback to single image
     if (event.event_image) {

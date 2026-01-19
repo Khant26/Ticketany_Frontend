@@ -73,7 +73,7 @@ function Testing() {
                             <div className="h-48 bg-gradient-to-r from-blue-400 to-purple-500">
                                 {event.event_image ? (
                                     <img 
-                                        src={event.event_image} 
+                                        src={event.images?.[0]?.image_url || event.event_image} 
                                         alt={event.event_name} 
                                         className="w-full h-full object-cover"
                                     />

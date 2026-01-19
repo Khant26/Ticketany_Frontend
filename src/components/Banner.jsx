@@ -11,15 +11,13 @@ function Banner() {
         const response = await axios.get("http://127.0.0.1:8000/api/banners/");
         const bannerData = response.data.map((b) => ({
           id: b.id,
-          image:
-            b.banner_image && b.banner_image.length > 0
-              ? b.banner_image[0] // use base64 directly
-              : "https://via.placeholder.com/1200x400",
+          image: b.banner_image_url || "https://placehold.co/1200x400/e2e8f0/666?text=Banner",
+          banner_image_url: b.banner_image_url,
           description: b.banner_name || "Event Banner",
         }));
         console.log(
-          "Banner images:",
-          bannerData.map((b) => b.image)
+          "Banner data:",
+          bannerData.map((b) => ({ id: b.id, name: b.description, hasImage: !!b.banner_image_url }))
         );
         setBanner(bannerData);
       } catch (error) {

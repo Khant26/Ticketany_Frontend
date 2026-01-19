@@ -18,7 +18,7 @@ function ImageSlider({ banner }) {
   
   <div className="relative w-full h-[200px] sm:h-[240px] md:h-[280px] lg:h-[320px] xl:h-[360px] overflow-hidden">
     <img
-      src={banner[currentImageIndex].image}
+      src={banner[currentImageIndex].banner_image_url || banner[currentImageIndex].image}
       alt={banner[currentImageIndex].description}
       className="w-full h-full object-cover transition-transform duration-500 ease-in-out transform-gpu will-change-transform hover:scale-[1.03]"
 

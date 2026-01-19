@@ -41,6 +41,12 @@ function AllEventsPage({ selectedCategory: propCategory }) {
   };
 
   const getCoverImageFromEvent = (event) => {
+    // Use the new images array structure with image_url
+    if (event?.images?.length > 0) {
+      return event.images[0].image_url; // Use image_url from EventImageSerializer
+    }
+    
+    // Fallback for old event_image format (for backward compatibility)
     if (event?.event_image && typeof event.event_image === "string") {
       if (event.event_image.includes(IMAGE_SEPARATOR)) {
         return event.event_image.split(IMAGE_SEPARATOR).filter(Boolean)[0];
