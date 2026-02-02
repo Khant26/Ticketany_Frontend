@@ -1,14 +1,14 @@
 // API Configuration
-// Replace these with your actual service account credentials
+// Uses environment variables from .env file
 
 export const API_CONFIG = {
-    baseURL: 'http://127.0.0.1:8000/api',
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api',
     
     // Service account credentials for backend authentication
     // These should be admin/service credentials, not user credentials
     serviceAccount: {
-        email: 'admin@ticketanywhere.com', // Replace with your service email
-        password: 'your-service-password'   // Replace with your service password
+        email: import.meta.env.VITE_SERVICE_EMAIL || 'admin@ticketanywhere.com',
+        password: import.meta.env.VITE_SERVICE_PASSWORD || 'your-service-password'
     },
     
     // API endpoints
@@ -32,8 +32,8 @@ export const API_CONFIG = {
     },
     
     // Request configuration
-    timeout: 10000, // 10 seconds
-    retryAttempts: 3
+    timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '10000'),
+    retryAttempts: parseInt(import.meta.env.VITE_RETRY_ATTEMPTS || '3')
 };
 
 // Helper function to get API endpoint URL
