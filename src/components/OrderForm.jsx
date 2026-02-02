@@ -14,7 +14,7 @@ function OrderForm({
   eventPrices,
   eventId,
 }) {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') || "http://127.0.0.1:8000/api";
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api';
 
   const { t } = useTranslation();
 
@@ -152,7 +152,7 @@ function OrderForm({
       }));
 
       // Single API call to create all tickets in one order
-      const response = await fetch(`${API_BASE_URL}/api/tickets/`, {
+      const response = await fetch(`${API_BASE_URL}/tickets/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

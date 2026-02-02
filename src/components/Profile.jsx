@@ -143,7 +143,7 @@ function Profile() {
 
   // 2) Fetch from backend: orders, tickets, and events, scoped to current user
   const fetchData = async () => {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') || "http://127.0.0.1:8000/api";
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api';
     if (!userId) {
       setOrders([]);
       return;
@@ -160,9 +160,9 @@ function Profile() {
     try {
       // Fetch all orders, tickets, and events, then filter/group client-side
       const [ordersRes, ticketsRes, eventsRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/orders/`, { headers }),
-        fetch(`${API_BASE_URL}/api/tickets/`, { headers }),
-        fetch(`${API_BASE_URL}/api/events/`, { headers }),
+        fetch(`${API_BASE_URL}/orders/`, { headers }),
+        fetch(`${API_BASE_URL}/tickets/`, { headers }),
+        fetch(`${API_BASE_URL}/events/`, { headers }),
       ]);
 
       const parseMaybeJson = async (res) => {
