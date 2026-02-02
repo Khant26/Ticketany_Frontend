@@ -143,7 +143,7 @@ function Profile() {
 
   // 2) Fetch from backend: orders, tickets, and events, scoped to current user
   const fetchData = async () => {
-    const API_BASE_URL = "http://127.0.0.1:8000";
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') || "http://127.0.0.1:8000/api";
     if (!userId) {
       setOrders([]);
       return;
