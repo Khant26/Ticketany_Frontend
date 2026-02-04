@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Logo from '../assets/logo.jpg'
 import { useTranslation } from 'react-i18next'
 
@@ -6,16 +6,118 @@ function ForgotPassword({ isOpen, onClose, onSwitchToSignIn, onSwitchToSignUp })
 
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
+  const [otpCode, setOtpCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [verify, setVerify] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const[sendCode, setSendCode] = useState("Send Code");
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
 
-  const handleSubmit = (e) => {
+  // Reset state when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setEmail('');
+      setOtpCode('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setOtpSent(false);
+      setError('');
+      setSuccess('');
+    }
+  }, [isOpen]);
+
+  const handleSendOTP = async (e) => {
     e.preventDefault();
-    console.log('Password reset email sent to:', email);
-    // Add your password reset logic here
+    setError('');
+    setSuccess('');
+
+    if (!email.trim()) {
+      setError('Please enter your email');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}auth/forgot-password/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(data?.message || data?.error || 'Failed to send OTP');
+        setIsLoading(false);
+        return;
+      }
+
+      setSuccess('✅ OTP sent to your email');
+      setOtpSent(true);
+    } catch (err) {
+      setError('Error sending OTP. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (!otpCode.trim()) {
+      setError('Please enter OTP code');
+      return;
+    }
+
+    if (!newPassword.trim()) {
+      setError('Please enter new password');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setError('Password must be at least 8 characters');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}auth/reset-password/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          otp_code: otpCode,
+          new_password: newPassword,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(data?.message || data?.error || 'Failed to reset password');
+        setIsLoading(false);
+        return;
+      }
+
+      setSuccess('✅ Password reset successfully! Please login.');
+      setTimeout(() => {
+        onClose();
+      }, 2000);
+    } catch (err) {
+      setError('Error resetting password. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleBackdropClick = (e) => {
@@ -50,117 +152,136 @@ function ForgotPassword({ isOpen, onClose, onSwitchToSignIn, onSwitchToSignUp })
           ×
         </button>
 
-        <div className='text-center mb-6 flex'>
-          <img src={Logo} alt="Logo" className='w-25 h-25 object-contain mb-2' />
-          <h2 className='text-2xl text-gray-800 mt-7 ml-1'>Forgot Password?</h2>
+        <div className='text-center mb-6 flex flex-col items-center'>
+          <img src={Logo} alt="Logo" className='w-24 h-24 object-contain mb-2' />
+          <h2 className='text-2xl text-gray-800 mt-4'>Forgot Password?</h2>
         </div>
 
-        <form onSubmit={handleSubmit} className='space-y-4'>
-          <div>
-            <label htmlFor='email' className='block text-2xl font-medium text-gray-700 mb-1'>
-              Email 
-            </label>
-            <input
-              type='email'
-              id='email'
-              name='email'
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className='w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200'
-              placeholder={t("forgotPassword.emailPlaceholder")}
-              required
-            />
+        {error && (
+          <div className='mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded'>
+            {error}
           </div>
+        )}
+
+        {success && (
+          <div className='mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded'>
+            {success}
+          </div>
+        )}
+
+        <form onSubmit={!otpSent ? handleSendOTP : handleResetPassword} className='space-y-4'>
+          {!otpSent ? (
+            <>
+              <div>
+                <label htmlFor='email' className='block text-sm font-medium text-gray-700 mb-2'>
+                  Email
+                </label>
+                <input
+                  type='email'
+                  id='email'
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className='w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500'
+                  placeholder='Enter your email'
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+
+              <button
+                type='submit'
+                disabled={isLoading}
+                className='w-full text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 transform hover:scale-105 transition-all duration-200'
+                style={{ backgroundColor: '#ee6786ff' }}
+              >
+                {isLoading ? 'Sending OTP...' : 'Send OTP'}
+              </button>
+            </>
+          ) : (
+            <>
+              <h3 className='text-lg font-semibold text-gray-800 mb-4'>Enter OTP</h3>
+              <div>
+                <div className='flex justify-between items-center mb-2'>
+                  <label className='block text-sm font-medium text-gray-700'>
+                    OTP Code
+                  </label>
+                  <button
+                    type='button'
+                    onClick={handleSendOTP}
+                    disabled={isLoading}
+                    className='text-xs text-[#ee6786] hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed'
+                    style={{ backgroundColor: 'transparent', border: 'none', padding: 0 }}
+                  >
+                    Resend OTP
+                  </button>
+                </div>
+                <p className='text-xs text-gray-600 mb-2'>Check your email for the OTP code</p>
+                <input
+                  type='text'
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value)}
+                  className='w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500'
+                  placeholder='Enter OTP code'
+                  maxLength='6'
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  New Password
+                </label>
+                <input
+                  type='password'
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className='w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500'
+                  placeholder='Enter new password (minimum 8 characters)'
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  Confirm Password
+                </label>
+                <input
+                  type='password'
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className='w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500'
+                  placeholder='Confirm new password'
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+
+              <button
+                type='submit'
+                disabled={isLoading}
+                className='w-full text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 transform hover:scale-105 transition-all duration-200'
+                style={{ backgroundColor: '#ee6786ff' }}
+              >
+                {isLoading ? 'Resetting Password...' : 'Reset Password'}
+              </button>
+            </>
+          )}
 
           <div>
-            <label htmlFor='email' className='block text-2xl font-medium text-gray-700 mb-1'>
-              Enter New Password
-            </label>
-            <input
-              type='newPassword'
-              id='newPassword'
-              name='newPassword'
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className='w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200'
-              placeholder={t("forgotPassword.newPasswordPlaceholder")}
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor='email' className='block text-2xl font-medium text-gray-700 mb-1'>
-              Confirm Enter New Password
-            </label>
-            <input
-              type='confirmPassword'
-              id='confirmPassword'
-              name='confirmPassword'
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className='w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200'
-              placeholder={t("forgotPassword.confirmPasswordPlaceholder")}
-              required
-            />
-          </div>
-
-          {/* <div className='ml-70'>
-            <button
-              type='submit'
-              className = 'text-blue-600 hover:text-blue-800 text-sm'
-              style={{
-                backgroundColor: 'transparent',
-                border: 'none',
-                padding: 0,
-                margin: 0,
-              }}
-              onClick={() => {
-                if (sendCode === "Send Code"){
-                  setSendCode("Code Sent");
-                }
-              }}
-            >
-              {sendCode}
-            </button>
-          </div> */}
-
-          {/* <div>
-            <label htmlFor='verify' className='block text-2xl font-medium text-gray-700 mb-1'>
-              Verify Code
-            </label>
-            <input
-              type='int'
-              id='verify'
-              name='verify'
-              value={verify}
-              onChange={(e) => setVerify(e.target.value)}
-              className='w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200'
-              placeholder='Code'
-              required
-            />
-          </div> */}
-
-          <button
-            type='submit'
-            className='w-full text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 mt-4'
-            style={{ backgroundColor: '#ee6786ff' }}
-          >
-           {t('forgotPassword.sendCode')}
-          </button>
-                  <div>
-            <span className="text-black ml-15">{t("signIn.noAccount")}</span>
+            <span className='text-black'>{t("signIn.noAccount")}</span>
             <button 
-              type="button"
+              type='button'
               onClick={onSwitchToSignUp}
-              className="text-blue-600 hover:text-blue-800"
+              className='text-blue-600 hover:text-blue-800 ml-2'
               style={{ 
                 backgroundColor: 'transparent',
                 border: 'none',
-                padding: 4,
-                margin: 0,
+                padding: 0,
                }}
             >
-            {t("signIn.signUp")}
+              {t("signIn.signUp")}
             </button>
           </div>
         </form>

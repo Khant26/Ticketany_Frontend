@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { FaFacebookMessenger } from "react-icons/fa";
 
 function OrderDetails({
@@ -8,11 +8,54 @@ function OrderDetails({
   ticket, // specific ticket row
   meta = {}, // optional extra event meta (date, time, venue, image)
 }) {
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedPrice, setSelectedPrice] = useState("");
+
   if (!isOpen || !order || !ticket) return null;
 
   const date = meta.date || order?.eventMeta?.date || ticket.date || "";
   const time = meta.time || order?.eventMeta?.time || ticket.time || "";
   const venue = meta.venue || order?.eventMeta?.venue || ticket.venue || "";
+  const eventPrices = meta.prices || order?.eventMeta?.prices || "";
+  const eventDates = meta.dates || order?.eventMeta?.dates || "";
+
+  // Parse dates array
+  const parsedDates = useMemo(() => {
+    try {
+      if (typeof eventDates === 'string') {
+        const parsed = JSON.parse(eventDates);
+        return Array.isArray(parsed) ? parsed : [];
+      }
+      return Array.isArray(eventDates) ? eventDates : [];
+    } catch {
+      return [];
+    }
+  }, [eventDates]);
+
+  // Parse prices array
+  const parsedPrices = useMemo(() => {
+    try {
+      if (typeof eventPrices === 'string') {
+        const parsed = JSON.parse(eventPrices);
+        return Array.isArray(parsed) ? parsed : [];
+      }
+      return Array.isArray(eventPrices) ? eventPrices : [];
+    } catch {
+      return [];
+    }
+  }, [eventPrices]);
+
+  // Set initial values when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      if (parsedDates.length > 0) {
+        setSelectedDate(parsedDates[0]);
+      }
+      if (parsedPrices.length > 0) {
+        setSelectedPrice(parsedPrices[0]);
+      }
+    }
+  }, [isOpen, parsedDates, parsedPrices]);
 
   // Use same cover image extraction approach as EventGrid
   const IMAGE_SEPARATOR = "|||SEPARATOR|||";
@@ -69,7 +112,6 @@ function OrderDetails({
         {/* Event meta text block */}
         <div className="text-[15px] font-normal text-black space-y-4 mb-10">
           {order.eventTitle && <p>{order.eventTitle}</p>}
-          {date && <p>{date}</p>}
           {time && <p>{time}</p>}
           {venue && <p className="leading-snug">{venue}</p>}
         </div>
@@ -89,8 +131,39 @@ function OrderDetails({
               <span className="font-medium">Name</span>
               <span>{ticket.userName || "—"}</span>
 
+              {parsedDates.length > 0 && (
+                <>
+                  <span className="font-medium">Date</span>
+                  <select
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-md bg-white text-black focus:outline-none focus:border-[#ee6786]"
+                  >
+                    {parsedDates.map((d, idx) => (
+                      <option key={idx} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
+                </>
+              )}
+
               <span className="font-medium">Price</span>
-              <span>{getPrice(ticket)}</span>
+              {parsedPrices.length > 0 ? (
+                <select
+                  value={selectedPrice}
+                  onChange={(e) => setSelectedPrice(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-md bg-white text-black focus:outline-none focus:border-[#ee6786]"
+                >
+                  {parsedPrices.map((p, idx) => (
+                    <option key={idx} value={p}>
+                      {typeof p === 'number' ? `$${p}` : p}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <span>{getPrice(ticket)}</span>
+              )}
 
               <span className="font-medium">Order ID</span>
               <span>{order.orderId || "—"}</span>

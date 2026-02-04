@@ -26,7 +26,7 @@ function EventPageDetails() {
 
   useEffect(() => {
     const fetchEvents = async () => {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
       const response = await fetch(`${baseUrl}events/`);
       const data = await response.json();
       setEventDetails(data);
@@ -83,35 +83,78 @@ function EventPageDetails() {
     );
   }
 
+  // Function to format event dates for display
+  const formatEventDates = (dateData) => {
+    if (!dateData) return "TBD";
+    
+    try {
+      let dates = dateData;
+      
+      // If it's a string, try to parse it as JSON array
+      if (typeof dateData === 'string') {
+        try {
+          const parsed = JSON.parse(dateData);
+          if (Array.isArray(parsed)) {
+            dates = parsed;
+          }
+        } catch {
+          // If parsing fails, treat as is
+          dates = dateData;
+        }
+      }
+      
+      // Handle array format
+      if (Array.isArray(dates)) {
+        return dates.join(", ");
+      }
+      
+      // Handle single string value
+      return String(dates);
+    } catch (error) {
+      return String(dateData);
+    }
+  };
+
   // Function to format ticket prices for display
   const formatTicketPrices = (priceData) => {
     if (!priceData) return "TBD";
     
     try {
-      // If it's already a string, try to parse it
       let prices = priceData;
+      
+      // If it's a string, try to parse it as JSON array
       if (typeof priceData === 'string') {
-        prices = JSON.parse(priceData);
+        try {
+          const parsed = JSON.parse(priceData);
+          if (Array.isArray(parsed)) {
+            prices = parsed;
+          }
+        } catch {
+          // If parsing fails, treat as is
+          prices = priceData;
+        }
       }
       
-      // Handle different price formats
-      if (typeof prices === 'number') {
-        return `$${prices}`;
-      }
-      
+      // Handle array format
       if (Array.isArray(prices)) {
-        return prices.map(price => `$${price}`).join(", ");
+        return prices.join(", ");
       }
       
+      // Handle single number
+      if (typeof prices === 'number') {
+        return String(prices);
+      }
+      
+      // Handle object format
       if (typeof prices === 'object') {
         return Object.entries(prices)
-          .map(([tier, price]) => `${tier.charAt(0).toUpperCase() + tier.slice(1)}: $${price}`)
+          .map(([tier, price]) => `${tier.charAt(0).toUpperCase() + tier.slice(1)}: ${price}`)
           .join(", ");
       }
       
+      // Handle string value
       return String(prices);
     } catch (error) {
-      // If parsing fails, display as is
       return String(priceData);
     }
   };
@@ -143,8 +186,7 @@ function EventPageDetails() {
         return [event.event_image];
       }
     }
-
-    // Original logic for proper event_images array (when backend is fixed)
+// Original logic for proper event_images array (when backend is fixed)
     if (event.event_images && Array.isArray(event.event_images)) {
       const processedImages = event.event_images
         .map((img, index) => {
@@ -253,7 +295,7 @@ function EventPageDetails() {
             <div className="flex-1 space-y-4 md:space-y-5">
               <div className="flex items-start mb-7">
                 <span className="text-lg font-semibold min-w-[80px]">{t("event.date")}</span>
-                <span className="text-lg font-semibold ml-4">{eventDetail?.event_date || "TBD"}</span>
+                <span className="text-lg font-semibold ml-4">{formatEventDates(eventDetail?.event_date)}</span>
               </div>
               <div className="flex items-start mb-7">
                 <span className="text-lg font-semibold min-w-[80px]">{t("event.time")}</span>

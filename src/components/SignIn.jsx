@@ -27,7 +27,7 @@ function SignIn({ isOpen, onClose, onSwitchToSignUp, onSwitchToForgotPassword, o
     setLoading(true);
 
     try {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api';
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
       const response = await fetch(`${baseUrl}auth/login/`, {
         method: 'POST',
         headers: {

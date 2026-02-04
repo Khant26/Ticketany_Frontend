@@ -9,7 +9,16 @@ function Profile() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("orders");
   const [showChangePassword, setShowChangePassword] = useState(false);
-  const [verificationSent, setVerificationSent] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [passwordFormData, setPasswordFormData] = useState({
+    oldPassword: "",
+    otpCode: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -64,6 +73,24 @@ function Profile() {
       return nameLike || "User";
     } catch {
       return "User";
+    }
+  };
+
+  // Utility: get actual email from localStorage
+  const getUserEmail = () => {
+    try {
+      const raw = localStorage.getItem("user_data");
+      if (!raw) {
+        console.log("[getUserEmail] No user_data in localStorage");
+        return "";
+      }
+      const parsed = JSON.parse(raw);
+      const email = parsed?.email || parsed?.user?.email || "";
+      console.log("[getUserEmail] Retrieved email:", email, "from user_data:", parsed);
+      return email;
+    } catch (e) {
+      console.error("[getUserEmail] Error parsing user_data:", e);
+      return "";
     }
   };
 
@@ -143,7 +170,7 @@ function Profile() {
 
   // 2) Fetch from backend: orders, tickets, and events, scoped to current user
   const fetchData = async () => {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api';
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
     if (!userId) {
       setOrders([]);
       return;
@@ -160,9 +187,9 @@ function Profile() {
     try {
       // Fetch all orders, tickets, and events, then filter/group client-side
       const [ordersRes, ticketsRes, eventsRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/orders/`, { headers }),
-        fetch(`${API_BASE_URL}/tickets/`, { headers }),
-        fetch(`${API_BASE_URL}/events/`, { headers }),
+        fetch(`${API_BASE_URL}orders/`, { headers }),
+        fetch(`${API_BASE_URL}tickets/`, { headers }),
+        fetch(`${API_BASE_URL}events/`, { headers }),
       ]);
 
       const parseMaybeJson = async (res) => {
@@ -340,13 +367,176 @@ function Profile() {
     setShowOrderDetails(true);
   };
 
-  const handleSendVerification = () => {
-    setVerificationSent(true);
+  // Step 1: Verify old password and send OTP
+  const handleSendOTP = async () => {
+    setPasswordError("");
+    setPasswordSuccess("");
+
+    if (!passwordFormData.oldPassword.trim()) {
+      setPasswordError("Please enter your old password");
+      return;
+    }
+
+    setChangingPassword(true);
+    
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
+      const userEmail = getUserEmail();
+      
+      if (!userEmail) {
+        setPasswordError("Unable to find your email. Please log in again.");
+        setChangingPassword(false);
+        return;
+      }
+
+      console.log("[handleSendOTP] Starting password verification for email:", userEmail);
+
+      // Step 1: Verify old password by attempting login
+      try {
+        console.log("[handleSendOTP] Verifying old password...");
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        const loginRes = await fetch(`${API_BASE_URL}auth/login/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: userEmail, password: passwordFormData.oldPassword }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+        console.log("[handleSendOTP] Login verification response status:", loginRes.status);
+
+        if (!loginRes.ok) {
+          const loginData = await loginRes.json().catch(() => ({}));
+          console.log("[handleSendOTP] Password verification failed:", loginData);
+          setPasswordError("❌ Old password is incorrect. Please try again.");
+          setChangingPassword(false);
+          return;
+        }
+
+        console.log("[handleSendOTP] Old password verified successfully!");
+      } catch (loginError) {
+        console.error("[handleSendOTP] Login error:", loginError);
+        if (loginError.name === 'AbortError') {
+          setPasswordError("⏱️ Password verification timeout. Please check your internet connection.");
+        } else {
+          setPasswordError("Error verifying password. Please check your internet connection.");
+        }
+        setChangingPassword(false);
+        return;
+      }
+
+      // Step 2: Old password verified, now send OTP using forgot-password endpoint
+      try {
+        console.log("[handleSendOTP] Sending OTP to:", userEmail);
+        console.log("[handleSendOTP] API Base URL:", API_BASE_URL);
+
+        const otpRes = await fetch(`${API_BASE_URL}auth/forgot-password/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: userEmail }),
+        });
+
+        console.log("[handleSendOTP] OTP API response status:", otpRes.status);
+        const otpData = await otpRes.json().catch(() => ({}));
+        console.log("[handleSendOTP] OTP API response data:", otpData);
+
+        if (!otpRes.ok) {
+          console.log("[handleSendOTP] OTP send failed with status:", otpRes.status);
+          setPasswordError(otpData?.message || otpData?.error || "Failed to send OTP. Please try again.");
+          setChangingPassword(false);
+          return;
+        }
+
+        console.log("[handleSendOTP] OTP sent successfully!");
+        setPasswordSuccess("✅ Password verified! OTP sent to your email.");
+        setOtpSent(true);
+      } catch (otpError) {
+        console.error("[handleSendOTP] OTP error:", otpError);
+        console.error("[handleSendOTP] OTP error details:", otpError.message);
+        setPasswordError("Error sending OTP. Please try again.");
+        setChangingPassword(false);
+        return;
+      }
+    } catch (e) {
+      console.error("[handleSendOTP] Unexpected error:", e);
+      setPasswordError("An unexpected error occurred. Please try again.");
+      setChangingPassword(false);
+    } finally {
+      setChangingPassword(false);
+    }
   };
 
-  const handleConfirmPassword = () => {
-    setShowChangePassword(false);
-    setVerificationSent(false);
+  // Step 2: Reset password with OTP verification
+  const handleResetPassword = async () => {
+    setPasswordError("");
+    setPasswordSuccess("");
+
+    if (!passwordFormData.otpCode.trim()) {
+      setPasswordError("Please enter the OTP code");
+      return;
+    }
+
+    if (!passwordFormData.newPassword.trim()) {
+      setPasswordError("Please enter a new password");
+      return;
+    }
+
+    if (passwordFormData.newPassword !== passwordFormData.confirmPassword) {
+      setPasswordError("New passwords do not match");
+      return;
+    }
+
+    if (passwordFormData.newPassword.length < 8) {
+      setPasswordError("Password must be at least 8 characters long");
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
+      const userEmail = getUserEmail();
+
+      if (!userEmail) {
+        setPasswordError("Unable to retrieve your email. Please log in again.");
+        return;
+      }
+
+      console.log("[handleResetPassword] Calling reset-password API with OTP validation...");
+      const resetRes = await fetch(`${API_BASE_URL}auth/reset-password/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: userEmail,
+          otp_code: passwordFormData.otpCode,
+          new_password: passwordFormData.newPassword,
+        }),
+      });
+
+      console.log("[handleResetPassword] Reset password response status:", resetRes.status);
+
+      if (!resetRes.ok) {
+        const data = await resetRes.json().catch(() => ({}));
+        console.log("[handleResetPassword] Reset password failed:", data);
+        setPasswordError(data?.message || data?.error || "Invalid OTP or failed to reset password. Please try again.");
+        setChangingPassword(false);
+        return;
+      }
+
+      const responseData = await resetRes.json().catch(() => ({}));
+      setPasswordSuccess("✅ " + (responseData?.message || "Password changed successfully!"));
+      setTimeout(() => {
+        setShowChangePassword(false);
+        setOtpSent(false);
+        setPasswordFormData({ oldPassword: "", otpCode: "", newPassword: "", confirmPassword: "" });
+      }, 2000);
+    } catch (e) {
+      console.error("[handleResetPassword] Error:", e);
+      setPasswordError(e.message || "Failed to reset password");
+    } finally {
+      setChangingPassword(false);
+    }
   };
 
   const user = { name: getDisplayName() };
@@ -678,9 +868,15 @@ function Profile() {
         >
           <div className="bg-white rounded-lg shadow-2xl p-6 sm:p-8 w-full max-w-md transition-transform duration-300 transform scale-100">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg sm:text-xl font-semibold"></h3>
+              <h3 className="text-lg sm:text-xl font-semibold">Change Password</h3>
               <button
-                onClick={() => setShowChangePassword(false)}
+                onClick={() => {
+                  setShowChangePassword(false);
+                  setOtpSent(false);
+                  setPasswordFormData({ oldPassword: "", otpCode: "", newPassword: "", confirmPassword: "" });
+                  setPasswordError("");
+                  setPasswordSuccess("");
+                }}
                 className="text-gray-700 hover:text-gray-600 text-2xl font-bold"
                 style={{
                   backgroundColor: "transparent",
@@ -698,50 +894,140 @@ function Profile() {
                 alt="Logo"
                 className="w-24 h-24 object-contain mb-2"
               />
-              <h2 className="text-2xl text-gray-800 mt-4">
-                {t("changepw.title")}
-              </h2>
+              <h2 className="text-2xl text-gray-800 mt-4">Change Your Password</h2>
             </div>
 
-            <form
-              className="space-y-4 text-black"
-              onSubmit={(e) => {
-                e.preventDefault();
-                setShowChangePassword(false);
-              }}
-            >
-              {["Old Password", "New Password", "Confirm Password"].map(
-                (label, idx) => (
-                  <div key={idx}>
-                    <label className="block text-2xl font-medium text-gray-700 mb-1">
-                      {t(`changepw.${label.replace(" ", "").toLowerCase()}`)}
+            {/* Error Message */}
+            {passwordError && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                {passwordError}
+              </div>
+            )}
+
+            {/* Success Message */}
+            {passwordSuccess && (
+              <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+                {passwordSuccess}
+              </div>
+            )}
+
+            {/* Change Password Form */}
+            <form className="space-y-4 text-black">
+              {!otpSent && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Old Password
                     </label>
                     <input
                       type="password"
+                      value={passwordFormData.oldPassword}
+                      onChange={(e) =>
+                        setPasswordFormData({
+                          ...passwordFormData,
+                          oldPassword: e.target.value,
+                        })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                      placeholder={t(
-                        `changepw.${label.replace(" ", "").toLowerCase()}`
-                      )}
+                      placeholder="Enter your current password"
+                      disabled={changingPassword}
                     />
                   </div>
-                )
+
+                  <button
+                    type="button"
+                    onClick={handleSendOTP}
+                    disabled={changingPassword}
+                    className="w-full px-4 py-2 text-white bg-[#ee6786] hover:opacity-80 hover:scale-105 transition-all duration-200 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {changingPassword ? "Sending OTP..." : "Send OTP"}
+                  </button>
+                </>
               )}
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() =>
-                    verificationSent
-                      ? handleConfirmPassword()
-                      : handleSendVerification()
-                  }
-                  className="flex-1 px-4 py-2 text-white border border-gray-300 rounded-lg transition-all hover:opacity-80 hover:scale-105 duration-all-200 bg-[#ee6786] active:bg-[#d45573]"
-                >
-                  {verificationSent
-                    ? t("changepw.confirmPassword")
-                    : t("changepw.sendVerification")}
-                </button>
-              </div>
+              {otpSent && (
+                <>
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        OTP Code
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleSendOTP}
+                        disabled={changingPassword}
+                        className="text-xs text-[#ee6786] hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Resend OTP
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-2">
+                      Check your email for the OTP code
+                    </p>
+                    <input
+                      type="text"
+                      value={passwordFormData.otpCode}
+                      onChange={(e) =>
+                        setPasswordFormData({
+                          ...passwordFormData,
+                          otpCode: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                      placeholder="Enter OTP code"
+                      disabled={changingPassword}
+                      maxLength="6"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      New Password
+                    </label>
+                    <input
+                      type="password"
+                      value={passwordFormData.newPassword}
+                      onChange={(e) =>
+                        setPasswordFormData({
+                          ...passwordFormData,
+                          newPassword: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                      placeholder="Enter new password (minimum 8 characters)"
+                      disabled={changingPassword}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Confirm Password
+                    </label>
+                    <input
+                      type="password"
+                      value={passwordFormData.confirmPassword}
+                      onChange={(e) =>
+                        setPasswordFormData({
+                          ...passwordFormData,
+                          confirmPassword: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                      placeholder="Confirm new password"
+                      disabled={changingPassword}
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleResetPassword}
+                    disabled={changingPassword}
+                    className="w-full px-4 py-2 text-white bg-[#ee6786] hover:opacity-80 hover:scale-105 transition-all duration-200 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {changingPassword ? "Changing Password..." : "Confirm and Change"}
+                  </button>
+                </>
+              )}
             </form>
           </div>
         </div>

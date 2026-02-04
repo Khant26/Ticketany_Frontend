@@ -17,7 +17,7 @@ function AllEventsPage({ selectedCategory: propCategory }) {
 
   useEffect(() => {
     const fetchEvents = async () => {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
       const response = await fetch(`${baseUrl}events/`);
       const data = await response.json();
       setEvents(data);
@@ -27,7 +27,7 @@ function AllEventsPage({ selectedCategory: propCategory }) {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
       const response = await fetch(`${baseUrl}categories/`);
       const data = await response.json();
       setCategories(data);

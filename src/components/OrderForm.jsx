@@ -14,7 +14,7 @@ function OrderForm({
   eventPrices,
   eventId,
 }) {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api';
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
 
   const { t } = useTranslation();
 
@@ -152,7 +152,7 @@ function OrderForm({
       }));
 
       // Single API call to create all tickets in one order
-      const response = await fetch(`${API_BASE_URL}/tickets/`, {
+      const response = await fetch(`${API_BASE_URL}tickets/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -208,14 +208,41 @@ function OrderForm({
 
   const parseDates = (dateString) => {
     if (!dateString) return [];
-    return dateString
-      .split(",")
-      .map((date) => date.trim())
-      .filter((date) => date.length > 0);
+    
+    // Handle array input
+    if (Array.isArray(dateString)) {
+      return dateString.filter((date) => date && String(date).trim().length > 0);
+    }
+    
+    // Handle string input
+    if (typeof dateString === 'string') {
+      // Try to parse as JSON first
+      try {
+        const parsed = JSON.parse(dateString);
+        if (Array.isArray(parsed)) {
+          return parsed.filter((date) => date && String(date).trim().length > 0);
+        }
+      } catch {
+        // If not valid JSON, treat as comma-separated string
+        return dateString
+          .split(",")
+          .map((date) => date.trim())
+          .filter((date) => date.length > 0);
+      }
+    }
+    
+    return [];
   };
 
   const parsePrices = (priceInput) => {
     if (!priceInput) return [];
+
+    // Handle array input directly
+    if (Array.isArray(priceInput)) {
+      return priceInput
+        .map((p) => String(p).trim())
+        .filter((p) => p.length > 0);
+    }
 
     // If it's a string, try to parse as JSON first
     let prices = priceInput;

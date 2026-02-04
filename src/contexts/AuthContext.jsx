@@ -3,7 +3,7 @@ import axios from "axios";
 
 const AuthContext = createContext();
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
 
 const AuthContextProvider = ({ children}) => {
     let [user, setUser] = useState(null);
@@ -18,7 +18,7 @@ const AuthContextProvider = ({ children}) => {
             }
 
             // Use the existing customers endpoint; many setups return a list
-            let res = await axios.get(`${API_BASE}/customers/`, {
+            let res = await axios.get(`${API_BASE}customers/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
@@ -43,7 +43,7 @@ const AuthContextProvider = ({ children}) => {
     let login = async (credentials) => {
         setLoading(true);
         try {
-            const response = await axios.post(`${API_BASE}/auth/login/`, credentials, {
+            const response = await axios.post(`${API_BASE}auth/login/`, credentials, {
                 headers: { 'Content-Type': 'application/json' }
             });
 
