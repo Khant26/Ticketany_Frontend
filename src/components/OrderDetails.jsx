@@ -11,18 +11,16 @@ function OrderDetails({
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("");
 
-  if (!isOpen || !order || !ticket) return null;
-
-  const date = meta.date || order?.eventMeta?.date || ticket.date || "";
-  const time = meta.time || order?.eventMeta?.time || ticket.time || "";
-  const venue = meta.venue || order?.eventMeta?.venue || ticket.venue || "";
+  const date = meta.date || order?.eventMeta?.date || ticket?.date || "";
+  const time = meta.time || order?.eventMeta?.time || ticket?.time || "";
+  const venue = meta.venue || order?.eventMeta?.venue || ticket?.venue || "";
   const eventPrices = meta.prices || order?.eventMeta?.prices || "";
   const eventDates = meta.dates || order?.eventMeta?.dates || "";
 
   // Parse dates array
   const parsedDates = useMemo(() => {
     try {
-      if (typeof eventDates === 'string') {
+      if (typeof eventDates === "string") {
         const parsed = JSON.parse(eventDates);
         return Array.isArray(parsed) ? parsed : [];
       }
@@ -35,7 +33,7 @@ function OrderDetails({
   // Parse prices array
   const parsedPrices = useMemo(() => {
     try {
-      if (typeof eventPrices === 'string') {
+      if (typeof eventPrices === "string") {
         const parsed = JSON.parse(eventPrices);
         return Array.isArray(parsed) ? parsed : [];
       }
@@ -84,6 +82,8 @@ function OrderDetails({
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
+
+  if (!isOpen || !order || !ticket) return null;
 
   return (
     <div
@@ -157,7 +157,7 @@ function OrderDetails({
                 >
                   {parsedPrices.map((p, idx) => (
                     <option key={idx} value={p}>
-                      {typeof p === 'number' ? `$${p}` : p}
+                      {typeof p === "number" ? `${p} THB` : p}
                     </option>
                   ))}
                 </select>

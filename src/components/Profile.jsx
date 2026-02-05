@@ -86,7 +86,12 @@ function Profile() {
       }
       const parsed = JSON.parse(raw);
       const email = parsed?.email || parsed?.user?.email || "";
-      console.log("[getUserEmail] Retrieved email:", email, "from user_data:", parsed);
+      console.log(
+        "[getUserEmail] Retrieved email:",
+        email,
+        "from user_data:",
+        parsed,
+      );
       return email;
     } catch (e) {
       console.error("[getUserEmail] Error parsing user_data:", e);
@@ -108,7 +113,7 @@ function Profile() {
         atob(base64)
           .split("")
           .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
+          .join(""),
       );
       const payload = JSON.parse(jsonPayload);
       const candidates = [payload?.user_id, payload?.id, payload?.sub];
@@ -170,7 +175,8 @@ function Profile() {
 
   // 2) Fetch from backend: orders, tickets, and events, scoped to current user
   const fetchData = async () => {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
+    const API_BASE_URL =
+      import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
     if (!userId) {
       setOrders([]);
       return;
@@ -213,19 +219,19 @@ function Profile() {
         throw new Error(
           typeof ordersDataRaw === "string"
             ? ordersDataRaw
-            : JSON.stringify(ordersDataRaw)
+            : JSON.stringify(ordersDataRaw),
         );
       if (!ticketsRes.ok)
         throw new Error(
           typeof ticketsDataRaw === "string"
             ? ticketsDataRaw
-            : JSON.stringify(ticketsDataRaw)
+            : JSON.stringify(ticketsDataRaw),
         );
       if (!eventsRes.ok)
         throw new Error(
           typeof eventsDataRaw === "string"
             ? eventsDataRaw
-            : JSON.stringify(eventsDataRaw)
+            : JSON.stringify(eventsDataRaw),
         );
 
       const toArray = (data) => {
@@ -311,12 +317,29 @@ function Profile() {
         const ev = eventId ? eventsById[eventId] : undefined;
         const eventTitle = ev?.event_name || "Event";
         const normalizedMeta = ev
-          ? {
-              date: ev.event_date,
-              time: ev.event_time,
-              venue: ev.event_location,
-              image: ev.event_image,
-            }
+          ? (() => {
+              let imageUrl = null;
+              if (Array.isArray(ev.images) && ev.images.length > 0) {
+                imageUrl = ev.images[0]?.image_url || ev.images[0]?.image;
+              } else if (ev.event_image) {
+                imageUrl = ev.event_image;
+              }
+
+              console.log("[Profile] Event object for image extraction:", {
+                id: ev.id,
+                name: ev.event_name,
+                has_images_array: !!Array.isArray(ev.images),
+                images_count: ev.images?.length || 0,
+                extracted_image: imageUrl,
+              });
+
+              return {
+                date: ev.event_date,
+                time: ev.event_time,
+                venue: ev.event_location,
+                image: imageUrl,
+              };
+            })()
           : undefined;
 
         return {
@@ -352,15 +375,6 @@ function Profile() {
     fetchData();
   }, [userId]);
 
-  // NEW: Polling to refetch data every 10 seconds for near-real-time updates
-  useEffect(() => {
-    if (!userId) return;
-    const interval = setInterval(() => {
-      fetchData();
-    }, 10000); // Adjust interval as needed (e.g., 5000 for 5 seconds)
-    return () => clearInterval(interval); // Cleanup on unmount
-  }, [userId]);
-
   const openOrderDetails = (orderGroup, ticket) => {
     setSelectedOrder(orderGroup);
     setSelectedTicket(ticket);
@@ -378,18 +392,22 @@ function Profile() {
     }
 
     setChangingPassword(true);
-    
+
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
+      const API_BASE_URL =
+        import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
       const userEmail = getUserEmail();
-      
+
       if (!userEmail) {
         setPasswordError("Unable to find your email. Please log in again.");
         setChangingPassword(false);
         return;
       }
 
-      console.log("[handleSendOTP] Starting password verification for email:", userEmail);
+      console.log(
+        "[handleSendOTP] Starting password verification for email:",
+        userEmail,
+      );
 
       // Step 1: Verify old password by attempting login
       try {
@@ -400,16 +418,25 @@ function Profile() {
         const loginRes = await fetch(`${API_BASE_URL}auth/login/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: userEmail, password: passwordFormData.oldPassword }),
+          body: JSON.stringify({
+            email: userEmail,
+            password: passwordFormData.oldPassword,
+          }),
           signal: controller.signal,
         });
 
         clearTimeout(timeoutId);
-        console.log("[handleSendOTP] Login verification response status:", loginRes.status);
+        console.log(
+          "[handleSendOTP] Login verification response status:",
+          loginRes.status,
+        );
 
         if (!loginRes.ok) {
           const loginData = await loginRes.json().catch(() => ({}));
-          console.log("[handleSendOTP] Password verification failed:", loginData);
+          console.log(
+            "[handleSendOTP] Password verification failed:",
+            loginData,
+          );
           setPasswordError("❌ Old password is incorrect. Please try again.");
           setChangingPassword(false);
           return;
@@ -418,10 +445,14 @@ function Profile() {
         console.log("[handleSendOTP] Old password verified successfully!");
       } catch (loginError) {
         console.error("[handleSendOTP] Login error:", loginError);
-        if (loginError.name === 'AbortError') {
-          setPasswordError("⏱️ Password verification timeout. Please check your internet connection.");
+        if (loginError.name === "AbortError") {
+          setPasswordError(
+            "⏱️ Password verification timeout. Please check your internet connection.",
+          );
         } else {
-          setPasswordError("Error verifying password. Please check your internet connection.");
+          setPasswordError(
+            "Error verifying password. Please check your internet connection.",
+          );
         }
         setChangingPassword(false);
         return;
@@ -443,8 +474,15 @@ function Profile() {
         console.log("[handleSendOTP] OTP API response data:", otpData);
 
         if (!otpRes.ok) {
-          console.log("[handleSendOTP] OTP send failed with status:", otpRes.status);
-          setPasswordError(otpData?.message || otpData?.error || "Failed to send OTP. Please try again.");
+          console.log(
+            "[handleSendOTP] OTP send failed with status:",
+            otpRes.status,
+          );
+          setPasswordError(
+            otpData?.message ||
+              otpData?.error ||
+              "Failed to send OTP. Please try again.",
+          );
           setChangingPassword(false);
           return;
         }
@@ -495,7 +533,8 @@ function Profile() {
 
     setChangingPassword(true);
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
+      const API_BASE_URL =
+        import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
       const userEmail = getUserEmail();
 
       if (!userEmail) {
@@ -503,7 +542,9 @@ function Profile() {
         return;
       }
 
-      console.log("[handleResetPassword] Calling reset-password API with OTP validation...");
+      console.log(
+        "[handleResetPassword] Calling reset-password API with OTP validation...",
+      );
       const resetRes = await fetch(`${API_BASE_URL}auth/reset-password/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -514,22 +555,36 @@ function Profile() {
         }),
       });
 
-      console.log("[handleResetPassword] Reset password response status:", resetRes.status);
+      console.log(
+        "[handleResetPassword] Reset password response status:",
+        resetRes.status,
+      );
 
       if (!resetRes.ok) {
         const data = await resetRes.json().catch(() => ({}));
         console.log("[handleResetPassword] Reset password failed:", data);
-        setPasswordError(data?.message || data?.error || "Invalid OTP or failed to reset password. Please try again.");
+        setPasswordError(
+          data?.message ||
+            data?.error ||
+            "Invalid OTP or failed to reset password. Please try again.",
+        );
         setChangingPassword(false);
         return;
       }
 
       const responseData = await resetRes.json().catch(() => ({}));
-      setPasswordSuccess("✅ " + (responseData?.message || "Password changed successfully!"));
+      setPasswordSuccess(
+        "✅ " + (responseData?.message || "Password changed successfully!"),
+      );
       setTimeout(() => {
         setShowChangePassword(false);
         setOtpSent(false);
-        setPasswordFormData({ oldPassword: "", otpCode: "", newPassword: "", confirmPassword: "" });
+        setPasswordFormData({
+          oldPassword: "",
+          otpCode: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
       }, 2000);
     } catch (e) {
       console.error("[handleResetPassword] Error:", e);
@@ -593,7 +648,7 @@ function Profile() {
     return orders
       .map((group) => {
         const filteredTickets = (group.allOrders || []).filter((t) =>
-          desiredStatuses.includes(normalized(t.status))
+          desiredStatuses.includes(normalized(t.status)),
         );
         return { ...group, allOrders: filteredTickets };
       })
@@ -606,28 +661,11 @@ function Profile() {
         {/* Profile Header */}
         <div className="bg-white shadow-sm p-6 sm:p-8 mb-6 transition-all duration-300">
           <div className="flex flex-col sm:flex-row sm:items-center gap-8">
-            
-
             {/* Name & Actions */}
             <div className="flex flex-wrap items-center gap-1 sm:gap-3">
-              <h1 className="text-xl sm:text-2xl font-semibold text-black relative pb-4 sm:pb-2 after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-[#ee6786ff] transition-all duration-300 cursor-default">
+              <h1 className="text-lg sm:text-2xl font-semibold text-black relative pb-4 sm:pb-2 after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-[#ee6786ff] transition-all duration-300 cursor-default">
                 {user.name}
               </h1>
-              <button className="sm:mb-1.5 absolute-right w-6 h-6 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-100 transition">
-                <svg
-                  className="w-3 h-3 text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                  />
-                </svg>
-              </button>
             </div>
             <button
               onClick={() => setShowChangePassword(true)}
@@ -647,7 +685,7 @@ function Profile() {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 ref={(el) => (tabRefs.current[tab] = el)}
-                className={`relative pb-3 sm:pb-4 px-1 font-medium text-lg sm:text-2xl transition-colors duration-300 ${
+                className={`relative pb-3 sm:pb-4 px-1 font-medium text-base sm:text-lg transition-colors duration-300 ${
                   activeTab === tab
                     ? "text-gray-700 cursor-default"
                     : "text-gray-700 hover:text-gray-1000 cursor-pointer"
@@ -670,32 +708,32 @@ function Profile() {
           <div className="border-b border-[#ee6786ff]" />
 
           {/* Orders / Tickets Table */}
-          <div className="px-4 sm:px-4 py-4 pb-1 overflow-x-auto ">
+          <div className="px-4 sm:px-4 overflow-x-auto ">
             {/* Desktop Headers */}
             <div className="hidden md:block relative">
-              <div className="grid grid-cols-8 pr-0 px-4 py-4 sm:pb-9">
-                <div className="font-semibold text-gray-700 text-sm lg:text-lg ">
+              <div className="grid grid-cols-8 pr-0 px-4 pb-2 h-18 items-center">
+                <div className="font-semibold text-gray-600 text-xs lg:text-sm">
                   {t("profile.id")}
                 </div>
-                <div className="font-semibold text-gray-700 text-sm lg:text-lg ">
+                <div className="font-semibold text-gray-600 text-xs lg:text-sm">
                   {t("profile.event")}
                 </div>
-                <div className="font-semibold text-gray-700 text-sm lg:text-lg ">
+                <div className="font-semibold text-gray-600 text-xs lg:text-sm">
                   {t("profile.name")}
                 </div>
-                <div className="font-semibold text-gray-700 text-sm lg:text-lg w-30">
+                <div className="font-semibold text-gray-600 text-xs lg:text-sm w-30">
                   {t("profile.facebookName")}
                 </div>
-                <div className="font-semibold text-gray-700 text-sm lg:text-lg w-25">
+                <div className="font-semibold text-gray-600 text-xs lg:text-sm w-25">
                   {t("profile.memberCode")}
                 </div>
-                <div className="font-semibold text-gray-700 text-sm lg:text-lg w-25">
+                <div className="font-semibold text-gray-600 text-xs lg:text-sm w-25">
                   {t("profile.priorityDate")}
                 </div>
-                <div className="font-semibold text-gray-700 text-sm lg:text-lg pl-2">
+                <div className="font-semibold text-gray-600 text-xs lg:text-sm pl-2">
                   {t("profile.price")}
                 </div>
-                <div className="font-semibold text-gray-700 text-sm lg:text-lg pl-6">
+                <div className="font-semibold text-gray-600 text-xs lg:text-sm pl-6">
                   {t("profile.status")}
                 </div>
               </div>
@@ -732,41 +770,41 @@ function Profile() {
                     <div key={`${orderGroup.orderId}-${ticketIndex}`}>
                       {/* Desktop row */}
                       <div className="hidden md:grid grid-cols-8 gap-4 py-3 pl-2 min-w-[1040px]">
-                        <div className="text-base lg:text-lg whitespace-nowrap">
+                        <div className="text-sm lg:text-base whitespace-nowrap">
                           {ticketIndex === 0 && (
                             <div className="font-medium text-black">
                               {orderGroup.orderId || "00001"}
                             </div>
                           )}
                         </div>
-                        <div className="text-base lg:text-lg font-medium text-black truncate max-w-[14ch]">
+                        <div className="text-sm lg:text-base font-medium text-black truncate max-w-[14ch]">
                           {ticketIndex === 0 && (
                             <div className="truncate">
                               {orderGroup.eventTitle || "Event"}
                             </div>
                           )}
                         </div>
-                        <div className="text-base lg:text-lg font-medium text-black truncate max-w-[16ch]">
+                        <div className="text-sm lg:text-base font-medium text-black truncate max-w-[16ch]">
                           {ticket.userName || "—"}
                         </div>
-                        <div className="text-base lg:text-lg text-black truncate max-w-[18ch]">
+                        <div className="text-sm lg:text-base text-black truncate max-w-[18ch]">
                           {ticket.facebookName || "—"}
                         </div>
-                        <div className="text-base lg:text-lg text-black whitespace-nowrap">
+                        <div className="text-sm lg:text-base text-black whitespace-nowrap">
                           {ticket.memberCode || "—"}
                         </div>
-                        <div className="text-base lg:text-lg font-medium text-black truncate whitespace-nowrap">
+                        <div className="text-sm lg:text-base font-medium text-black truncate whitespace-nowrap">
                           {ticket.priorityDate || "—"}
                         </div>
-                        <div className="text-base lg:text-lg font-medium text-black whitespace-normal break-words leading-snug">
+                        <div className="text-sm lg:text-base font-medium text-black whitespace-normal break-words leading-snug">
                           {price}
                         </div>
-                        <div className="text-base lg:text-lg pl-3">
+                        <div className="text-sm lg:text-base pl-3">
                           <button
                             type="button"
                             onClick={() => openOrderDetails(orderGroup, ticket)}
-                            className={`inline-block px-3 py-1 rounded border text-sm lg:text-lg font-medium cursor-pointer ${getStatusColor(
-                              ticket // Pass full ticket object
+                            className={`inline-block px-3 py-1 rounded border text-xs lg:text-sm font-medium cursor-pointer ${getStatusColor(
+                              ticket, // Pass full ticket object
                             )} hover:scale-105 hover:opacity-90 transition-all duration-200`}
                             style={{ background: "transparent" }}
                           >
@@ -843,7 +881,7 @@ function Profile() {
                             type="button"
                             onClick={() => openOrderDetails(orderGroup, ticket)}
                             className={`px-3 py-1 rounded border text-sm font-medium ${getStatusColor(
-                              ticket // Pass full ticket object
+                              ticket, // Pass full ticket object
                             )} hover:opacity-90 transition-colors duration-200`}
                             style={{ background: "transparent" }}
                           >
@@ -868,12 +906,19 @@ function Profile() {
         >
           <div className="bg-white rounded-lg shadow-2xl p-6 sm:p-8 w-full max-w-md transition-transform duration-300 transform scale-100">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg sm:text-xl font-semibold">Change Password</h3>
+              <h3 className="text-lg sm:text-xl font-semibold">
+                Change Password
+              </h3>
               <button
                 onClick={() => {
                   setShowChangePassword(false);
                   setOtpSent(false);
-                  setPasswordFormData({ oldPassword: "", otpCode: "", newPassword: "", confirmPassword: "" });
+                  setPasswordFormData({
+                    oldPassword: "",
+                    otpCode: "",
+                    newPassword: "",
+                    confirmPassword: "",
+                  });
                   setPasswordError("");
                   setPasswordSuccess("");
                 }}
@@ -894,7 +939,9 @@ function Profile() {
                 alt="Logo"
                 className="w-24 h-24 object-contain mb-2"
               />
-              <h2 className="text-2xl text-gray-800 mt-4">Change Your Password</h2>
+              <h2 className="text-2xl text-gray-800 mt-4">
+                Change Your Password
+              </h2>
             </div>
 
             {/* Error Message */}
@@ -1024,7 +1071,9 @@ function Profile() {
                     disabled={changingPassword}
                     className="w-full px-4 py-2 text-white bg-[#ee6786] hover:opacity-80 hover:scale-105 transition-all duration-200 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {changingPassword ? "Changing Password..." : "Confirm and Change"}
+                    {changingPassword
+                      ? "Changing Password..."
+                      : "Confirm and Change"}
                   </button>
                 </>
               )}
