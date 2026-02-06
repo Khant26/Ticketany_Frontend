@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { FaFacebookMessenger } from "react-icons/fa";
+import { FaFacebookMessenger, FaClock, FaMapMarkerAlt } from "react-icons/fa";
 
 function OrderDetails({
   isOpen,
@@ -74,6 +74,28 @@ function OrderDetails({
     return "—";
   };
 
+  const getStatusColor = (ticket) => {
+    const status = ticket.status?.toLowerCase();
+    const refund = ticket.refundStatus?.toLowerCase();
+    switch (status) {
+      case "pending":
+        return "border-orange-500 text-orange-600 bg-orange-50";
+      case "paid":
+        return "border-blue-500 text-blue-600 bg-blue-50";
+      case "complete":
+        return "border-green-500 text-green-600 bg-green-50";
+      case "cancel":
+        if (refund === "refunded") {
+          return "border-blue-500 text-blue-600 bg-blue-50";
+        }
+        if (refund === "in_process") {
+          return "border-red-500 text-red-600 bg-red-50";
+        }
+      default:
+        return "border-gray-500 text-gray-600 bg-gray-50";
+    }
+  };
+
   // Close on ESC
   useEffect(() => {
     const handler = (e) => {
@@ -87,73 +109,138 @@ function OrderDetails({
 
   return (
     <div
-      className="fixed inset-0 z-[12000] flex items-center justify-center px-4"
-      style={{ background: "rgba(0,0,0,0.45)" }}
+      className="fixed inset-0 z-[12000] flex items-center justify-center px-3 sm:px-4"
+      style={{ background: "rgba(0,0,0,0.5)" }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
       role="dialog"
       aria-modal="true"
     >
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-xl relative p-6 sm:p-10">
-        {/* Close */}
+      <div className="cursor-default bg-white rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-lg md:max-w-2xl relative p-4 sm:p-6 md:p-8 max-h-[90vh] overflow-y-auto">
+        {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-2xl leading-none text-gray-600 hover:text-black"
+          className="cursor-pointer absolute top-3 right-3 sm:top-4 sm:right-4 text-xl sm:text-2xl leading-none text-gray-400 hover:text-gray-600 transition"
           aria-label="Close"
         >
           ×
         </button>
 
-        <h2 className="text-center text-2xl font-semibold mb-6 sm:mb-10 text-black">
-          Order details
+        <h2 className="text-center text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8 text-gray-900">
+          Order Details
         </h2>
 
-        {/* Event meta text block */}
-        <div className="text-[15px] font-normal text-black space-y-4 mb-10">
-          {order.eventTitle && <p>{order.eventTitle}</p>}
-          {time && <p>{time}</p>}
-          {venue && <p className="leading-snug">{venue}</p>}
-        </div>
-
-        {/* Poster + info grid */}
-        <div className="flex flex-col sm:flex-row gap-6 sm:gap-10">
-          <div className="w-full sm:w-[140px] shrink-0">
+        <div className="flex flex-col md:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
+       
+          <div className="w-full md:w-2/5 lg:w-1/3 shrink-0">
             <img
               src={coverImage}
               alt="Event Poster"
-              className="w-full h-auto object-cover rounded"
+              className="w-full h-auto object-cover rounded-xl shadow-lg border border-gray-200"
             />
           </div>
 
-          <div className="flex-1">
-            <div className="grid grid-cols-[90px_1fr] sm:grid-cols-[110px_1fr] gap-y-4 sm:gap-y-6 gap-x-4 sm:gap-x-6 text-base sm:text-xl text-black">
-              <span className="font-medium">Name</span>
-              <span>{ticket.userName || "—"}</span>
+       
+          <div className="flex-1 bg-white rounded-lg p-5 sm:p-6 shadow-sm border border-gray-300">
+         
+            {order.eventTitle && (
+              <div className="mb-4 sm:mb-5 pb-4 sm:pb-5 border-b border-gray-200">
+                <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-1.5">
+                  Event
+                </p>
+                <p className="text-base sm:text-lg md:text-xl font-bold text-gray-900 break-words">
+                  {order.eventTitle}
+                </p>
+              </div>
+            )}
 
-              {parsedDates.length > 0 && (
-                <>
-                  <span className="font-medium">Date</span>
-                  <select
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md bg-white text-black focus:outline-none focus:border-[#ee6786]"
-                  >
-                    {parsedDates.map((d, idx) => (
-                      <option key={idx} value={d}>
-                        {d}
-                      </option>
-                    ))}
-                  </select>
-                </>
-              )}
+       
+            {time && (
+              <div className="mb-4 sm:mb-5 pb-4 sm:pb-5 border-b border-gray-200 flex items-start gap-3">
+                <FaClock className="text-gray-600 text-base mt-0.5 shrink-0" />
+                <div className="flex-1">
+                  <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-1">
+                    Time
+                  </p>
+                  <p className="text-sm sm:text-base text-gray-900 font-medium">
+                    {time}
+                  </p>
+                </div>
+              </div>
+            )}
 
-              <span className="font-medium">Price</span>
+         
+            {venue && (
+              <div className="flex items-start gap-3">
+                <FaMapMarkerAlt className="text-gray-600 text-base mt-0.5 shrink-0" />
+                <div className="flex-1">
+                  <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-1">
+                    Venue
+                  </p>
+                  <p className="text-sm sm:text-base text-gray-900 font-medium leading-snug">
+                    {venue}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+    
+        <div className="cursor-default bg-white rounded-lg p-5 sm:p-6 border border-gray-300 shadow-sm mb-6 sm:mb-8">
+          {parsedDates.length > 0 && (
+            <div className="mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-gray-200">
+              <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-2">
+                Event Date
+              </p>
+              <select
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 text-sm sm:text-base font-medium focus:outline-none focus:border-[#ee6786] focus:ring-2 focus:ring-pink-200 transition"
+              >
+                {parsedDates.map((d, idx) => (
+                  <option key={idx} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+        
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-gray-200">
+            {/* Passenger Name */}
+            <div>
+              <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-1.5">
+                Passenger Name
+              </p>
+              <p className="text-base sm:text-lg font-bold text-gray-900">
+                {ticket.userName || "—"}
+              </p>
+            </div>
+
+         
+            <div>
+              <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-1.5">
+                Order ID
+              </p>
+              <p className="text-sm sm:text-lg font-bold text-gray-900 break-all">
+                {order.orderId || "—"}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 items-end">
+            <div>
+              <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-2">
+                Price
+              </p>
               {parsedPrices.length > 0 ? (
                 <select
                   value={selectedPrice}
                   onChange={(e) => setSelectedPrice(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-md bg-white text-black focus:outline-none focus:border-[#ee6786]"
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 text-sm sm:text-base font-medium focus:outline-none focus:border-[#ee6786] focus:ring-2 focus:ring-pink-200 transition"
                 >
                   {parsedPrices.map((p, idx) => (
                     <option key={idx} value={p}>
@@ -162,27 +249,36 @@ function OrderDetails({
                   ))}
                 </select>
               ) : (
-                <span>{getPrice(ticket)}</span>
+                <p className="text-base sm:text-lg font-bold text-gray-900">
+                  {getPrice(ticket)}
+                </p>
               )}
+            </div>
 
-              <span className="font-medium">Order ID</span>
-              <span>{order.orderId || "—"}</span>
-
-              <span className="font-medium">Status</span>
-              <span>{ticket.status || "Pending"}</span>
+            <div>
+              <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-2">
+                Status
+              </p>
+              <span
+                className={`inline-block px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border-2 text-xs sm:text-sm font-bold transition ${getStatusColor(ticket)}`}
+              >
+                {ticket.status || "Pending"}
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Bottom action bar */}
-        <div className="mt-8 sm:mt-12">
-          <button
-            className="w-full rounded-md py-5 text-[15px] font-medium flex items-center justify-center gap-3 bg-[#ee6786] active:bg-[#d45573]"
-            onClick={() => {}}
+        
+        <div className="mt-6 sm:mt-8">
+          <a
+            href="https://www.facebook.com/messages/t/115097331446124"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full rounded-lg py-3 sm:py-4 text-sm sm:text-base font-semibold flex items-center justify-center gap-3 text-white bg-[#ee6786] hover:opacity-90 hover:scale-105 active:bg-[#d45573] transition duration-200 shadow-lg"
           >
-            Payment info at ‘Tickets Anywhere’
-            <FaFacebookMessenger className="text-lg" />
-          </button>
+            Payment info at 'Tickets Anywhere'
+            <FaFacebookMessenger className="text-base sm:text-lg" />
+          </a>
         </div>
       </div>
     </div>

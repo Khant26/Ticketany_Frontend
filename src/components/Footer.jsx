@@ -53,7 +53,7 @@ function Footer() {
             </a>
 
             <a
-              href="https://t.me/"
+              href="https://t.me/ticketanywhereSnB"
               target="_blank"
               className=" hover:text-[#ee6786ff] transition transform hover:scale-125"
             >
@@ -61,7 +61,7 @@ function Footer() {
             </a>
           </div>
 
-          <span className="text-gray-700 text-xs sm:text-sm text-center">
+          <span className="text-gray-700 text-xs sm:text-sm text-center cursor-default">
             Made by HybridDev. © 2025
           </span>
         </div>

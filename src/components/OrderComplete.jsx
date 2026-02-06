@@ -149,8 +149,9 @@ function OrderComplete({
         >
           <div className="flex space-x-4 mb-4 items-center justify-center">
             <img src={logo} alt="logo" className="w-22"></img>
-            
-            <h2 className="px-6"
+
+            <h2
+              className="px-6"
               style={{
                 fontSize: "24px",
                 fontWeight: "600",

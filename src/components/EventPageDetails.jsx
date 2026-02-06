@@ -242,7 +242,7 @@ function EventPageDetails() {
   <div className="mt-16 md:mt-24 px-4 md:px-8 py-6 relative z-10 w-full">
     <div className="max-w-[1360px] mx-auto flex flex-col lg:flex-row gap-6 px-4 sm:px-6 lg:px-8">
       
-      <div className="w-full lg:w-2/3 bg-white shadow-md rounded-lg border-gray-200 border-2 pb-6 flex flex-col">
+      <div className="w-full lg:w-2/3 bg-white shadow-md rounded-lg  pb-6 flex flex-col">
         
         <div className="flex flex-col lg:flex-row gap-6">
           
@@ -287,7 +287,7 @@ function EventPageDetails() {
             )}
           </div>
 
-          <div className="w-full lg:w-3/5 flex flex-col justify-between pt-4">
+          <div className="w-full lg:w-3/5 flex flex-col justify-between pt-4 cursor-default">
             <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 mb-6">
               {eventDetail?.event_name || "Event Details"}
             </h3>
@@ -319,7 +319,7 @@ function EventPageDetails() {
 
             <button
               onClick={() => setShowOrderForm(true)}
-              className="mt-6 w-1/2 px-6 py-2 text-white rounded-lg hover:opacity-80 hover:scale-105 transition-all duration-200 font-semibold bg-[#ee6786] active:bg-[#d45573]"
+              className="mt-6 w-1/2 px-6 py-2 text-white rounded-lg hover:opacity-80 hover:scale-105 transition-all duration-200 font-semibold bg-[#ee6786] active:bg-[#d45573] cursor-pointer"
             >
               {t("event.orderNow")}
             </button>
@@ -328,7 +328,7 @@ function EventPageDetails() {
       </div>
 
       {/* Right column - How to Order */}
-      <div className="w-full lg:w-1/3 bg-white shadow-md rounded-lg p-6 min-h-[500px] mt-6 lg:mt-0">
+      <div className="cursor-default w-full lg:w-1/3 bg-white shadow-md rounded-lg p-6 min-h-[500px] mt-6 lg:mt-0">
         <h3 className="text-xl font-bold text-gray-800 mb-4">How to Order</h3>
       </div>
 

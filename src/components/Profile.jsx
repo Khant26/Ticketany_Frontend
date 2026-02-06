@@ -601,18 +601,20 @@ function Profile() {
     const refund = ticket.refundStatus?.toLowerCase();
     switch (status) {
       case "pending":
-        return "border-orange-500 text-orange-600";
+        return "border-orange-500 text-orange-600 bg-orange-50";
       case "paid":
-        return "border-green-500 text-green-600";
+        return "border-blue-500 text-blue-600 bg-blue-50";
       case "complete":
-        return "border-green-500 text-green-600"; // Changed to green for success
+        return "border-green-500 text-green-600 bg-green-50"; // Changed to green for success
       case "cancel":
+      case "cancelled":
         if (refund === "refunded") {
-          return "border-blue-500 text-blue-600"; // Positive for refunded
+          return "border-blue-500 text-blue-600 bg-blue-50"; // Positive for refunded
         }
         if (refund === "in_process") {
-          return "border-red-500 text-red-600"; // Neutral for in process
+          return "border-yellow-500 text-yellow-600 bg-yellow-50"; // Neutral for in process
         }
+        return "border-gray-500 text-gray-600 bg-gray-50"; // Default for cancelled
       default:
         return "border-gray-500 text-gray-600";
     }
@@ -627,14 +629,18 @@ function Profile() {
 
   // NEW: Helper to get display status, including refund details for cancelled
   const getDisplayStatus = (ticket) => {
-    const status = ticket.status || "Pending";
-    if (status.toLowerCase() === "cancel") {
-      const refund = ticket.refundStatus || "none";
+    const status = (ticket.status || "Pending").toLowerCase();
+    if (status === "cancel" || status === "cancelled") {
+      console.log("TICKET OBJECT:", ticket);
+
+      const refund = (ticket.refundStatus || "none").toLowerCase();
+
+
       if (refund === "in_process") return "Cancelled (In Process)";
       if (refund === "refunded") return "Cancelled (Refunded)";
       return "Cancelled";
     }
-    return status.charAt(0).toUpperCase() + status.slice(1); // Capitalize for consistency
+    return (ticket.status || "Pending").charAt(0).toUpperCase() + (ticket.status || "Pending").slice(1); // Capitalize for consistency
   };
 
   // Compute groups to display based on active tab and ticket status
@@ -880,7 +886,7 @@ function Profile() {
                           <button
                             type="button"
                             onClick={() => openOrderDetails(orderGroup, ticket)}
-                            className={`px-3 py-1 rounded border text-sm font-medium ${getStatusColor(
+                            className={`px-3 py-1 rounded-xl border text-sm font-medium ${getStatusColor(
                               ticket, // Pass full ticket object
                             )} hover:opacity-90 transition-colors duration-200`}
                             style={{ background: "transparent" }}

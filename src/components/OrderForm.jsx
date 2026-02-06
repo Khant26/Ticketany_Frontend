@@ -287,7 +287,7 @@ function OrderForm({
     <>
       {formVisible && (
         <div
-          className="fixed inset-0 flex items-center justify-center px-4"
+          className="cursor-default fixed inset-0 flex items-center justify-center px-4"
           style={{
             zIndex: 9999,
             backgroundColor: "rgba(0, 0, 0, 0.5)",
@@ -304,7 +304,7 @@ function OrderForm({
                 resetForm();
                 setAllOrders([]);
               }}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold"
+              className="cursor-pointer absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold"
               style={{
                 backgroundColor: "transparent",
                 border: "none",
@@ -332,11 +332,11 @@ function OrderForm({
             <div className="max-w-4xl mx-auto px-8">
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Event Title (Read-only) */}
-                <div className="flex items-center min-h-[60px]">
+                <div className="cursor-default flex items-center min-h-[60px]">
                   <span className="block text-lg font-medium text-gray-700 min-w-[180px]">
                     {t("order.Event")}
                   </span>
-                  <span className="block text-lg font-medium text-gray-700 ml-8">
+                  <span className=" block text-lg font-medium text-gray-700 ml-8">
                     {eventTitle}
                   </span>
                 </div>
@@ -413,7 +413,7 @@ function OrderForm({
                     name="priorityDate"
                     value={formData.priorityDate}
                     onChange={handleChange}
-                    className="flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
+                    className="cursor-pointer flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
                   >
                     <option value="">{t("select.PriorityDate")}</option>
                     {availableDates.map((date, index) => (
@@ -437,7 +437,7 @@ function OrderForm({
                     name="firstPriorityTicket"
                     value={formData.firstPriorityTicket}
                     onChange={handleChange}
-                    className="flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
+                    className="cursor-pointer flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
                     required
                   >
                     <option value="">{t("select.1stPriorityTicket")}</option>
@@ -462,7 +462,7 @@ function OrderForm({
                     name="secondPriorityTicket"
                     value={formData.secondPriorityTicket}
                     onChange={handleChange}
-                    className="flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
+                    className="cursor-pointer flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
                   >
                     <option value="">{t("select.2ndPriorityTicket")}</option>
                     {availablePricesForSecond.map((price, index) => (
@@ -486,7 +486,7 @@ function OrderForm({
                     name="thirdPriorityTicket"
                     value={formData.thirdPriorityTicket}
                     onChange={handleChange}
-                    className="flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
+                    className="cursor-pointer flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
                   >
                     <option value="">{t("select.3rdPriorityTicket")}</option>
                     {availablePricesForThird.map((price, index) => (
@@ -501,13 +501,13 @@ function OrderForm({
                 <div className="flex space-x-8 justify-center mt-10">
                   <button
                     type="submit"
-                    className="w-1/2 text-white py-4 px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-lg bg-[#ee6786] active:bg-[#d45573]"
+                    className="cursor-pointer w-1/2 text-white py-4 px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-lg bg-[#ee6786] active:bg-[#d45573]"
                   >
                     {isEditingOrder !== null ? "Update Order" : "Next"}
                   </button>
                   {showBackButton && (
                     <button onClick={()=> {setShowBackButton(false); setShowOrderConfirm(true);}}
-                     className="w-1/2 text-white py-4 px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-lg bg-[#ee6786] active:bg-[#d45573]">
+                     className="cursor-pointer w-1/2 text-white py-4 px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-lg bg-[#ee6786] active:bg-[#d45573]">
                      Back to Orders</button>
                     )}
                 </div>
