@@ -177,6 +177,7 @@ function Profile() {
   const fetchData = async () => {
     const API_BASE_URL =
       import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
+
     if (!userId) {
       setOrders([]);
       return;
@@ -246,6 +247,7 @@ function Profile() {
       const allOrdersArray = toArray(ordersDataRaw);
       const allTicketsArray = toArray(ticketsDataRaw);
       const allEventsArray = toArray(eventsDataRaw);
+      console.log("ALL TICKETS ARRAY FROM API:", allTicketsArray);
 
       // Build a quick lookup for events by id
       const eventsById = allEventsArray.reduce((acc, ev) => {
@@ -630,11 +632,10 @@ function Profile() {
   // NEW: Helper to get display status, including refund details for cancelled
   const getDisplayStatus = (ticket) => {
     const status = (ticket.status || "Pending").toLowerCase();
+    if (status === "complete") return "Completed";
     if (status === "cancel" || status === "cancelled") {
       console.log("TICKET OBJECT:", ticket);
-
-      const refund = (ticket.refundStatus || "none").toLowerCase();
-
+       const refund = (ticket.refundStatus || "none").toLowerCase();
 
       if (refund === "in_process") return "Cancelled (In Process)";
       if (refund === "refunded") return "Cancelled (Refunded)";
@@ -775,7 +776,7 @@ function Profile() {
                   return (
                     <div key={`${orderGroup.orderId}-${ticketIndex}`}>
                       {/* Desktop row */}
-                      <div className="hidden md:grid grid-cols-8 gap-4 py-3 pl-2 min-w-[1040px]">
+                      <div className="hidden md:grid grid-cols-8 gap-4 py-3 pl-2 items-center min-w-[1040px]">
                         <div className="text-sm lg:text-base whitespace-nowrap">
                           {ticketIndex === 0 && (
                             <div className="font-medium text-black">
@@ -793,10 +794,10 @@ function Profile() {
                         <div className="text-sm lg:text-base font-medium text-black truncate max-w-[16ch]">
                           {ticket.userName || "—"}
                         </div>
-                        <div className="text-sm lg:text-base text-black truncate max-w-[18ch]">
+                        <div className="text-sm lg:text-base font-medium text-black truncate max-w-[18ch]">
                           {ticket.facebookName || "—"}
                         </div>
-                        <div className="text-sm lg:text-base text-black whitespace-nowrap">
+                        <div className="text-sm lg:text-base font-medium text-black whitespace-nowrap">
                           {ticket.memberCode || "—"}
                         </div>
                         <div className="text-sm lg:text-base font-medium text-black truncate whitespace-nowrap">
@@ -809,10 +810,9 @@ function Profile() {
                           <button
                             type="button"
                             onClick={() => openOrderDetails(orderGroup, ticket)}
-                            className={`inline-block px-3 py-1 rounded border text-xs lg:text-sm font-medium cursor-pointer ${getStatusColor(
+                            className={`inline-block px-4 py-2 rounded-full border-2 text-xs lg:text-sm font-bold cursor-pointer ${getStatusColor(
                               ticket, // Pass full ticket object
                             )} hover:scale-105 hover:opacity-90 transition-all duration-200`}
-                            style={{ background: "transparent" }}
                           >
                             {displayStatus} {/* UPDATED: Use displayStatus */}
                           </button>
@@ -824,7 +824,7 @@ function Profile() {
                         {ticketIndex === 0 && (
                           <>
                             <div className="flex justify-between text-sm">
-                              <span className="font-semibold">
+                              <span className="font-semibold text-gray-600">
                                 {t("profile.id")}
                               </span>
                               <span className="font-medium text-black">
@@ -832,7 +832,7 @@ function Profile() {
                               </span>
                             </div>
                             <div className="flex justify-between text-sm">
-                              <span className="font-semibold">
+                              <span className="font-semibold text-gray-600">
                                 {t("profile.event")}
                               </span>
                               <span className="font-medium text-black max-w-[55%] text-right">
@@ -842,7 +842,7 @@ function Profile() {
                           </>
                         )}
                         <div className="flex justify-between text-sm">
-                          <span className="font-semibold">
+                          <span className="font-semibold text-gray-600">
                             {t("profile.name")}
                           </span>
                           <span className="font-medium text-black">
@@ -850,23 +850,23 @@ function Profile() {
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="font-semibold">
+                          <span className="font-semibold text-gray-600">
                             {t("profile.facebookName")}
                           </span>
-                          <span className="text-black max-w-[55%] text-right">
+                          <span className="font-medium text-black max-w-[55%] text-right">
                             {ticket.facebookName || "—"}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="font-semibold">
+                          <span className="font-semibold text-gray-600">
                             {t("profile.memberCode")}
                           </span>
-                          <span className="text-black">
+                          <span className="font-medium text-black">
                             {ticket.memberCode || "—"}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="font-semibold">
+                          <span className="font-semibold text-gray-600">
                             {t("profile.priorityDate")}
                           </span>
                           <span className="text-black">
@@ -874,7 +874,7 @@ function Profile() {
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="font-semibold">
+                          <span className="font-semibold text-gray-600">
                             {t("profile.price")}
                           </span>
                           <span className="font-medium text-black max-w-[55%] text-right break-words">
@@ -882,14 +882,13 @@ function Profile() {
                           </span>
                         </div>
                         <div className="flex justify-between items-center pt-2">
-                          <span className="font-semibold text-sm">Status</span>
+                          <span className="font-semibold text-gray-600">Status</span>
                           <button
                             type="button"
                             onClick={() => openOrderDetails(orderGroup, ticket)}
-                            className={`px-3 py-1 rounded-xl border text-sm font-medium ${getStatusColor(
+                            className={`px-4 py-2 rounded-full border text-sm font-medium ${getStatusColor(
                               ticket, // Pass full ticket object
                             )} hover:opacity-90 transition-colors duration-200`}
-                            style={{ background: "transparent" }}
                           >
                             {displayStatus} {/* UPDATED: Use displayStatus */}
                           </button>
@@ -912,9 +911,6 @@ function Profile() {
         >
           <div className="bg-white rounded-lg shadow-2xl p-6 sm:p-8 w-full max-w-md transition-transform duration-300 transform scale-100">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg sm:text-xl font-semibold">
-                Change Password
-              </h3>
               <button
                 onClick={() => {
                   setShowChangePassword(false);
@@ -928,7 +924,7 @@ function Profile() {
                   setPasswordError("");
                   setPasswordSuccess("");
                 }}
-                className="text-gray-700 hover:text-gray-600 text-2xl font-bold"
+                className="cursor-pointer absolute top-4 right-4 text-gray-700 hover:text-gray-600 text-2xl font-bold"
                 style={{
                   backgroundColor: "transparent",
                   border: "none",

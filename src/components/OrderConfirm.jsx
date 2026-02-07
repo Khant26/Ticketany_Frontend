@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import html2canvas from "html2canvas";
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 
 function OrderConfirm({
   isOpen,
@@ -16,6 +17,39 @@ function OrderConfirm({
 
   const [currentOrderIndex, setCurrentOrderIndex] = useState(0);
   const [showPrompt, setShowPrompt] = useState(false);
+
+  useEffect(() => {
+    if (isOpen || showPrompt) {
+      const scrollbarWidth =
+        window.innerWidth - document.documentElement.clientWidth;
+
+      document.body.style.overflow = "hidden";
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+
+      const navbar = document.querySelector(".navbar");
+      if (navbar) {
+        navbar.style.paddingRight = `${scrollbarWidth}px`;
+      }
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+
+      const navbar = document.querySelector(".navbar");
+      if (navbar) {
+        navbar.style.paddingRight = "";
+      }
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+
+      const navbar = document.querySelector(".navbar");
+      if (navbar) {
+        navbar.style.paddingRight = "";
+      }
+    };
+  }, [isOpen, showPrompt]);
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -108,7 +142,7 @@ function OrderConfirm({
 
             <div className="space-y-3 sm:space-y-4">
               {/* Name */}
-              <div className="flex flex-col sm:flex-row sm:items-center py-2 gap-2 sm:gap-0">
+              <div className="flex flex-col sm:flex-row sm:items-center py-2 gap-2 sm:gap-4">
                 <span className="text-sm sm:text-base md:text-lg font-medium text-gray-700 sm:w-1/2 sm:text-right sm:pr-4">
                   {t("order.UserName")}
                 </span>
@@ -118,7 +152,7 @@ function OrderConfirm({
               </div>
 
               {/* Facebook Name */}
-              <div className="flex flex-col sm:flex-row sm:items-center py-2 gap-2 sm:gap-0">
+              <div className="flex flex-col sm:flex-row sm:items-center py-2 gap-2 sm:gap-4">
                 <span className="text-sm sm:text-base md:text-lg font-medium text-gray-700 sm:w-1/2 sm:text-right sm:pr-4">
                   {t("order.FacebookName")}
                 </span>
@@ -128,7 +162,7 @@ function OrderConfirm({
               </div>
 
               {/* Member Code */}
-              <div className="flex flex-col sm:flex-row sm:items-center py-2 gap-2 sm:gap-0">
+              <div className="flex flex-col sm:flex-row sm:items-center py-2 gap-2 sm:gap-4">
                 <span className="text-sm sm:text-base md:text-lg font-medium text-gray-700 sm:w-1/2 sm:text-right sm:pr-4">
                   {t("order.MemberCode")}
                 </span>
@@ -138,7 +172,7 @@ function OrderConfirm({
               </div>
 
               {/* Priority Date */}
-              <div className="flex flex-col sm:flex-row sm:items-center py-2 gap-2 sm:gap-0">
+              <div className="flex flex-col sm:flex-row sm:items-center py-2 gap-2 sm:gap-4">
                 <span className="text-sm sm:text-base md:text-lg font-medium text-gray-700 sm:w-1/2 sm:text-right sm:pr-4">
                   {t("order.PriorityDate")}
                 </span>
@@ -148,7 +182,7 @@ function OrderConfirm({
               </div>
 
               {/* 1st Priority Ticket */}
-              <div className="flex flex-col sm:flex-row sm:items-center py-2 gap-2 sm:gap-0">
+              <div className="flex flex-col sm:flex-row sm:items-center py-2 gap-2 sm:gap-4">
                 <span className="text-sm sm:text-base md:text-lg font-medium text-gray-700 sm:w-1/2 sm:text-right sm:pr-4">
                   {t("order.FirstPriorityTicket")}
                 </span>
@@ -158,7 +192,7 @@ function OrderConfirm({
               </div>
 
               {/* 2nd Priority Ticket */}
-              <div className="flex flex-col sm:flex-row sm:items-center py-2 gap-2 sm:gap-0">
+              <div className="flex flex-col sm:flex-row sm:items-center py-2 gap-2 sm:gap-4">
                 <span className="text-sm sm:text-base md:text-lg font-medium text-gray-700 sm:w-1/2 sm:text-right sm:pr-4">
                   {t("order.SecondPriorityTicket")}
                 </span>
@@ -168,7 +202,7 @@ function OrderConfirm({
               </div>
 
               {/* 3rd Priority Ticket */}
-              <div className="flex flex-col sm:flex-row sm:items-center py-2 gap-2 sm:gap-0">
+              <div className="flex flex-col sm:flex-row sm:items-center py-2 gap-2 sm:gap-4">
                 <span className="text-sm sm:text-base md:text-lg font-medium text-gray-700 sm:w-1/2 sm:text-right sm:pr-4">
                   {t("order.ThirdPriorityTicket")}
                 </span>
@@ -184,7 +218,7 @@ function OrderConfirm({
             <div className="flex items-center justify-center mb-4 sm:mb-6 gap-2 sm:gap-4 md:gap-6">
               <button
                 onClick={prevOrder}
-                className="p-1 sm:p-2 rounded-full hover:bg-gray-100 transition duration-200 text-black border-none outline-none"
+                className="cursor-pointer p-1 sm:p-2 rounded-full hover:bg-gray-100 transition duration-200 text-black border-none outline-none"
                 style={{ background: "transparent" }}
               >
                 <svg
@@ -209,16 +243,16 @@ function OrderConfirm({
                     <button
                       key={index}
                       onClick={() => goToOrder(index)}
-                      className="p-0 m-0 border-none bg-transparent outline-none focus:outline-none"
+                      className="cursor-pointer p-0 m-0 border-none bg-transparent outline-none focus:outline-none"
                       style={{
                         backgroundColor: "transparent",
                       }}
                     >
                       <span
-                        className={`block w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-transform duration-200 ${
+                        className={`cursor-pointer block w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-200 ${
                           active
                             ? "bg-pink-500 scale-110"
-                            : "bg-gray-300 hover:bg-gray-400"
+                            : "bg-gray-300 hover:scale-105 hover:bg-gray-400"
                         }`}
                       />
                     </button>
@@ -228,7 +262,7 @@ function OrderConfirm({
 
               <button
                 onClick={nextOrder}
-                className="p-1 sm:p-2 rounded-full hover:bg-gray-100 transition duration-200 text-black border-none outline-none"
+                className="cursor-pointer p-1 sm:p-2 rounded-full hover:bg-gray-100 transition duration-200 text-black border-none outline-none"
                 style={{ background: "transparent" }}
               >
                 <svg
@@ -266,9 +300,9 @@ function OrderConfirm({
 
           {showPrompt && (
             <div
-              className="absolute inset-0 flex items-center justify-center rounded-lg px-3 sm:px-4"
+              className="fixed inset-0 flex items-center justify-center px-3 sm:px-4"
               style={{
-                zIndex: 9999,
+                zIndex: 11000,
                 backgroundColor: "rgba(0, 0, 0, 0.5)",
               }}
               onClick={(e) => {
@@ -290,15 +324,21 @@ function OrderConfirm({
                       setShowPrompt(false);
                       onConfirmOrder();
                     }}
-                    className="cursor-pointer flex-1 py-2 sm:py-3 rounded-md text-sm sm:text-base text-black font-medium transition-all duration-200 hover:opacity-90 hover:scale-105"
-                    style={{ backgroundColor: "white", border: "1px solid" }}
+                    className="cursor-pointer flex-1 py-2 sm:py-3 rounded-md text-sm sm:text-base text-black font-medium transition-all duration-200  hover:scale-105"
+                    style={{
+                      backgroundColor: "white",
+                      boxShadow: "0 0 4px rgba(0,0,0,0.5)",
+                    }}
                   >
                     Yes
                   </button>
                   <button
                     onClick={() => setShowPrompt(false)}
-                    className="cursor-pointer flex-1 py-2 sm:py-3 rounded-md text-sm sm:text-base text-black font-medium transition-all duration-200 hover:bg-gray-50 hover:scale-105"
-                    style={{ backgroundColor: "white", border: "1px solid" }}
+                    className="cursor-pointer flex-1 py-2 sm:py-3 rounded-md text-sm sm:text-base text-black font-medium transition-all duration-200  hover:scale-105"
+                    style={{
+                      backgroundColor: "white",
+                      boxShadow: "0 0 4px rgba(0,0,0,0.5)",
+                    }}
                   >
                     No
                   </button>

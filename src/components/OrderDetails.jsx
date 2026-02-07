@@ -96,7 +96,26 @@ function OrderDetails({
     }
   };
 
-  // Close on ESC
+  const getStatusLabel = (ticket) => {
+  const status = ticket.status?.toLowerCase();
+  const refund = ticket.refundStatus?.toLowerCase();
+
+  switch (status) {
+    case "pending":
+      return "Pending";
+    case "paid":
+      return "Paid";
+    case "complete":
+      return "Completed";
+    case "cancel":
+      if (refund === "refunded") return "Refund(In Process)";
+      if (refund === "in_process") return "Cancelled(Refunded)";
+      return "Cancelled";
+    default:
+      return "Unknown";
+  }
+};
+
   useEffect(() => {
     const handler = (e) => {
       if (e.key === "Escape") onClose();
@@ -262,7 +281,8 @@ function OrderDetails({
               <span
                 className={`inline-block px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border-2 text-xs sm:text-sm font-bold transition ${getStatusColor(ticket)}`}
               >
-                {ticket.status || "Pending"}
+                {getStatusLabel(ticket)}
+
               </span>
             </div>
           </div>

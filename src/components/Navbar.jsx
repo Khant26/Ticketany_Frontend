@@ -144,10 +144,9 @@ function Navbar() {
 
   return (
     <>
-      <div
-        className="fixed top-0 left-0 right-0 bg-white shadow-md z-40
-                 py-1"
-      >
+      <div className="navbar fixed top-0 left-0 right-0 bg-white shadow-md z-40 py-1">
+
+      
         <div className="flex flex-wrap items-center w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
         <Link to="/">
           <img

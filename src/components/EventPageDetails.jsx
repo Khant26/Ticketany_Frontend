@@ -64,7 +64,8 @@ function EventPageDetails() {
   // Show loading state while fetching events
   if (eventDetails.length === 0) {
     return (
-      <div className="mt-16 lg:mb-10 lg:px-100 md:mt-24 px-4 md:px-8 py-6 text-center">
+      <div className="flex items-center justify-center min-h-screen mt-16 md:mt-24">
+
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
         <p className="text-gray-600 mt-4">Loading event details...</p>
       </div>
