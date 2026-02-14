@@ -8,5 +8,9 @@ export default defineConfig({
   define: {
     // Ensure environment variables are accessible via import.meta.env
     'process.env': JSON.stringify(process.env)
+  },
+  server: {
+    middlewareMode: false,
+    historyApiFallback: true
   }
 })
