@@ -10,7 +10,6 @@ export default defineConfig({
     'process.env': JSON.stringify(process.env)
   },
   server: {
-    middlewareMode: false,
     historyApiFallback: true
   }
 })
