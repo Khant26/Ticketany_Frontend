@@ -1,13 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaFacebookMessenger, FaClock, FaMapMarkerAlt } from "react-icons/fa";
 
-function OrderDetails({
-  isOpen,
-  onClose,
-  order, // whole order group
-  ticket, // specific ticket row
-  meta = {}, // optional extra event meta (date, time, venue, image)
-}) {
+function OrderDetails({ isOpen, onClose, order, ticket, meta = {} }) {
+  const { t } = useTranslation();
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("");
 
@@ -97,24 +93,24 @@ function OrderDetails({
   };
 
   const getStatusLabel = (ticket) => {
-  const status = ticket.status?.toLowerCase();
-  const refund = ticket.refundStatus?.toLowerCase();
+    const status = ticket.status?.toLowerCase();
+    const refund = ticket.refundStatus?.toLowerCase();
 
-  switch (status) {
-    case "pending":
-      return "Pending";
-    case "paid":
-      return "Paid";
-    case "complete":
-      return "Completed";
-    case "cancel":
-      if (refund === "refunded") return "Refund(In Process)";
-      if (refund === "in_process") return "Cancelled(Refunded)";
-      return "Cancelled";
-    default:
-      return "Unknown";
-  }
-};
+    switch (status) {
+      case "pending":
+        return "Pending";
+      case "paid":
+        return "Paid";
+      case "complete":
+        return "Completed";
+      case "cancel":
+        if (refund === "refunded") return "Refund(In Process)";
+        if (refund === "in_process") return "Cancelled(Refunded)";
+        return "Cancelled";
+      default:
+        return "Unknown";
+    }
+  };
 
   useEffect(() => {
     const handler = (e) => {
@@ -147,11 +143,10 @@ function OrderDetails({
         </button>
 
         <h2 className="text-center text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8 text-gray-900">
-          Order Details
+          {t("orderDetails.title")}
         </h2>
 
         <div className="flex flex-col md:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
-       
           <div className="w-full md:w-2/5 lg:w-1/3 shrink-0">
             <img
               src={coverImage}
@@ -160,13 +155,11 @@ function OrderDetails({
             />
           </div>
 
-       
           <div className="flex-1 bg-white rounded-lg p-5 sm:p-6 shadow-sm border border-gray-300">
-         
             {order.eventTitle && (
               <div className="mb-4 sm:mb-5 pb-4 sm:pb-5 border-b border-gray-200">
                 <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-1.5">
-                  Event
+                  {t("orderDetails.event")}
                 </p>
                 <p className="text-base sm:text-lg md:text-xl font-bold text-gray-900 break-words">
                   {order.eventTitle}
@@ -174,13 +167,12 @@ function OrderDetails({
               </div>
             )}
 
-       
             {time && (
               <div className="mb-4 sm:mb-5 pb-4 sm:pb-5 border-b border-gray-200 flex items-start gap-3">
                 <FaClock className="text-gray-600 text-base mt-0.5 shrink-0" />
                 <div className="flex-1">
                   <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-1">
-                    Time
+                    {t("orderDetails.time")}
                   </p>
                   <p className="text-sm sm:text-base text-gray-900 font-medium">
                     {time}
@@ -189,13 +181,12 @@ function OrderDetails({
               </div>
             )}
 
-         
             {venue && (
               <div className="flex items-start gap-3">
                 <FaMapMarkerAlt className="text-gray-600 text-base mt-0.5 shrink-0" />
                 <div className="flex-1">
                   <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-1">
-                    Venue
+                    {t("orderDetails.venue")}
                   </p>
                   <p className="text-sm sm:text-base text-gray-900 font-medium leading-snug">
                     {venue}
@@ -206,12 +197,11 @@ function OrderDetails({
           </div>
         </div>
 
-    
         <div className="cursor-default bg-white rounded-lg p-5 sm:p-6 border border-gray-300 shadow-sm mb-6 sm:mb-8">
           {parsedDates.length > 0 && (
             <div className="mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-gray-200">
               <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-2">
-                Event Date
+                {t("orderDetails.eventDate")}
               </p>
               <select
                 value={selectedDate}
@@ -227,22 +217,19 @@ function OrderDetails({
             </div>
           )}
 
-        
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-gray-200">
-            {/* Passenger Name */}
             <div>
               <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-1.5">
-                Passenger Name
+                {t("orderDetails.Name")}
               </p>
               <p className="text-base sm:text-lg font-bold text-gray-900">
                 {ticket.userName || "—"}
               </p>
             </div>
 
-         
             <div>
               <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-1.5">
-                Order ID
+                {t("orderDetails.orderId")}
               </p>
               <p className="text-sm sm:text-lg font-bold text-gray-900 break-all">
                 {order.orderId || "—"}
@@ -253,7 +240,7 @@ function OrderDetails({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 items-end">
             <div>
               <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-2">
-                Price
+                {t("orderDetails.price")}
               </p>
               {parsedPrices.length > 0 ? (
                 <select
@@ -276,27 +263,25 @@ function OrderDetails({
 
             <div>
               <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-2">
-                Status
+                {t("orderDetails.status")}
               </p>
               <span
                 className={`inline-block px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border-2 text-xs sm:text-sm font-bold transition ${getStatusColor(ticket)}`}
               >
                 {getStatusLabel(ticket)}
-
               </span>
             </div>
           </div>
         </div>
 
-        
         <div className="mt-6 sm:mt-8">
           <a
-            href="https://www.facebook.com/messages/t/115097331446124"
+            href="https://www.facebook.com/profile.php?id=100088835078200"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full rounded-lg py-3 sm:py-4 text-sm sm:text-base font-semibold flex items-center justify-center gap-3 text-white bg-[#ee6786] hover:opacity-90 hover:scale-105 active:bg-[#d45573] transition duration-200 shadow-lg"
           >
-            Payment info at 'Tickets Anywhere'
+            {t("orderDetails.paymentInfo")}
             <FaFacebookMessenger className="text-base sm:text-lg" />
           </a>
         </div>

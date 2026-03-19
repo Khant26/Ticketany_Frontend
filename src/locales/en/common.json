@@ -66,6 +66,18 @@
   "changepw.sendVerification": "Verify Code sent to your email",
   "nav.signOut": "Sign Out",
   "home.eventsTitle": "Featured Events",
-  "home.category": "Category"
-
+  "home.category": "Category",
+  "orderDetails.title": "Order Details",
+  "orderDetails.event": "Event",
+  "orderDetails.time": "Time",
+  "orderDetails.venue": "Venue",
+  "orderDetails.eventDate": "Event Date",
+  "orderDetails.Name": "Name",
+  "orderDetails.orderId": "Order ID",
+  "orderDetails.zone": "Zone",
+  "orderDetails.row": "Row",
+  "orderDetails.seat": "Seat",
+  "orderDetails.price": "Price",
+  "orderDetails.status": "Status",
+  "orderDetails.paymentInfo": "Payment info at 'Tickets Anywhere'"
 }

@@ -10,7 +10,6 @@ import SignIn from "./SignIn";
 import ForgotPassword from "./ForgotPassword";
 import { useNavigate, useLocation } from "react-router-dom";
 
-
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,12 +18,13 @@ function Navbar() {
   const [showSignUp, setShowSignUp] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState(null); // was hard‑coded 'HybridDev'
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Initialize login state from localStorage to persist across refresh
-  useEffect(() => {
+  // Function to update login state from localStorage
+  const updateLoginState = () => {
     try {
       const token = localStorage.getItem("access_token");
       const raw = localStorage.getItem("user_data");
@@ -39,7 +39,7 @@ function Navbar() {
           parsed?.user?.email,
         ];
         const first = candidates.find(
-          (v) => typeof v === "string" && v.trim().length > 0
+          (v) => typeof v === "string" && v.trim().length > 0,
         );
         const display = first
           ? first.includes("@")
@@ -48,10 +48,31 @@ function Navbar() {
           : "User";
         setUserName(display);
         setIsLoggedIn(true);
+      } else {
+        setUserName(null);
+        setIsLoggedIn(false);
       }
     } catch {
       // ignore JSON errors
+      setUserName(null);
+      setIsLoggedIn(false);
     }
+  };
+
+  // Initialize login state from localStorage and listen for changes
+  useEffect(() => {
+    updateLoginState();
+
+    // Listen for storage changes from other tabs/modals
+    window.addEventListener("storage", updateLoginState);
+
+    // Also dispatch custom event when login happens in same tab
+    window.addEventListener("userLoginChanged", updateLoginState);
+
+    return () => {
+      window.removeEventListener("storage", updateLoginState);
+      window.removeEventListener("userLoginChanged", updateLoginState);
+    };
   }, []);
 
   const handleSignUpClick = () => {
@@ -99,7 +120,7 @@ function Navbar() {
           val.email,
         ];
         const first = candidates.find(
-          (v) => typeof v === "string" && v.trim().length > 0
+          (v) => typeof v === "string" && v.trim().length > 0,
         );
         return first
           ? first.includes("@")
@@ -125,183 +146,192 @@ function Navbar() {
             if (localStorage.getItem(cacheKey))
               localStorage.removeItem(cacheKey);
           }
-        } catch {
-        }
+        } catch {}
       }
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
       localStorage.removeItem("user_data");
-    } catch {
-      
-    }
+    } catch {}
     setUserName(null);
     setIsLoggedIn(false);
+    setShowSignOutConfirm(false);
 
-    if(isProfilePage){
+    // Dispatch event to notify other components of logout
+    console.log("🔴 Navbar: Dispatching userLoginChanged event for logout");
+    window.dispatchEvent(new Event("userLoginChanged"));
+
+    if (isProfilePage) {
       navigate("/");
     }
+  };
+
+  const handleSignOutClick = () => {
+    setShowSignOutConfirm(true);
   };
 
   return (
     <>
       <div className="navbar fixed top-0 left-0 right-0 bg-white shadow-md z-40 py-1">
-
-      
         <div className="flex flex-wrap items-center w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
-        <Link to="/">
-          <img
-            src={Logo}
-            alt="Logo"
-            className="w-16 h-16 object-contain transition transform-500 hover:scale-105 "
-          />
-        </Link>
-
-        {!isProfilePage ? ( <div className="flex items-center flex-auto mx-1 sm:mx-2 md:mx-3 min-w-[200px] md:min-w-[300px]">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              placeholder={t("nav.search")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleSearch();
-              }}
-              className="w-full pl-8 sm:pl-10 pr-4 sm:pr-6 py-2 sm:py-3 bg-gray-200 rounded text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white transition-all duration-200"
+          <Link to="/">
+            <img
+              src={Logo}
+              alt="Logo"
+              className="w-16 h-16 object-contain transition transform-500 hover:scale-105 "
             />
-            <div className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2">
-              <svg
-                className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          </Link>
+
+          {!isProfilePage ? (
+            <div className="flex items-center flex-auto mx-1 sm:mx-2 md:mx-3 min-w-[200px] md:min-w-[300px]">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder={t("nav.search")}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSearch();
+                  }}
+                  className="w-full pl-8 sm:pl-10 pr-4 sm:pr-6 py-2 sm:py-3 bg-gray-200 rounded text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white transition-all duration-200"
                 />
-              </svg>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={handleSearch}
-            disabled={!searchQuery.trim()}
-            className="text-white px-4 sm:px-6 py-2 sm:py-3 rounded ml-2 sm:ml-3 transition-colors-transform duration-200 hover:scale-105 bg-[#ee6786] hover:opacity-80 active:bg-[#d45573]"
-          >
-            {t("nav.search")}
-          </button>
-        </div>) : (
- 
-  <div className="flex-auto mx-1 sm:mx-2 md:mx-3 min-w-[200px] md:min-w-[300px]" />)}
-
-        {/* Language switcher */}
-        <div className="flex items-center ml-2 sm:ml-4 md:ml-6 text-black gap-0">
-          <button
-            onClick={() => {
-              i18n.changeLanguage("en");
-              localStorage.setItem("lng", "en");
-            }}
-            className={`px-2 py-1 rounded text-sm font-semibold transition-colors ${
-              i18n.language === "en"
-                ? "text-[#e51f4b]"
-                : "text-gray-600 cursor-pointer hover:text-[#e51f4b]"
-            }`}
-            style={{
-              backgroundColor: "transparent",
-              border: "none",
-              outline: "none",
-            }}
-          >
-            {t("nav.language.en")}
-          </button>
-          <HiOutlineGlobeAlt className="w-5 h-5 mx-1 text-gray-600" />
-          <button
-            onClick={() => {
-              i18n.changeLanguage("my");
-              localStorage.setItem("lng", "my");
-            }}
-            className={`px-2 py-1 rounded text-sm font-semibold transition-colors ${
-              i18n.language === "my"
-                ? "text-[#e51f4b]"
-                : "text-gray-600 cursor-pointer hover:text-[#e51f4b]"
-            }`}
-            style={{
-              backgroundColor: "transparent",
-              border: "none",
-              outline: "none",
-            }}
-          >
-            {t("nav.language.my")}
-          </button>
-        </div>
-
-        {/* User/Profile */}
-        <div className="relative ml-2 sm:ml-4 md:ml-6 lg:ml-10 min-w-[180px] md:min-w-[220px] flex justify-left">
-          {isLoggedIn ?  (
-            <div className="flex items-center gap-4 sm:gap-5 md:gap-7">
-              {!isProfilePage && (<Link
-                to="/profile"
-                className="flex items-center text-gray-600 p-2 cursor-pointer hover:text-red-600 transition-colors duration-200 hover:bg-gray-100"
-                style={{ backgroundColor: "transparent" }}
-              >
-                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gray-300 rounded-full flex items-center justify-center mr-1 sm:mr-2">
-                  <span className="text-xs sm:text-xs font-medium text-gray-600">
-                    {(() => {
-                      const dn =
-                        typeof userName === "string"
-                          ? userName
-                          : userName?.name ||
-                            userName?.username ||
-                            userName?.user?.name ||
-                            userName?.user?.username ||
-                            userName?.user?.email ||
-                            "U";
-                      const initial = String(dn).trim().charAt(0) || "U";
-                      return initial.toUpperCase();
-                    })()}
-                  </span>
+                <div className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2">
+                  <svg
+                    className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
                 </div>
-                <span className="font-medium">
-                  {(() => {
-                    if (typeof userName === "string") return userName;
-                    const dn =
-                      userName?.name ||
-                      userName?.username ||
-                      userName?.user?.name ||
-                      userName?.user?.username ||
-                      userName?.user?.email ||
-                      "User";
-                    return typeof dn === "string"
-                      ? dn.includes("@")
-                        ? dn.split("@")[0]
-                        : dn
-                      : "User";
-                  })()}
-                </span>
-              </Link>)}
+              </div>
               <button
-                onClick={handleSignout}
-                className="flex items-center text-gray-600 border-none outline-none shadow-none p-2 cursor-pointer hover:text-red-600 transition-colors duration-200"
+                type="button"
+                onClick={handleSearch}
+                disabled={!searchQuery.trim()}
+                className="text-white px-4 sm:px-6 py-2 sm:py-3 rounded ml-2 sm:ml-3 transition-colors-transform duration-200 hover:scale-105 bg-[#ee6786] hover:opacity-80 active:bg-[#d45573]"
               >
-                <FiLogOut className="w-5 h-5 mr-1.5" />
-                <span>{t("nav.signOut")}</span>
+                {t("nav.search")}
               </button>
             </div>
           ) : (
-            !isProfilePage && (
-            <button
-              onClick={handleSignInClick}
-              className="flex items-center text-gray-600 border-none outline-none shadow-none p-0 cursor-pointer hover:text-red-600 transition-colors duration-200"
-              style={{ backgroundColor: "transparent" }}
-            >
-              <HiMiniUser className="w-5 h-5 mr-2" />
-              <span>{t("nav.signIn")}</span>
-            </button>)
+            <div className="flex-auto mx-1 sm:mx-2 md:mx-3 min-w-[200px] md:min-w-[300px]" />
           )}
+
+          {/* Language switcher */}
+          <div className="flex items-center ml-2 sm:ml-4 md:ml-6 text-black gap-0">
+            <button
+              onClick={() => {
+                i18n.changeLanguage("en");
+                localStorage.setItem("lng", "en");
+              }}
+              className={`px-2 py-1 rounded text-sm font-semibold transition-colors ${
+                i18n.language === "en"
+                  ? "text-[#e51f4b]"
+                  : "text-gray-600 cursor-pointer hover:text-[#e51f4b]"
+              }`}
+              style={{
+                backgroundColor: "transparent",
+                border: "none",
+                outline: "none",
+              }}
+            >
+              {t("nav.language.en")}
+            </button>
+            <HiOutlineGlobeAlt className="w-5 h-5 mx-1 text-gray-600" />
+            <button
+              onClick={() => {
+                i18n.changeLanguage("my");
+                localStorage.setItem("lng", "my");
+              }}
+              className={`px-2 py-1 rounded text-sm font-semibold transition-colors ${
+                i18n.language === "my"
+                  ? "text-[#e51f4b]"
+                  : "text-gray-600 cursor-pointer hover:text-[#e51f4b]"
+              }`}
+              style={{
+                backgroundColor: "transparent",
+                border: "none",
+                outline: "none",
+              }}
+            >
+              {t("nav.language.my")}
+            </button>
+          </div>
+
+          {/* User/Profile */}
+          <div className="relative ml-2 sm:ml-4 md:ml-6 lg:ml-10 min-w-[180px] md:min-w-[220px] flex justify-left">
+            {isLoggedIn ? (
+              <div className="flex items-center gap-4 sm:gap-5 md:gap-7">
+                {!isProfilePage && (
+                  <Link
+                    to="/profile"
+                    className="flex items-center text-gray-600 p-2 cursor-pointer hover:text-red-600 transition-colors duration-200 hover:bg-gray-100"
+                    style={{ backgroundColor: "transparent" }}
+                  >
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gray-300 rounded-full flex items-center justify-center mr-1 sm:mr-2">
+                      <span className="text-xs sm:text-xs font-medium text-gray-600">
+                        {(() => {
+                          const dn =
+                            typeof userName === "string"
+                              ? userName
+                              : userName?.name ||
+                                userName?.username ||
+                                userName?.user?.name ||
+                                userName?.user?.username ||
+                                userName?.user?.email ||
+                                "U";
+                          const initial = String(dn).trim().charAt(0) || "U";
+                          return initial.toUpperCase();
+                        })()}
+                      </span>
+                    </div>
+                    <span className="font-medium">
+                      {(() => {
+                        if (typeof userName === "string") return userName;
+                        const dn =
+                          userName?.name ||
+                          userName?.username ||
+                          userName?.user?.name ||
+                          userName?.user?.username ||
+                          userName?.user?.email ||
+                          "User";
+                        return typeof dn === "string"
+                          ? dn.includes("@")
+                            ? dn.split("@")[0]
+                            : dn
+                          : "User";
+                      })()}
+                    </span>
+                  </Link>
+                )}
+                <button
+                  onClick={handleSignOutClick}
+                  className="flex items-center text-gray-600 border-none outline-none shadow-none p-2 cursor-pointer hover:text-red-600 transition-colors duration-200"
+                >
+                  <FiLogOut className="w-5 h-5 mr-1.5" />
+                  <span>{t("nav.signOut")}</span>
+                </button>
+              </div>
+            ) : (
+              !isProfilePage && (
+                <button
+                  onClick={handleSignInClick}
+                  className="flex items-center text-gray-600 border-none outline-none shadow-none p-0 cursor-pointer hover:text-red-600 transition-colors duration-200"
+                  style={{ backgroundColor: "transparent" }}
+                >
+                  <HiMiniUser className="w-5 h-5 mr-2" />
+                  <span>{t("nav.signIn")}</span>
+                </button>
+              )
+            )}
+          </div>
         </div>
-      </div>
       </div>
 
       {/* Modals */}
@@ -323,6 +353,41 @@ function Navbar() {
         onSwitchToSignIn={handleSignInClick}
         onSwitchToSignUp={handleSignUpClick}
       />
+
+      {/* Sign Out Confirmation Modal */}
+      {showSignOutConfirm && (
+        <div
+          className="fixed inset-0 z-[13000] flex items-center justify-center px-4"
+          style={{ background: "rgba(0,0,0,0.5)" }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowSignOutConfirm(false);
+          }}
+        >
+          <div className="bg-white rounded-lg shadow-2xl p-6 sm:p-8 max-w-sm w-full">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
+              Confirm Sign Out
+            </h3>
+            <p className="text-gray-600 text-sm sm:text-base mb-6">
+              Are you sure you want to sign out? You will need to sign in again
+              to access your account.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowSignOutConfirm(false)}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSignout}
+                className="px-4 py-2 text-white bg-[#ee6786] rounded-lg hover:opacity-90 transition-colors duration-200 font-medium"
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

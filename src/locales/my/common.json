@@ -1,7 +1,7 @@
 {
   "nav.search": "ရှာဖွေရန်",
   "nav.signIn": "ဝင်ရောက်ရန်",
-  "nav.language.en": "EN",  
+  "nav.language.en": "EN",
   "nav.language.my": "MM",
   "event.date": "နေ့ရက်",
   "event.time": "အချိန်",
@@ -26,7 +26,7 @@
   "select.2ndPriorityTicket": "ဒုတိယဦးစားပေးလက်မှတ် (Optional)",
   "select.3rdPriorityTicket": "တတိယဦးစားပေးလက်မှတ် (Optional)",
   "order.Confirm": "Order အတည်ပြုရန်",
-   "order.addedOrders_one": "Order 1 ခု ထည့်ပြီးပါပြီ",
+  "order.addedOrders_one": "Order 1 ခု ထည့်ပြီးပါပြီ",
   "order.addedOrders_other": "Order {{count}} ခု ထည့်ပြီးပါပြီ",
   "order.AddMore": "ထပ်ထည့်ရန်",
   "order.Delete": "Order ဖျက်ရန်",
@@ -66,5 +66,18 @@
   "changepw.sendVerification": "Verification Code ထည့်ပါ",
   "nav.signOut": "အကောင့်ထွက်ရန်",
   "home.eventsTitle": "ပွဲများ",
-  "home.category": "နိုင်ငံများ"
+  "home.category": "နိုင်ငံများ",
+  "orderDetails.title": "Order အသေးစိတ်",
+  "orderDetails.event": "ပွဲအမည်",
+  "orderDetails.time": "အချိန်",
+  "orderDetails.venue": "နေရာခန်းမ",
+  "orderDetails.eventDate": "နေ့စွဲ",
+  "orderDetails.Name": "အမည်",
+  "orderDetails.orderId": "ID",
+  "orderDetails.zone": "ဇုံ",
+  "orderDetails.row": "အတန်း",
+  "orderDetails.seat": "ထိုင်ခုံ",
+  "orderDetails.price": "စျေးနှုန်း",
+  "orderDetails.status": "အခြေအနေ",
+  "orderDetails.paymentInfo": "Tickets Anywhere တွင် ငွေပေးချေသည့်အချက်အလက်"
 }
