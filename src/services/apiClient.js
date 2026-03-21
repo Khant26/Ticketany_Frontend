@@ -3,6 +3,13 @@ import { API_CONFIG, getApiUrl } from "../config/api";
 const ACCESS_TOKEN_KEY = "access_token";
 const REFRESH_TOKEN_KEY = "refresh_token";
 
+// Global logout callback - set by AuthContext
+let onTokenExpiredCallback = null;
+
+export function setOnTokenExpired(callback) {
+  onTokenExpiredCallback = callback;
+}
+
 export function getAccessToken() {
   return localStorage.getItem(ACCESS_TOKEN_KEY);
 }
@@ -21,6 +28,16 @@ export function clearTokens() {
   localStorage.removeItem(REFRESH_TOKEN_KEY);
 }
 
+function handleTokenExpiration() {
+  console.log('🔐 Token expired - logging out');
+  clearTokens();
+  if (onTokenExpiredCallback) {
+    onTokenExpiredCallback();
+  }
+  // Redirect to signin
+  window.location.href = '/signin';
+}
+
 async function refreshAccessToken() {
   const refresh = getRefreshToken();
   if (!refresh) return null;
@@ -35,7 +52,10 @@ async function refreshAccessToken() {
     body: JSON.stringify({ refresh }),
   });
 
-  if (!res.ok) return null;
+  if (!res.ok) {
+    handleTokenExpiration();
+    return null;
+  }
   const data = await res.json();
 
   const newAccess = data?.access || data?.access_token || null;

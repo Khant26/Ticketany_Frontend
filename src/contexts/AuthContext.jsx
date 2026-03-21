@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import axios from "axios";
+import { setOnTokenExpired } from "../services/apiClient";
 
 const AuthContext = createContext();
 
@@ -76,6 +77,9 @@ const AuthContextProvider = ({ children}) => {
     useEffect(() => {
         const token = localStorage.getItem('access_token');
         if (token) getUser();
+        
+        // Register logout callback for when token expires during API calls
+        setOnTokenExpired(logout);
     }, [])
 
     console.log(user)
