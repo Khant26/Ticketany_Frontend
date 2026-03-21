@@ -58,6 +58,14 @@ function EventGrid({ selectedCategory, variant = "user" }) {
     return null;
   };
 
+  const formatCardEventDate = (dateString) => {
+    if (!dateString) return "";
+
+    return String(dateString)
+      .replace(/,\s*/g, " - ")  // Replace comma with dash
+      .replace(/(\d{4})(?=\d)/, "$1 - ");  // Year separator (if needed)
+  };
+
   const getEventImage = (event) => getCoverImageFromEvent(event);
 
   const filteredEvents = (() => {
@@ -122,7 +130,7 @@ function EventGrid({ selectedCategory, variant = "user" }) {
               </div>
               <div className="flex flex-col p-4 gap-2">
                 <div className="text-md font-medium text-[#e51f4b]">
-                  {event.event_date}
+                  {formatCardEventDate(event.event_date)}
                 </div>
                 <div className="text-lg font-semibold">{event.event_name}</div>
                 <div className="text-md text-gray-500">

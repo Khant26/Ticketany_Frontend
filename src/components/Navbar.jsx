@@ -4,6 +4,7 @@ import Logo from "../assets/logo.jpg";
 import { HiOutlineGlobeAlt } from "react-icons/hi2";
 import { FiLogOut } from "react-icons/fi";
 import { HiMiniUser } from "react-icons/hi2";
+import { HiBars3, HiXMark } from "react-icons/hi2";
 import { Link, Navigate } from "react-router-dom";
 import SignUp from "./SignUp";
 import SignIn from "./SignIn";
@@ -22,6 +23,7 @@ function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState(null); // was hard‑coded 'HybridDev'
   const [searchQuery, setSearchQuery] = useState("");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const updateLoginState = () => {
     try {
@@ -163,164 +165,352 @@ function Navbar() {
   return (
     <>
       <div className="navbar fixed top-0 left-0 right-0 bg-white shadow-md z-40 py-1">
-        <div className="flex flex-wrap items-center w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
-          <Link to="/">
-            <img
-              src={Logo}
-              alt="Logo"
-              className="w-16 h-16 object-contain transition transform-500 hover:scale-105 "
-            />
-          </Link>
-
-          {!isProfilePage ? (
-            <div className="flex items-center flex-auto mx-1 sm:mx-2 md:mx-3 min-w-[200px] md:min-w-[300px]">
-              <div className="relative flex-1">
-                <input
-                  type="text"
-                  placeholder={t("nav.search")}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleSearch();
-                  }}
-                  className="w-full pl-8 sm:pl-10 pr-4 sm:pr-6 py-2 sm:py-3 bg-gray-200 rounded text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white transition-all duration-200"
+        <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
+          {/* ================= MOBILE NAVBAR (sm only) ================= */}
+          <div className="flex flex-col md:hidden w-full">
+            {/* Top row: Logo left, menu right */}
+            <div className="flex items-center justify-between w-full">
+              <Link to="/">
+                <img
+                  src={Logo}
+                  alt="Logo"
+                  className="w-14 h-14 object-contain transition duration-200 hover:scale-105"
                 />
-                <div className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2">
-                  <svg
-                    className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </div>
-              </div>
+              </Link>
+
               <button
-                type="button"
-                onClick={handleSearch}
-                disabled={!searchQuery.trim()}
-                className="text-white px-4 sm:px-6 py-2 sm:py-3 rounded ml-2 sm:ml-3 transition-colors-transform duration-200 hover:scale-105 bg-[#ee6786] hover:opacity-80 active:bg-[#d45573]"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 text-gray-700 hover:text-[#e51f4b] transition-colors"
               >
-                {t("nav.search")}
+                {isMobileMenuOpen ? (
+                  <HiXMark className="w-7 h-7" />
+                ) : (
+                  <HiBars3 className="w-7 h-7" />
+                )}
               </button>
             </div>
-          ) : (
-            <div className="flex-auto mx-1 sm:mx-2 md:mx-3 min-w-[200px] md:min-w-[300px]" />
-          )}
 
-          {/* Language switcher */}
-          <div className="flex items-center ml-2 sm:ml-4 md:ml-6 text-black gap-0">
-            <button
-              onClick={() => {
-                i18n.changeLanguage("en");
-                localStorage.setItem("lng", "en");
-              }}
-              className={`px-2 py-1 rounded text-sm font-semibold transition-colors ${
-                i18n.language === "en"
-                  ? "text-[#e51f4b]"
-                  : "text-gray-600 cursor-pointer hover:text-[#e51f4b]"
-              }`}
-              style={{
-                backgroundColor: "transparent",
-                border: "none",
-                outline: "none",
-              }}
-            >
-              {t("nav.language.en")}
-            </button>
-            <HiOutlineGlobeAlt className="w-5 h-5 mx-1 text-gray-600" />
-            <button
-              onClick={() => {
-                i18n.changeLanguage("my");
-                localStorage.setItem("lng", "my");
-              }}
-              className={`px-2 py-1 rounded text-sm font-semibold transition-colors ${
-                i18n.language === "my"
-                  ? "text-[#e51f4b]"
-                  : "text-gray-600 cursor-pointer hover:text-[#e51f4b]"
-              }`}
-              style={{
-                backgroundColor: "transparent",
-                border: "none",
-                outline: "none",
-              }}
-            >
-              {t("nav.language.my")}
-            </button>
+            {/* Search bar below (hide on profile page if you want same behavior) */}
+            {!isProfilePage && (
+              <div className="mt-2 w-full">
+                <div className="relative w-full">
+                  <input
+                    type="text"
+                    placeholder={t("nav.search")}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSearch();
+                    }}
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-200 rounded text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white transition-all duration-200"
+                  />
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Mobile dropdown menu */}
+            {isMobileMenuOpen && (
+              <div className="mt-2 bg-white border rounded-lg shadow-md p-3 flex flex-col gap-3">
+                {/* Language switcher */}
+                <div className="flex items-center justify-center text-black gap-2 border-b pb-3">
+                  <button
+                    onClick={() => {
+                      i18n.changeLanguage("en");
+                      localStorage.setItem("lng", "en");
+                    }}
+                    className={`px-2 py-1 rounded text-sm font-semibold transition-colors ${
+                      i18n.language === "en"
+                        ? "text-[#e51f4b]"
+                        : "text-gray-600 hover:text-[#e51f4b]"
+                    }`}
+                    style={{
+                      backgroundColor: "transparent",
+                      border: "none",
+                      outline: "none",
+                    }}
+                  >
+                    {t("nav.language.en")}
+                  </button>
+
+                  <HiOutlineGlobeAlt className="w-5 h-5 text-gray-600" />
+
+                  <button
+                    onClick={() => {
+                      i18n.changeLanguage("my");
+                      localStorage.setItem("lng", "my");
+                    }}
+                    className={`px-2 py-1 rounded text-sm font-semibold transition-colors ${
+                      i18n.language === "my"
+                        ? "text-[#e51f4b]"
+                        : "text-gray-600 hover:text-[#e51f4b]"
+                    }`}
+                    style={{
+                      backgroundColor: "transparent",
+                      border: "none",
+                      outline: "none",
+                    }}
+                  >
+                    {t("nav.language.my")}
+                  </button>
+                </div>
+
+                {/* User/Profile actions */}
+                {isLoggedIn ? (
+                  <div className="flex flex-col gap-2">
+                    {!isProfilePage && (
+                      <Link
+                        to="/profile"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center text-gray-700 p-2 rounded hover:bg-gray-100 hover:text-red-600 transition-colors"
+                      >
+                        <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center mr-2">
+                          <span className="text-xs font-medium text-gray-600">
+                            {(() => {
+                              const dn =
+                                typeof userName === "string"
+                                  ? userName
+                                  : userName?.name ||
+                                    userName?.username ||
+                                    userName?.user?.name ||
+                                    userName?.user?.username ||
+                                    userName?.user?.email ||
+                                    "U";
+                              const initial = String(dn).trim().charAt(0) || "U";
+                              return initial.toUpperCase();
+                            })()}
+                          </span>
+                        </div>
+
+                        <span className="font-medium">
+                          {(() => {
+                            if (typeof userName === "string") return userName;
+                            const dn =
+                              userName?.name ||
+                              userName?.username ||
+                              userName?.user?.name ||
+                              userName?.user?.username ||
+                              userName?.user?.email ||
+                              "User";
+                            return typeof dn === "string"
+                              ? dn.includes("@")
+                                ? dn.split("@")[0]
+                                : dn
+                              : "User";
+                          })()}
+                        </span>
+                      </Link>
+                    )}
+
+                    <button
+                      onClick={() => {
+                        handleSignOutClick();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="flex items-center text-gray-700 p-2 rounded hover:bg-gray-100 hover:text-red-600 transition-colors"
+                    >
+                      <FiLogOut className="w-5 h-5 mr-2" />
+                      <span>{t("nav.signOut")}</span>
+                    </button>
+                  </div>
+                ) : (
+                  !isProfilePage && (
+                    <button
+                      onClick={() => {
+                        handleSignInClick();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="flex items-center text-gray-700 p-2 rounded hover:bg-gray-100 hover:text-red-600 transition-colors"
+                      style={{ backgroundColor: "transparent" }}
+                    >
+                      <HiMiniUser className="w-5 h-5 mr-2" />
+                      <span>{t("nav.signIn")}</span>
+                    </button>
+                  )
+                )}
+              </div>
+            )}
           </div>
 
-          {/* User/Profile */}
-          <div className="relative ml-2 sm:ml-4 md:ml-6 lg:ml-10 min-w-[180px] md:min-w-[220px] flex justify-left">
-            {isLoggedIn ? (
-              <div className="flex items-center gap-4 sm:gap-5 md:gap-7">
-                {!isProfilePage && (
-                  <Link
-                    to="/profile"
-                    className="flex items-center text-gray-600 p-2 cursor-pointer hover:text-red-600 transition-colors duration-200 hover:bg-gray-100"
-                    style={{ backgroundColor: "transparent" }}
-                  >
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gray-300 rounded-full flex items-center justify-center mr-1 sm:mr-2">
-                      <span className="text-xs sm:text-xs font-medium text-gray-600">
-                        {(() => {
-                          const dn =
-                            typeof userName === "string"
-                              ? userName
-                              : userName?.name ||
-                                userName?.username ||
-                                userName?.user?.name ||
-                                userName?.user?.username ||
-                                userName?.user?.email ||
-                                "U";
-                          const initial = String(dn).trim().charAt(0) || "U";
-                          return initial.toUpperCase();
-                        })()}
-                      </span>
-                    </div>
-                    <span className="font-medium">
-                      {(() => {
-                        if (typeof userName === "string") return userName;
-                        const dn =
-                          userName?.name ||
-                          userName?.username ||
-                          userName?.user?.name ||
-                          userName?.user?.username ||
-                          userName?.user?.email ||
-                          "User";
-                        return typeof dn === "string"
-                          ? dn.includes("@")
-                            ? dn.split("@")[0]
-                            : dn
-                          : "User";
-                      })()}
-                    </span>
-                  </Link>
-                )}
+          {/* ================= DESKTOP NAVBAR (md and above) ================= */}
+          <div className="hidden md:flex flex-wrap items-center w-full">
+            <Link to="/">
+              <img
+                src={Logo}
+                alt="Logo"
+                className="w-16 h-16 object-contain transition duration-200 hover:scale-105"
+              />
+            </Link>
+
+            {!isProfilePage ? (
+              <div className="flex items-center flex-auto mx-3 min-w-[300px]">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    placeholder={t("nav.search")}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSearch();
+                    }}
+                    className="w-full pl-10 pr-6 py-3 bg-gray-200 rounded text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white transition-all duration-200"
+                  />
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                    <svg
+                      className="w-6 h-6 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
                 <button
-                  onClick={handleSignOutClick}
-                  className="flex items-center text-gray-600 border-none outline-none shadow-none p-2 cursor-pointer hover:text-red-600 transition-colors duration-200"
+                  type="button"
+                  onClick={handleSearch}
+                  disabled={!searchQuery.trim()}
+                  className="text-white px-6 py-3 rounded ml-3 transition duration-200 hover:scale-105 bg-[#ee6786] hover:opacity-80 active:bg-[#d45573]"
                 >
-                  <FiLogOut className="w-5 h-5 mr-1.5" />
-                  <span>{t("nav.signOut")}</span>
+                  {t("nav.search")}
                 </button>
               </div>
             ) : (
-              !isProfilePage && (
-                <button
-                  onClick={handleSignInClick}
-                  className="flex items-center text-gray-600 border-none outline-none shadow-none p-0 cursor-pointer hover:text-red-600 transition-colors duration-200"
-                  style={{ backgroundColor: "transparent" }}
-                >
-                  <HiMiniUser className="w-5 h-5 mr-2" />
-                  <span>{t("nav.signIn")}</span>
-                </button>
-              )
+              <div className="flex-auto mx-3 min-w-[300px]" />
             )}
+
+            {/* Language switcher */}
+            <div className="flex items-center ml-6 text-black gap-0">
+              <button
+                onClick={() => {
+                  i18n.changeLanguage("en");
+                  localStorage.setItem("lng", "en");
+                }}
+                className={`px-2 py-1 rounded text-sm font-semibold transition-colors ${
+                  i18n.language === "en"
+                    ? "text-[#e51f4b]"
+                    : "text-gray-600 cursor-pointer hover:text-[#e51f4b]"
+                }`}
+                style={{
+                  backgroundColor: "transparent",
+                  border: "none",
+                  outline: "none",
+                }}
+              >
+                {t("nav.language.en")}
+              </button>
+
+              <HiOutlineGlobeAlt className="w-5 h-5 mx-1 text-gray-600" />
+
+              <button
+                onClick={() => {
+                  i18n.changeLanguage("my");
+                  localStorage.setItem("lng", "my");
+                }}
+                className={`px-2 py-1 rounded text-sm font-semibold transition-colors ${
+                  i18n.language === "my"
+                    ? "text-[#e51f4b]"
+                    : "text-gray-600 cursor-pointer hover:text-[#e51f4b]"
+                }`}
+                style={{
+                  backgroundColor: "transparent",
+                  border: "none",
+                  outline: "none",
+                }}
+              >
+                {t("nav.language.my")}
+              </button>
+            </div>
+
+            {/* User/Profile */}
+            <div className="relative ml-4 lg:ml-10 min-w-[180px] md:min-w-[220px] flex justify-start">
+              {isLoggedIn ? (
+                <div className="flex items-center gap-5 md:gap-7">
+                  {!isProfilePage && (
+                    <Link
+                      to="/profile"
+                      className="flex items-center text-gray-600 p-2 cursor-pointer hover:text-red-600 transition-colors duration-200 hover:bg-gray-100"
+                      style={{ backgroundColor: "transparent" }}
+                    >
+                      <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center mr-2">
+                        <span className="text-xs font-medium text-gray-600">
+                          {(() => {
+                            const dn =
+                              typeof userName === "string"
+                                ? userName
+                                : userName?.name ||
+                                  userName?.username ||
+                                  userName?.user?.name ||
+                                  userName?.user?.username ||
+                                  userName?.user?.email ||
+                                  "U";
+                            const initial = String(dn).trim().charAt(0) || "U";
+                            return initial.toUpperCase();
+                          })()}
+                        </span>
+                      </div>
+
+                      <span className="font-medium">
+                        {(() => {
+                          if (typeof userName === "string") return userName;
+                          const dn =
+                            userName?.name ||
+                            userName?.username ||
+                            userName?.user?.name ||
+                            userName?.user?.username ||
+                            userName?.user?.email ||
+                            "User";
+                          return typeof dn === "string"
+                            ? dn.includes("@")
+                              ? dn.split("@")[0]
+                              : dn
+                            : "User";
+                        })()}
+                      </span>
+                    </Link>
+                  )}
+
+                  <button
+                    onClick={handleSignOutClick}
+                    className="flex items-center text-gray-600 border-none outline-none shadow-none p-2 cursor-pointer hover:text-red-600 transition-colors duration-200"
+                  >
+                    <FiLogOut className="w-5 h-5 mr-1.5" />
+                    <span>{t("nav.signOut")}</span>
+                  </button>
+                </div>
+              ) : (
+                !isProfilePage && (
+                  <button
+                    onClick={handleSignInClick}
+                    className="flex items-center text-gray-600 border-none outline-none shadow-none p-0 cursor-pointer hover:text-red-600 transition-colors duration-200"
+                    style={{ backgroundColor: "transparent" }}
+                  >
+                    <HiMiniUser className="w-5 h-5 mr-2" />
+                    <span>{t("nav.signIn")}</span>
+                  </button>
+                )
+              )}
+            </div>
           </div>
         </div>
       </div>

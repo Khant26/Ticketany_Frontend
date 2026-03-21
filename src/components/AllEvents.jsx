@@ -58,6 +58,14 @@ function AllEventsPage({ selectedCategory: propCategory }) {
     return null;
   };
 
+    const formatCardEventDate = (dateString) => {
+    if (!dateString) return "";
+
+    return String(dateString)
+      .replace(/,\s*/g, " - ")  // Replace comma with dash
+      .replace(/(\d{4})(?=\d)/, "$1 - ");  // Year separator (if needed)
+    };
+
   const filteredEvents = (() => {
     const selectedCategoryId = getSelectedCategoryId();
     let filtered = events;
@@ -80,7 +88,7 @@ function AllEventsPage({ selectedCategory: propCategory }) {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <div className="flex-1 pt-20">
-        <div className="mx-auto w-full max-w-[1060px] py-7">
+        <div className="mx-auto w-full max-w-[1060px] pt-10 pb-7 px-4 lg:px-auto lg:pt-7">
           <h2 className="text-2xl font-bold mb-6 text-center">
             {category || propCategory
               ? `${category || propCategory} Events`
@@ -118,7 +126,7 @@ function AllEventsPage({ selectedCategory: propCategory }) {
 
                   <div className="flex flex-col p-4 gap-2">
                     <div className="text-md font-medium text-red-500">
-                      {event.event_date}
+                      {formatCardEventDate(event.event_date)}
                     </div>
                     <div className="text-lg font-semibold">
                       {event.event_name}

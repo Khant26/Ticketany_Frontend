@@ -14,7 +14,7 @@ function Home() {
       <div className="min-h-screen max-w-8xl bg-gray-50 pt-24 sm:pt-28 pb-16 sm:pb-24">
         {/*Banner*/}
         {/* Banner with breathing room below */}
-        <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8 mb-12 sm:mb-16 flex justify-center">
+        <div className="mx-auto max-w-8xl px-4 sm:px-4 md:px-6 lg:px-8 mb-12 mt-12 sm:mb-14 sm:mt-14 md:mb-16 flex justify-center">
           <Banner />
         </div>
 

@@ -7,6 +7,7 @@ import SignUp from "../components/SignUp"
 import SignIn from "../components/SignIn"
 import Profile from "../components/Profile"
 import AllEvents from "../components/AllEvents"
+import ErrorPage from "../components/errorpage"
 
 let router = createBrowserRouter([
   {
@@ -39,6 +40,10 @@ let router = createBrowserRouter([
       {
         path: "EventPageDetails/:id",
         Component: EventPageDetails,
+      },
+      {
+        path: "*",
+        Component: ErrorPage,
       },
     ],
   }

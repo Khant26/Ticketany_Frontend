@@ -281,7 +281,7 @@ function OrderForm({
           onClick={handleBackdropClick}
         >
           <div
-            className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-3xl relative max-h-[95vh] overflow-y-auto"
+            className="bg-white rounded-lg sm:rounded-xl shadow-2xl p-4 sm:p-6 md:p-8 w-full max-w-3xl relative max-h-[95vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -290,7 +290,7 @@ function OrderForm({
                 resetForm();
                 setAllOrders([]);
               }}
-              className="cursor-pointer absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold"
+              className="cursor-pointer absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-600 text-xl sm:text-2xl font-bold"
               style={{
                 backgroundColor: "transparent",
                 border: "none",
@@ -299,14 +299,15 @@ function OrderForm({
               ×
             </button>
 
-            <div className="text-center mb-8">
-              <p className="text-black text-3xl mb-3 font-bold">
+            <div className="text-center mb-5 sm:mb-6 md:mb-8">
+              <p className="text-black text-xl sm:text-2xl md:text-3xl mb-2 sm:mb-3 font-bold leading-snug">
                 {isEditingOrder !== null
                   ? t("order.EditFormTitle")
                   : t("order.FillFormTitle")}
               </p>
+
               {allOrders.length > 0 && (
-                <p className="text-gray-600 text-lg">
+                <p className="text-gray-600 text-sm sm:text-base md:text-lg">
                   {isEditingOrder !== null
                     ? `${t("order.EditingOrder")} #${isEditingOrder + 1}`
                     : t("order.addedOrders", { count: allOrders.length })}
@@ -314,22 +315,23 @@ function OrderForm({
               )}
             </div>
 
-            <div className="max-w-4xl mx-auto px-8">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="cursor-default flex items-center min-h-[60px]">
-                  <span className="block text-lg font-medium text-gray-700 min-w-[180px]">
+            <div className="max-w-4xl mx-auto px-0 sm:px-2 md:px-4">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 md:space-y-6">
+                {/* Event */}
+                <div className="cursor-default flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 min-h-[60px]">
+                  <span className="block text-sm sm:text-base md:text-lg font-medium text-gray-700 min-w-full sm:min-w-[150px] md:min-w-[180px]">
                     {t("order.Event")}
                   </span>
-                  <span className=" block text-lg font-medium text-gray-700 ml-8">
+                  <span className="block text-sm sm:text-base md:text-lg font-medium text-gray-700 sm:ml-4 md:ml-8 break-words">
                     {eventTitle}
                   </span>
                 </div>
 
                 {/* User Name */}
-                <div className="flex items-center min-h-[60px]">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 min-h-[60px]">
                   <label
                     htmlFor="userName"
-                    className="block text-lg font-medium text-gray-700 min-w-[180px]"
+                    className="block text-sm sm:text-base md:text-lg font-medium text-gray-700 min-w-full sm:min-w-[150px] md:min-w-[180px]"
                   >
                     {t("order.UserName")}
                   </label>
@@ -339,17 +341,17 @@ function OrderForm({
                     name="userName"
                     value={formData.userName}
                     onChange={handleChange}
-                    className="flex-1 text-gray-600 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
+                    className="w-full sm:flex-1 text-gray-600 px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 sm:ml-4 md:ml-8"
                     placeholder={t("place.UserName")}
                     required
                   />
                 </div>
 
                 {/* Facebook Name */}
-                <div className="flex items-center min-h-[60px]">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 min-h-[60px]">
                   <label
                     htmlFor="facebookName"
-                    className="block text-lg font-medium text-gray-700 min-w-[180px]"
+                    className="block text-sm sm:text-base md:text-lg font-medium text-gray-700 min-w-full sm:min-w-[150px] md:min-w-[180px]"
                   >
                     {t("order.FacebookName")}
                   </label>
@@ -359,17 +361,17 @@ function OrderForm({
                     name="facebookName"
                     value={formData.facebookName}
                     onChange={handleChange}
-                    className="flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
+                    className="w-full sm:flex-1 text-gray-600 px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 sm:ml-4 md:ml-8"
                     placeholder={t("place.FacebookName")}
                     required
                   />
                 </div>
 
                 {/* Member Code */}
-                <div className="flex items-center min-h-[60px]">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 min-h-[60px]">
                   <label
                     htmlFor="memberCode"
-                    className="block text-lg font-medium text-gray-700 min-w-[180px]"
+                    className="block text-sm sm:text-base md:text-lg font-medium text-gray-700 min-w-full sm:min-w-[150px] md:min-w-[180px]"
                   >
                     {t("order.MemberCode")}
                   </label>
@@ -379,16 +381,16 @@ function OrderForm({
                     name="memberCode"
                     value={formData.memberCode}
                     onChange={handleChange}
-                    className="flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
+                    className="w-full sm:flex-1 text-gray-600 px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 sm:ml-4 md:ml-8"
                     placeholder={t("place.MemberCode")}
                   />
                 </div>
 
                 {/* Priority Date */}
-                <div className="flex items-center min-h-[60px]">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 min-h-[60px]">
                   <label
                     htmlFor="priorityDate"
-                    className="block text-lg font-medium text-gray-700 min-w-[180px]"
+                    className="block text-sm sm:text-base md:text-lg font-medium text-gray-700 min-w-full sm:min-w-[150px] md:min-w-[180px]"
                   >
                     {t("order.PriorityDate")}
                   </label>
@@ -397,7 +399,7 @@ function OrderForm({
                     name="priorityDate"
                     value={formData.priorityDate}
                     onChange={handleChange}
-                    className="cursor-pointer flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
+                    className="cursor-pointer w-full sm:flex-1 px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-gray-600 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 sm:ml-4 md:ml-8"
                   >
                     <option value="">{t("select.PriorityDate")}</option>
                     {availableDates.map((date, index) => (
@@ -409,10 +411,10 @@ function OrderForm({
                 </div>
 
                 {/* 1st Priority Ticket */}
-                <div className="flex items-center min-h-[60px]">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 min-h-[60px]">
                   <label
                     htmlFor="firstPriorityTicket"
-                    className="block text-lg font-medium text-gray-700 min-w-[180px]"
+                    className="block text-sm sm:text-base md:text-lg font-medium text-gray-700 min-w-full sm:min-w-[150px] md:min-w-[180px]"
                   >
                     {t("order.FirstPriorityTicket")}
                   </label>
@@ -421,7 +423,7 @@ function OrderForm({
                     name="firstPriorityTicket"
                     value={formData.firstPriorityTicket}
                     onChange={handleChange}
-                    className="cursor-pointer flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
+                    className="cursor-pointer w-full sm:flex-1 px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-gray-600 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 sm:ml-4 md:ml-8"
                     required
                   >
                     <option value="">{t("select.1stPriorityTicket")}</option>
@@ -434,10 +436,10 @@ function OrderForm({
                 </div>
 
                 {/* 2nd Priority Ticket */}
-                <div className="flex items-center min-h-[60px]">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 min-h-[60px]">
                   <label
                     htmlFor="secondPriorityTicket"
-                    className="block text-lg font-medium text-gray-700 min-w-[180px]"
+                    className="block text-sm sm:text-base md:text-lg font-medium text-gray-700 min-w-full sm:min-w-[150px] md:min-w-[180px]"
                   >
                     {t("order.SecondPriorityTicket")}
                   </label>
@@ -446,7 +448,7 @@ function OrderForm({
                     name="secondPriorityTicket"
                     value={formData.secondPriorityTicket}
                     onChange={handleChange}
-                    className="cursor-pointer flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
+                    className="cursor-pointer w-full sm:flex-1 px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-gray-600 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 sm:ml-4 md:ml-8"
                   >
                     <option value="">{t("select.2ndPriorityTicket")}</option>
                     {availablePricesForSecond.map((price, index) => (
@@ -458,10 +460,10 @@ function OrderForm({
                 </div>
 
                 {/* 3rd Priority Ticket */}
-                <div className="flex items-center min-h-[60px]">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 min-h-[60px]">
                   <label
                     htmlFor="thirdPriorityTicket"
-                    className="block text-lg font-medium text-gray-700 min-w-[180px]"
+                    className="block text-sm sm:text-base md:text-lg font-medium text-gray-700 min-w-full sm:min-w-[150px] md:min-w-[180px]"
                   >
                     {t("order.ThirdPriorityTicket")}
                   </label>
@@ -470,7 +472,7 @@ function OrderForm({
                     name="thirdPriorityTicket"
                     value={formData.thirdPriorityTicket}
                     onChange={handleChange}
-                    className="cursor-pointer flex-1 px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 ml-8"
+                    className="cursor-pointer w-full sm:flex-1 px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-gray-600 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 sm:ml-4 md:ml-8"
                   >
                     <option value="">{t("select.3rdPriorityTicket")}</option>
                     {availablePricesForThird.map((price, index) => (
@@ -481,19 +483,27 @@ function OrderForm({
                   </select>
                 </div>
 
-                {/* Submit Button */}
-                <div className="flex space-x-8 justify-center mt-10">
+                {/* Submit + Back Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 md:gap-8 justify-center mt-6 sm:mt-8 md:mt-10">
                   <button
                     type="submit"
-                    className="cursor-pointer w-1/2 text-white py-4 px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-lg bg-[#ee6786] active:bg-[#d45573]"
+                    className="cursor-pointer w-full sm:w-1/2 text-white py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-sm sm:text-base md:text-lg bg-[#ee6786] active:bg-[#d45573]"
                   >
                     {isEditingOrder !== null ? "Update Order" : "Next"}
                   </button>
+
                   {showBackButton && (
-                    <button onClick={()=> {setShowBackButton(false); setShowOrderConfirm(true);}}
-                     className="cursor-pointer w-1/2 text-white py-4 px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-lg bg-[#ee6786] active:bg-[#d45573]">
-                     Back to Orders</button>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowBackButton(false);
+                        setShowOrderConfirm(true);
+                      }}
+                      className="cursor-pointer w-full sm:w-1/2 text-white py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-sm sm:text-base md:text-lg bg-[#ee6786] active:bg-[#d45573]"
+                    >
+                      Back to Orders
+                    </button>
+                  )}
                 </div>
               </form>
             </div>
