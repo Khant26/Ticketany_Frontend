@@ -1,24 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import BP1 from "../assets/BP1.jpg";
-import BP2 from "../assets/BP2.jpeg";
-import BP3 from "../assets/BP3.jpg";
-import BP4 from "../assets/BP4.jpg";
-import NT1 from "../assets/NT1.jpg";
-import NT2 from "../assets/NT2.jpg";
-import NT3 from "../assets/NT3.jpeg";
-import NT4 from "../assets/NT4.jpeg";
 import { Link, useParams } from "react-router";
-import guide from "../assets/guideplaceholder.jpg";
 import OrderForm from "./OrderForm";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
 
 function EventPageDetails() {
   const { t } = useTranslation();
-
   let { id } = useParams();
-
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageFading, setIsImageFading] = useState(false);
   const fadeTimeoutRef = useRef(null);
@@ -44,21 +33,10 @@ function EventPageDetails() {
       const response = await fetch(`${baseUrl}events/`);
       const data = await response.json();
       setEventDetails(data);
-      console.log("EventPageDetails - Fetched events:", data);
 
-      // Debug specific event being viewed
       if (data.length > 0) {
         const targetEvent =
           data.find((event) => event.id === parseInt(id)) || data[0];
-        console.log("EventPageDetails - Target event:", targetEvent);
-        console.log(
-          "EventPageDetails - event_images:",
-          targetEvent?.event_images,
-        );
-        console.log(
-          "EventPageDetails - event_image:",
-          targetEvent?.event_image,
-        );
       }
     };
     fetchEvents();
@@ -72,17 +50,11 @@ function EventPageDetails() {
     };
   }, []);
 
-  // Listen for login/logout events from Navbar
   useEffect(() => {
     const updateLoginState = () => {
       const accessToken = localStorage.getItem("access_token");
       const userData = localStorage.getItem("user_data");
       const newLoggedInState = !!(accessToken && userData);
-      console.log("🟢 EventPageDetails: Login state updated -", {
-        hasAccessToken: !!accessToken,
-        hasUserData: !!userData,
-        newLoggedInState,
-      });
       setIsLoggedIn(newLoggedInState);
     };
 
@@ -97,8 +69,6 @@ function EventPageDetails() {
 
   const eventDetail =
     eventDetails.find((event) => event.id === parseInt(id)) || eventDetails[0];
-
-  // Show loading state while fetching events
   if (eventDetails.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen mt-16 md:mt-24">
@@ -108,7 +78,6 @@ function EventPageDetails() {
     );
   }
 
-  // Show not found message if event doesn't exist
   if (id && !eventDetail) {
     return (
       <div className="mt-16 lg:mb-10 lg:px-100 md:mt-24 px-4 md:px-8 py-6 text-center">
@@ -120,14 +89,11 @@ function EventPageDetails() {
     );
   }
 
-  // Function to format event dates for display
   const formatEventDates = (dateData) => {
     if (!dateData) return "TBD";
 
     try {
       let dates = dateData;
-
-      // If it's a string, try to parse it as JSON array
       if (typeof dateData === "string") {
         try {
           const parsed = JSON.parse(dateData);
@@ -135,31 +101,26 @@ function EventPageDetails() {
             dates = parsed;
           }
         } catch {
-          // If parsing fails, treat as is
           dates = dateData;
         }
       }
 
-      // Handle array format
       if (Array.isArray(dates)) {
         return dates.join(", ");
       }
 
-      // Handle single string value
       return String(dates);
     } catch (error) {
       return String(dateData);
     }
   };
 
-  // Function to format ticket prices for display
   const formatTicketPrices = (priceData) => {
     if (!priceData) return "TBD";
 
     try {
       let prices = priceData;
 
-      // If it's a string, try to parse it as JSON array
       if (typeof priceData === "string") {
         try {
           const parsed = JSON.parse(priceData);
@@ -167,22 +128,18 @@ function EventPageDetails() {
             prices = parsed;
           }
         } catch {
-          // If parsing fails, treat as is
           prices = priceData;
         }
       }
 
-      // Handle array format
       if (Array.isArray(prices)) {
         return prices.join(", ");
       }
 
-      // Handle single number
       if (typeof prices === "number") {
         return String(prices);
       }
 
-      // Handle object format
       if (typeof prices === "object") {
         return Object.entries(prices)
           .map(
@@ -192,41 +149,30 @@ function EventPageDetails() {
           .join(", ");
       }
 
-      // Handle string value
       return String(prices);
     } catch (error) {
       return String(priceData);
     }
   };
 
-  // Function to get event images from various possible formats
   const getEventImages = (event) => {
-    // Use the new images array structure with image_url
     if (event?.images?.length > 0) {
       console.log("getEventImages - Using images array with image_url");
       return event.images.map((img) => img.image_url).filter(Boolean);
     }
 
-    // FALLBACK: Parse multiple images from comma-separated string in event_image
     if (event.event_image && typeof event.event_image === "string") {
       if (event.event_image.includes("|||SEPARATOR|||")) {
-        // Multiple images stored as separated string
         const images = event.event_image
           .split("|||SEPARATOR|||")
           .filter(Boolean);
-        console.log(
-          "getEventImages - Found separated images:",
-          images.length,
-          "items",
-        );
+
         return images;
       } else {
-        // Single image
-        console.log("getEventImages - Using single event_image");
         return [event.event_image];
       }
     }
-    // Original logic for proper event_images array (when backend is fixed)
+
     if (event.event_images && Array.isArray(event.event_images)) {
       const processedImages = event.event_images
         .map((img, index) => {
@@ -278,20 +224,14 @@ function EventPageDetails() {
     goToImage(nextIndex);
   };
 
-  // Check if user is logged in
   const isUserLoggedIn = () => {
-    console.log("🔵 EventPageDetails: isUserLoggedIn() called -", isLoggedIn);
     return isLoggedIn;
   };
 
-  // Handle Order Now button click
   const handleOrderNowClick = () => {
-    console.log("⚡ EventPageDetails: Order Now clicked -", { isLoggedIn });
     if (isUserLoggedIn()) {
-      console.log("✅ User is logged in, showing OrderForm");
       setShowOrderForm(true);
     } else {
-      console.log("❌ User is not logged in, showing SignIn");
       setShowSignIn(true);
     }
   };

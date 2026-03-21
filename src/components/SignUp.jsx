@@ -28,7 +28,6 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
     setError("");
     setSuccess("");
 
-    // Validation
     if (!formData.email.trim()) {
       setError("Please enter your email");
       return;
@@ -151,7 +150,6 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
       if (!verifyRes.ok) {
         let errorMessage = "OTP verification failed. Please try again.";
 
-        // Handle various error formats
         if (data?.message) errorMessage = data.message;
         else if (data?.error) errorMessage = data.error;
         else if (data?.detail) errorMessage = data.detail;
@@ -326,7 +324,6 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
                 id="otpCode"
                 value={otpCode}
                 onChange={(e) => {
-                  // Only allow digits and limit to 6
                   const value = e.target.value.replace(/\D/g, "").slice(0, 6);
                   setOtpCode(value);
                 }}

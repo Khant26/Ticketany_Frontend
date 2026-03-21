@@ -134,15 +134,13 @@ function OrderForm({
   };
 
   const handleConfirmOrder = async () => {
-    if (submitting) return; // prevent double submit
+    if (submitting) return; 
     setSubmitting(true);
     setSubmitError("");
 
     try {
-      // Get authentication token
       const token = localStorage.getItem("access_token");
       
-      // Prepare all tickets for batch creation
       const ticketsPayload = allOrders.map(entry => ({
         passport_name: entry.userName,
         facebook_name: entry.facebookName,
@@ -153,7 +151,6 @@ function OrderForm({
         trd_pt: entry.thirdPriorityTicket || null,
       }));
 
-      // Single API call to create all tickets in one order
       const response = await fetch(`${API_BASE_URL}tickets/`, {
         method: "POST",
         headers: {
@@ -162,7 +159,7 @@ function OrderForm({
         },
         body: JSON.stringify({
           event: eventId,
-          tickets: ticketsPayload  // This triggers batch creation
+          tickets: ticketsPayload  
         }),
       });
 
@@ -179,7 +176,6 @@ function OrderForm({
         );
       }
 
-      // Success: show completion with the order id from response
       setOrderId(String(responseData.order_id || ""));
       setShowOrderConfirm(false);
       setShowOrderComplete(true);
@@ -189,7 +185,6 @@ function OrderForm({
     } catch (err) {
       const msg = err?.message || "Failed to submit order";
       setSubmitError(msg);
-      // Keep confirmation modal open so user can retry
       alert(`Order submission failed: ${msg}`);
     } finally {
       setSubmitting(false);
@@ -198,12 +193,10 @@ function OrderForm({
 
   const handleCloseComplete = () => {
     setShowOrderComplete(false);
-    // optionally clear orders or leave them
     setAllOrders([]);
     resetForm();
     onClose();
   };
-  // Determine overall visibility: keep component mounted if confirm/complete modals are active
   const anyOpen = isOpen || showOrderConfirm || showOrderComplete;
   const formVisible = isOpen && !showOrderConfirm && !showOrderComplete;
   if (!anyOpen) return null;
@@ -211,21 +204,17 @@ function OrderForm({
   const parseDates = (dateString) => {
     if (!dateString) return [];
     
-    // Handle array input
     if (Array.isArray(dateString)) {
       return dateString.filter((date) => date && String(date).trim().length > 0);
     }
     
-    // Handle string input
     if (typeof dateString === 'string') {
-      // Try to parse as JSON first
       try {
         const parsed = JSON.parse(dateString);
         if (Array.isArray(parsed)) {
           return parsed.filter((date) => date && String(date).trim().length > 0);
         }
       } catch {
-        // If not valid JSON, treat as comma-separated string
         return dateString
           .split(",")
           .map((date) => date.trim())
@@ -239,20 +228,17 @@ function OrderForm({
   const parsePrices = (priceInput) => {
     if (!priceInput) return [];
 
-    // Handle array input directly
     if (Array.isArray(priceInput)) {
       return priceInput
         .map((p) => String(p).trim())
         .filter((p) => p.length > 0);
     }
 
-    // If it's a string, try to parse as JSON first
     let prices = priceInput;
     if (typeof priceInput === "string") {
       try {
         prices = JSON.parse(priceInput);
       } catch {
-        // If not valid JSON, treat as comma-separated string
         return priceInput
           .split(",")
           .map((p) => p.trim())
@@ -267,13 +253,11 @@ function OrderForm({
     }
 
     if (typeof prices === "object" && prices !== null) {
-      // Handle price objects like {"vip": 100, "regular": 50}
       return Object.values(prices)
         .map((p) => String(p).trim())
         .filter((p) => p.length > 0);
     }
 
-    // Single number or string
     return [String(prices).trim()].filter((p) => p.length > 0);
   };
   const availableDates = parseDates(eventDates);
@@ -330,10 +314,8 @@ function OrderForm({
               )}
             </div>
 
-            {/* Form container with left/right margins */}
             <div className="max-w-4xl mx-auto px-8">
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Event Title (Read-only) */}
                 <div className="cursor-default flex items-center min-h-[60px]">
                   <span className="block text-lg font-medium text-gray-700 min-w-[180px]">
                     {t("order.Event")}
@@ -528,7 +510,6 @@ function OrderForm({
         eventTitle={eventTitle}
         onEditOrder={handleEditOrder}
         onDeleteOrder={handleDeleteOrder}
-        // Note: minimizing UI changes, but keeping state here if you want to use it in OrderConfirm later
         submitting={submitting}
         submitError={submitError}
       />

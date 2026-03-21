@@ -16,8 +16,6 @@ const AuthContextProvider = ({ children}) => {
                 setUser(null);
                 return;
             }
-
-            // Use the existing customers endpoint; many setups return a list
             let res = await axios.get(`${API_BASE}customers/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -27,7 +25,6 @@ const AuthContextProvider = ({ children}) => {
                 else setUser(res.data || null);
             }
         } catch (error) {
-            // Handle authentication errors
             if (error.response?.status === 401) {
                 console.log('Unauthenticated - invalid token');
                 localStorage.removeItem("access_token");

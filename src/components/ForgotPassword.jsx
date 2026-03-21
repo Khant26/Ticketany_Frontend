@@ -16,7 +16,6 @@ function ForgotPassword({ isOpen, onClose, onSwitchToSignIn, onSwitchToSignUp })
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
 
-  // Reset state when modal opens/closes
   useEffect(() => {
     if (!isOpen) {
       setEmail('');

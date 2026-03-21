@@ -109,7 +109,6 @@ function OrderConfirm({
           </h3>
         </div>
 
-        {/* Current Order Details */}
         <div className="mx-auto px-2 sm:px-4 md:px-6">
           <div className="shadow-md border-1 border-gray-200 rounded-lg p-3 sm:p-4 md:p-6 mb-4 sm:mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
@@ -213,7 +212,6 @@ function OrderConfirm({
             </div>
           </div>
 
-          {/* Order Navigation - Only show if multiple orders */}
           {allOrders.length > 1 && (
             <div className="flex items-center justify-center mb-4 sm:mb-6 gap-2 sm:gap-4 md:gap-6">
               <button
@@ -282,7 +280,6 @@ function OrderConfirm({
             </div>
           )}
 
-          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 justify-center mt-4 sm:mt-6">
             <button
               onClick={() => setShowPrompt(true)}

@@ -11,7 +11,6 @@ function Home() {
 
   return (
     <>
-      {/* Page wrapper: spacing tuned for a fixed navbar */}
       <div className="min-h-screen max-w-8xl bg-gray-50 pt-24 sm:pt-28 pb-16 sm:pb-24">
         {/*Banner*/}
         {/* Banner with breathing room below */}

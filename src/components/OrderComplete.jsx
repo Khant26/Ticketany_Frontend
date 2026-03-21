@@ -15,10 +15,9 @@ function OrderComplete({
 }) {
   const receiptRef = useRef(null);
   const [saving, setSaving] = useState(false);
-  const savedRef = useRef(false); // prevent duplicate localStorage writes
-  const autoSavedImageRef = useRef(false); // prevent duplicate auto-saves per open
+  const savedRef = useRef(false); 
+  const autoSavedImageRef = useRef(false); 
 
-  // Persist order once when modal opens
   useEffect(() => {
     if (isOpen && allOrders.length > 0 && orderId && !savedRef.current) {
       const orderData = {
@@ -104,7 +103,6 @@ function OrderComplete({
     }
   }, [saving, orderId]);
 
-  // Auto-save once after the modal opens (keep manual button too)
   useEffect(() => {
     if (!isOpen) {
       autoSavedImageRef.current = false;

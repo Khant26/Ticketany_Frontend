@@ -1,6 +1,4 @@
-import React from "react";
 import Logo from "../assets/logo.jpg";
-import { Link } from "react-router-dom";
 import {
   FaFacebookF,
   FaInstagram,
@@ -17,14 +15,14 @@ function Footer() {
       <div className="mx-auto max-w-7xl px-12 sm:px-14">
         <div className="flex flex-wrap items-center justify-center sm:justify-between gap-x-4 gap-y-2 py-2 sm:py-3">
           <div className="flex items-center gap-3">
-              <img
-                src={Logo}
-                alt="Tickets Anywhere logo"
-                className="w-12 h-12 object-contain"
-              />
-              <span className="text-black text-base sm:text-lg cursor-default">
-                Tickets Anywhere
-              </span>
+            <img
+              src={Logo}
+              alt="Tickets Anywhere logo"
+              className="w-12 h-12 object-contain"
+            />
+            <span className="text-black text-base sm:text-lg cursor-default">
+              Tickets Anywhere
+            </span>
           </div>
 
           <div className="flex items-center gap-4 order-last sm:order-none">

@@ -66,6 +66,7 @@
   "changepw.sendVerification": "Verify Code sent to your email",
   "nav.signOut": "Sign Out",
   "home.eventsTitle": "Featured Events",
+  "home.viewAll": "View All",
   "home.category": "Category",
   "orderDetails.title": "Order Details",
   "orderDetails.event": "Event",

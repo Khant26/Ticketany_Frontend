@@ -6,8 +6,6 @@ export const useOrdersData = (autoFetch = true) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [initialized, setInitialized] = useState(false);
-
-    // Initialize the service (user-side): ensure access_token exists
     const initializeService = useCallback(async () => {
         const token = localStorage.getItem('access_token');
         if (!token) {
@@ -21,7 +19,6 @@ export const useOrdersData = (autoFetch = true) => {
         return { success: true };
     }, []);
 
-    // Fetch orders
     const fetchOrders = useCallback(async (filters = {}) => {
         if (!initialized) {
             setError('Service not initialized. Call initializeService first.');
@@ -50,7 +47,6 @@ export const useOrdersData = (autoFetch = true) => {
         }
     }, [initialized]);
 
-    // Fetch specific order
     const fetchOrderById = useCallback(async (orderId) => {
         if (!initialized) {
             return { success: false, error: 'Service not initialized' };
@@ -67,7 +63,6 @@ export const useOrdersData = (autoFetch = true) => {
         }
     }, [initialized]);
 
-    // Update order status
     const updateOrderStatus = useCallback(async (orderId, status) => {
         if (!initialized) {
             return { success: false, error: 'Service not initialized' };
@@ -77,7 +72,6 @@ export const useOrdersData = (autoFetch = true) => {
             const result = await apiService.updateOrderStatus(orderId, status);
             
             if (result.success) {
-                // Update local state
                 setOrders(prevOrders => 
                     prevOrders.map(order => 
                         order.id === orderId 
@@ -93,7 +87,6 @@ export const useOrdersData = (autoFetch = true) => {
         }
     }, [initialized]);
 
-    // Search orders
     const searchOrders = useCallback(async (searchTerm) => {
         if (!initialized) {
             return { success: false, error: 'Service not initialized' };
@@ -115,7 +108,6 @@ export const useOrdersData = (autoFetch = true) => {
         }
     }, [initialized]);
 
-    // Auto-fetch orders when service is initialized
     useEffect(() => {
         if (initialized && autoFetch) {
             fetchOrders();
@@ -141,8 +133,6 @@ export const useTicketsData = (autoFetch = true) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [initialized, setInitialized] = useState(false);
-
-    // Initialize the service (user-side): ensure access_token exists
     const initializeService = useCallback(async () => {
         const token = localStorage.getItem('access_token');
         if (!token) {
@@ -156,7 +146,6 @@ export const useTicketsData = (autoFetch = true) => {
         return { success: true };
     }, []);
 
-    // Fetch tickets
     const fetchTickets = useCallback(async (filters = {}) => {
         if (!initialized) {
             setError('Service not initialized. Call initializeService first.');
@@ -185,7 +174,6 @@ export const useTicketsData = (autoFetch = true) => {
         }
     }, [initialized]);
 
-    // Fetch tickets for specific order
     const fetchTicketsByOrder = useCallback(async (orderId) => {
         if (!initialized) {
             return { success: false, error: 'Service not initialized' };
@@ -202,7 +190,6 @@ export const useTicketsData = (autoFetch = true) => {
         }
     }, [initialized]);
 
-    // Update ticket status
     const updateTicketStatus = useCallback(async (ticketId, status) => {
         if (!initialized) {
             return { success: false, error: 'Service not initialized' };
@@ -212,7 +199,6 @@ export const useTicketsData = (autoFetch = true) => {
             const result = await apiService.updateTicketStatus(ticketId, status);
             
             if (result.success) {
-                // Update local state
                 setTickets(prevTickets => 
                     prevTickets.map(ticket => 
                         ticket.id === ticketId 
@@ -228,7 +214,6 @@ export const useTicketsData = (autoFetch = true) => {
         }
     }, [initialized]);
 
-    // Auto-fetch tickets when service is initialized
     useEffect(() => {
         if (initialized && autoFetch) {
             fetchTickets();

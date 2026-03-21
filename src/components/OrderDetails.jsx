@@ -13,7 +13,6 @@ function OrderDetails({ isOpen, onClose, order, ticket, meta = {} }) {
   const eventPrices = meta.prices || order?.eventMeta?.prices || "";
   const eventDates = meta.dates || order?.eventMeta?.dates || "";
 
-  // Parse dates array
   const parsedDates = useMemo(() => {
     try {
       if (typeof eventDates === "string") {
@@ -26,7 +25,6 @@ function OrderDetails({ isOpen, onClose, order, ticket, meta = {} }) {
     }
   }, [eventDates]);
 
-  // Parse prices array
   const parsedPrices = useMemo(() => {
     try {
       if (typeof eventPrices === "string") {
@@ -39,7 +37,6 @@ function OrderDetails({ isOpen, onClose, order, ticket, meta = {} }) {
     }
   }, [eventPrices]);
 
-  // Set initial values when modal opens
   useEffect(() => {
     if (isOpen) {
       if (parsedDates.length > 0) {
@@ -51,7 +48,6 @@ function OrderDetails({ isOpen, onClose, order, ticket, meta = {} }) {
     }
   }, [isOpen, parsedDates, parsedPrices]);
 
-  // Use same cover image extraction approach as EventGrid
   const IMAGE_SEPARATOR = "|||SEPARATOR|||";
   const coverImage = useMemo(() => {
     const raw = meta.image || order?.eventMeta?.image;

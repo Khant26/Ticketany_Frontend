@@ -29,7 +29,7 @@ function Profile() {
   const [selectedTicket, setSelectedTicket] = useState(null);
 
   useEffect(() => {
-    window.scrollTo(0, 0); // smooth scroll
+    window.scrollTo(0, 0); 
   }, []);
 
   useEffect(() => {
@@ -42,7 +42,6 @@ function Profile() {
     }
   }, [activeTab]);
 
-  // Utility: get current user id from localStorage (robust across shapes)
   const getCurrentUserId = () => {
     try {
       const raw = localStorage.getItem("user_data");
@@ -54,7 +53,6 @@ function Profile() {
     }
   };
 
-  // Utility: get display name for profile header
   const getDisplayName = () => {
     try {
       const raw = localStorage.getItem("user_data");
@@ -75,8 +73,7 @@ function Profile() {
       return "User";
     }
   };
-
-  // Utility: get actual email from localStorage
+ 
   const getUserEmail = () => {
     try {
       const raw = localStorage.getItem("user_data");
@@ -99,7 +96,6 @@ function Profile() {
     }
   };
 
-  // Try to derive user id from JWT access token (e.g., 'user_id' claim)
   const getUserIdFromToken = () => {
     try {
       const token = localStorage.getItem("access_token");
@@ -124,16 +120,14 @@ function Profile() {
     }
   };
 
-  // Helper: normalize various ID shapes to a numeric ID
   const normalizeId = (value) => {
     if (value === null || value === undefined) return null;
     if (typeof value === "number") return value;
     if (typeof value === "string") {
-      // Try to parse a trailing number (e.g., '/api/users/4/')
-      const match = value.match(/(\d+)(?!.*\d)/);
-      if (match) return Number(match[1]);
-      const num = Number(value);
-      return Number.isFinite(num) ? num : null;
+  const match = value.match(/(\d+)(?!.*\d)/);
+    if (match) return Number(match[1]);
+  const num = Number(value);
+    return Number.isFinite(num) ? num : null;
     }
     if (typeof value === "object") {
       if (typeof value.id === "number") return value.id;
@@ -146,7 +140,6 @@ function Profile() {
     return null;
   };
 
-  // Capture the current user ID once on mount (and clear stale orders)
   useEffect(() => {
     let id = getCurrentUserId();
     if (id == null) {
@@ -157,10 +150,9 @@ function Profile() {
     setOrders([]);
   }, []);
 
-  // 1) Fallback: load locally cached orders per-user to avoid empty UI while fetching
   useEffect(() => {
     if (!userId) return;
-    setOrders([]); // clear stale orders from a previous user
+    setOrders([]);
     const cacheKey = `userOrders_${userId}`;
     const savedOrders = localStorage.getItem(cacheKey);
     if (savedOrders) {
@@ -173,7 +165,6 @@ function Profile() {
     }
   }, [userId]);
 
-  // 2) Fetch from backend: orders, tickets, and events, scoped to current user
   const fetchData = async () => {
     const API_BASE_URL =
       import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
@@ -192,7 +183,6 @@ function Profile() {
     setLoading(true);
     setError("");
     try {
-      // Fetch all orders, tickets, and events, then filter/group client-side
       const [ordersRes, ticketsRes, eventsRes] = await Promise.all([
         fetch(`${API_BASE_URL}orders/`, { headers }),
         fetch(`${API_BASE_URL}tickets/`, { headers }),
@@ -238,7 +228,6 @@ function Profile() {
       const toArray = (data) => {
         if (Array.isArray(data)) return data;
         if (data && Array.isArray(data.results)) return data.results;
-        // Some DRF paginations use 'data' or 'items'
         if (data && Array.isArray(data.data)) return data.data;
         if (data && Array.isArray(data.items)) return data.items;
         return [];
@@ -249,20 +238,17 @@ function Profile() {
       const allEventsArray = toArray(eventsDataRaw);
       console.log("ALL TICKETS ARRAY FROM API:", allTicketsArray);
 
-      // Build a quick lookup for events by id
       const eventsById = allEventsArray.reduce((acc, ev) => {
         const id = normalizeId(ev?.id);
         if (id) acc[id] = ev;
         return acc;
       }, {});
 
-      // Only orders for this user
       const myOrders = allOrdersArray.filter((o) => {
         const customerId = normalizeId(o?.customer);
         return Number(customerId) === Number(userId);
       });
 
-      // Group tickets by order id
       const ticketsByOrder = allTicketsArray.reduce((acc, t) => {
         const orderId = normalizeId(t?.order);
         if (!orderId) return acc;
@@ -271,7 +257,6 @@ function Profile() {
         return acc;
       }, {});
 
-      // Map into UI groups expected by this component
       const mapped = myOrders.map((o) => {
         const oid = o?.id;
         const tickets = ticketsByOrder[oid] || [];
@@ -285,10 +270,9 @@ function Profile() {
           thirdPriorityTicket: t?.trd_pt || "",
           price: t?.fst_pt || "",
           status: t?.status || "Pending",
-          refundStatus: t?.refund_status || "none", // NEW: Include refund status for cancelled tickets
+          refundStatus: t?.refund_status || "none",
         }));
 
-        // Ensure we render at least one row per order even when there are no tickets yet
         if (mappedTickets.length === 0) {
           mappedTickets.push({
             userName: "—",
@@ -303,10 +287,8 @@ function Profile() {
           });
         }
 
-        // Determine the event id for this order: prefer order.event, else infer from tickets
         let eventId = normalizeId(o?.event);
         if (!eventId) {
-          // Try to infer from any ticket belonging to this order
           for (const t of tickets) {
             const tid = normalizeId(t?.event);
             if (tid) {
@@ -353,16 +335,13 @@ function Profile() {
       });
 
       setOrders(mapped);
-      // Persist a snapshot locally per-user
       try {
         const cacheKey = `userOrders_${userId}`;
         localStorage.setItem(cacheKey, JSON.stringify(mapped));
-        // Clean up old global cache to avoid future confusion
         if (localStorage.getItem("userOrders")) {
           localStorage.removeItem("userOrders");
         }
       } catch {
-        // ignore quota or serialization errors
       }
     } catch (e) {
       console.error("Failed to load profile orders:", e);
@@ -372,7 +351,6 @@ function Profile() {
     }
   };
 
-  // Initial fetch on mount/userId change
   useEffect(() => {
     fetchData();
   }, [userId]);
@@ -383,7 +361,6 @@ function Profile() {
     setShowOrderDetails(true);
   };
 
-  // Step 1: Verify old password and send OTP
   const handleSendOTP = async () => {
     setPasswordError("");
     setPasswordSuccess("");
@@ -411,7 +388,6 @@ function Profile() {
         userEmail,
       );
 
-      // Step 1: Verify old password by attempting login
       try {
         console.log("[handleSendOTP] Verifying old password...");
         const controller = new AbortController();
@@ -460,7 +436,6 @@ function Profile() {
         return;
       }
 
-      // Step 2: Old password verified, now send OTP using forgot-password endpoint
       try {
         console.log("[handleSendOTP] Sending OTP to:", userEmail);
         console.log("[handleSendOTP] API Base URL:", API_BASE_URL);
@@ -508,7 +483,6 @@ function Profile() {
     }
   };
 
-  // Step 2: Reset password with OTP verification
   const handleResetPassword = async () => {
     setPasswordError("");
     setPasswordSuccess("");
@@ -607,16 +581,16 @@ function Profile() {
       case "paid":
         return "border-blue-500 text-blue-600 bg-blue-50";
       case "complete":
-        return "border-green-500 text-green-600 bg-green-50"; // Changed to green for success
+        return "border-green-500 text-green-600 bg-green-50";
       case "cancel":
       case "cancelled":
         if (refund === "refunded") {
-          return "border-blue-500 text-blue-600 bg-blue-50"; // Positive for refunded
+          return "border-blue-500 text-blue-600 bg-blue-50";
         }
         if (refund === "in_process") {
-          return "border-yellow-500 text-yellow-600 bg-yellow-50"; // Neutral for in process
+          return "border-yellow-500 text-yellow-600 bg-yellow-50";
         }
-        return "border-gray-500 text-gray-600 bg-gray-50"; // Default for cancelled
+        return "border-gray-500 text-gray-600 bg-gray-50";
       default:
         return "border-gray-500 text-gray-600";
     }
@@ -629,7 +603,6 @@ function Profile() {
     return "—";
   };
 
-  // NEW: Helper to get display status, including refund details for cancelled
   const getDisplayStatus = (ticket) => {
     const status = (ticket.status || "Pending").toLowerCase();
     if (status === "complete") return "Completed";
@@ -641,14 +614,12 @@ function Profile() {
       if (refund === "refunded") return "Cancelled (Refunded)";
       return "Cancelled";
     }
-    return (ticket.status || "Pending").charAt(0).toUpperCase() + (ticket.status || "Pending").slice(1); // Capitalize for consistency
+    return (ticket.status || "Pending").charAt(0).toUpperCase() + (ticket.status || "Pending").slice(1); 
   };
 
-  // Compute groups to display based on active tab and ticket status
-  // UPDATED: Include "paid" status in "orders" tab alongside "pending" and "cancel"
   const displayedGroups = useMemo(() => {
     const desiredStatuses =
-      activeTab === "orders" ? ["pending", "paid", "cancel"] : ["complete"]; // Show pending, paid, and cancelled in "My Orders"
+      activeTab === "orders" ? ["pending", "paid", "cancel"] : ["complete"]; 
     const normalized = (s) =>
       typeof s === "string" ? s.trim().toLowerCase() : "";
 

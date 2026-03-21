@@ -1,20 +1,20 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 function EventGrid({ selectedCategory, variant = "user" }) {
+  const { t } = useTranslation();
   const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([]);
-
-  // Admin/user route bases
   const isAdmin = variant === "admin";
   const seeAllBase = isAdmin ? "/admin/events" : "/events";
-  const cardHref = (id) => (isAdmin ? `/admin/events/${id}/edit` : `/EventPageDetails/${id}`);
-
+  const cardHref = (id) => isAdmin ? `/admin/events/${id}/edit` : `/EventPageDetails/${id}`;
   const IMAGE_SEPARATOR = "|||SEPARATOR|||";
 
   useEffect(() => {
     const fetchEvents = async () => {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
+      const baseUrl =
+        import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
       const response = await fetch(`${baseUrl}events/`);
       const data = await response.json();
       setEvents(data);
@@ -24,7 +24,8 @@ function EventGrid({ selectedCategory, variant = "user" }) {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
+      const baseUrl =
+        import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
       const response = await fetch(`${baseUrl}categories/`);
       const data = await response.json();
       setCategories(data);
@@ -34,20 +35,22 @@ function EventGrid({ selectedCategory, variant = "user" }) {
 
   const getSelectedCategoryId = () => {
     if (!selectedCategory || categories.length === 0) return null;
-    const category = categories.find((cat) => cat.category_name === selectedCategory);
+    const category = categories.find(
+      (cat) => cat.category_name === selectedCategory,
+    );
     return category ? category.id : null;
   };
 
   const getCoverImageFromEvent = (event) => {
-    // Use the new images array structure with image_url
     if (event?.images?.length > 0) {
-      return event.images[0].image_url; // Use image_url from EventImageSerializer
+      return event.images[0].image_url;
     }
-    
-    // Fallback for old event_image format (for backward compatibility)
+
     if (event?.event_image && typeof event.event_image === "string") {
       if (event.event_image.includes(IMAGE_SEPARATOR)) {
-        const [first] = event.event_image.split(IMAGE_SEPARATOR).filter(Boolean);
+        const [first] = event.event_image
+          .split(IMAGE_SEPARATOR)
+          .filter(Boolean);
         return first || null;
       }
       return event.event_image;
@@ -60,7 +63,9 @@ function EventGrid({ selectedCategory, variant = "user" }) {
   const filteredEvents = (() => {
     const selectedCategoryId = getSelectedCategoryId();
     if (!selectedCategoryId) return events.slice(0, 4);
-    return events.filter((event) => event.category === selectedCategoryId).slice(0, 4);
+    return events
+      .filter((event) => event.category === selectedCategoryId)
+      .slice(0, 4);
   })();
 
   return (
@@ -70,9 +75,19 @@ function EventGrid({ selectedCategory, variant = "user" }) {
           to={`${seeAllBase}/${selectedCategory || "all"}`}
           className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-[#e51f4b] transition-colors duration-200"
         >
-          See All
-          <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m0 0l-6-6m6 6l-6 6" />
+          <span>{t("home.viewAll")}</span>
+          <svg
+            className="w-4 h-4 ml-2"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 12h14m0 0l-6-6m6 6l-6 6"
+            />
           </svg>
         </Link>
       </div>
@@ -106,9 +121,13 @@ function EventGrid({ selectedCategory, variant = "user" }) {
                 )}
               </div>
               <div className="flex flex-col p-4 gap-2">
-                <div className="text-md font-medium text-[#e51f4b]">{event.event_date}</div>
+                <div className="text-md font-medium text-[#e51f4b]">
+                  {event.event_date}
+                </div>
                 <div className="text-lg font-semibold">{event.event_name}</div>
-                <div className="text-md text-gray-500">{event.event_location}</div>
+                <div className="text-md text-gray-500">
+                  {event.event_location}
+                </div>
               </div>
             </Link>
           );

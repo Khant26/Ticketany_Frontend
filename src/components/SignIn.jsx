@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Logo from "../assets/logo.jpg";
-// Removed unused Link/useParams import to keep component clean
 import { useTranslation } from "react-i18next";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
@@ -50,7 +49,6 @@ function SignIn({
       const data = await response.json();
 
       if (response.ok) {
-        // Store access token for future requests
         const access = data.access_token || data.token || data.access;
         const refresh = data.refresh_token || data.refresh;
 
@@ -58,7 +56,6 @@ function SignIn({
         if (refresh) localStorage.setItem("refresh_token", refresh);
         localStorage.setItem("user_data", JSON.stringify(data));
 
-        // Derive a display name string for Navbar (avoid passing whole object)
         const extractDisplayName = (payload) => {
           if (!payload) return null;
           const candidates = [
@@ -77,12 +74,9 @@ function SignIn({
         };
 
         const displayName = extractDisplayName(data) || "User";
-        // Dispatch event to notify other components (like Navbar) of login
         window.dispatchEvent(new Event("userLoginChanged"));
-        // Call parent onLogin callback with a string
         if (onLogin) onLogin(displayName);
 
-        // Close modal and clear form
         onClose && onClose();
         setFormData({ email: "", password: "" });
       } else {

@@ -23,7 +23,6 @@ function Navbar() {
   const [userName, setUserName] = useState(null); // was hard‑coded 'HybridDev'
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Function to update login state from localStorage
   const updateLoginState = () => {
     try {
       const token = localStorage.getItem("access_token");
@@ -53,20 +52,16 @@ function Navbar() {
         setIsLoggedIn(false);
       }
     } catch {
-      // ignore JSON errors
       setUserName(null);
       setIsLoggedIn(false);
     }
   };
 
-  // Initialize login state from localStorage and listen for changes
   useEffect(() => {
     updateLoginState();
 
-    // Listen for storage changes from other tabs/modals
     window.addEventListener("storage", updateLoginState);
 
-    // Also dispatch custom event when login happens in same tab
     window.addEventListener("userLoginChanged", updateLoginState);
 
     return () => {
@@ -99,14 +94,12 @@ function Navbar() {
     setShowForgotPassword(false);
   };
 
-  // Navigate to All Events page with search query
   const handleSearch = () => {
     const q = searchQuery.trim();
     const target = `/events/all${q ? `?q=${encodeURIComponent(q)}` : ""}`;
     navigate(target);
   };
 
-  // Accept a username from SignIn; normalize to a safe string
   const handleLogin = (payload) => {
     const normalize = (val) => {
       if (typeof val === "string") return val;
@@ -156,8 +149,6 @@ function Navbar() {
     setIsLoggedIn(false);
     setShowSignOutConfirm(false);
 
-    // Dispatch event to notify other components of logout
-    console.log("🔴 Navbar: Dispatching userLoginChanged event for logout");
     window.dispatchEvent(new Event("userLoginChanged"));
 
     if (isProfilePage) {
@@ -334,7 +325,6 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Modals */}
       <SignUp
         isOpen={showSignUp}
         onClose={closeModals}

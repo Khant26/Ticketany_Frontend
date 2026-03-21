@@ -13,11 +13,12 @@ function AllEventsPage({ selectedCategory: propCategory }) {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [category,searchQuery]);
+  }, [category, searchQuery]);
 
   useEffect(() => {
     const fetchEvents = async () => {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
+      const baseUrl =
+        import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
       const response = await fetch(`${baseUrl}events/`);
       const data = await response.json();
       setEvents(data);
@@ -27,7 +28,8 @@ function AllEventsPage({ selectedCategory: propCategory }) {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
+      const baseUrl =
+        import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
       const response = await fetch(`${baseUrl}categories/`);
       const data = await response.json();
       setCategories(data);
@@ -43,12 +45,10 @@ function AllEventsPage({ selectedCategory: propCategory }) {
   };
 
   const getCoverImageFromEvent = (event) => {
-    // Use the new images array structure with image_url
     if (event?.images?.length > 0) {
-      return event.images[0].image_url; // Use image_url from EventImageSerializer
+      return event.images[0].image_url;
     }
-    
-    // Fallback for old event_image format (for backward compatibility)
+
     if (event?.event_image && typeof event.event_image === "string") {
       if (event.event_image.includes(IMAGE_SEPARATOR)) {
         return event.event_image.split(IMAGE_SEPARATOR).filter(Boolean)[0];
@@ -63,14 +63,16 @@ function AllEventsPage({ selectedCategory: propCategory }) {
     let filtered = events;
 
     if (selectedCategoryId) {
-      filtered = filtered.filter((event) => event.category === selectedCategoryId);
+      filtered = filtered.filter(
+        (event) => event.category === selectedCategoryId,
+      );
     }
 
     if (searchQuery) {
-  filtered = filtered.filter((event) =>
-    (event.event_name?.toLowerCase() || "").includes(searchQuery)
-  );
-}
+      filtered = filtered.filter((event) =>
+        (event.event_name?.toLowerCase() || "").includes(searchQuery),
+      );
+    }
 
     return filtered;
   })();
