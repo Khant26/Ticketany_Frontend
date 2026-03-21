@@ -359,7 +359,7 @@ function EventPageDetails() {
                       <span className="text-lg font-semibold min-w-[80px]">
                         {t("event.price")}
                       </span>
-                      <span className="text-lg font-semibold ml-4 break-words line-clamp-2">
+                      <span className="text-lg font-semibold ml-4 break-words whitespace-normal">
                         {formatTicketPrices(eventDetail?.ticket_price)}
                       </span>
                     </div>

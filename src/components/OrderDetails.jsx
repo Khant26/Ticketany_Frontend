@@ -100,13 +100,15 @@ function OrderDetails({ isOpen, onClose, order, ticket, meta = {} }) {
       case "complete":
         return "Completed";
       case "cancel":
-        if (refund === "refunded") return "Refund(In Process)";
-        if (refund === "in_process") return "Cancelled(Refunded)";
+        if (refund === "refunded") return "Cancelled(Refunded)";
+        if (refund === "in_process") return "Cancelled(In Process)";
         return "Cancelled";
       default:
         return "Unknown";
     }
   };
+
+  const ticketStatus = (ticket?.status || "").toLowerCase();
 
   useEffect(() => {
     const handler = (e) => {
@@ -268,6 +270,68 @@ function OrderDetails({ isOpen, onClose, order, ticket, meta = {} }) {
               </span>
             </div>
           </div>
+
+          {ticketStatus === "paid" && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
+              <div>
+                <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-1.5">
+                  {t("profileOrderDetails.customerPayment")}
+                </p>
+                <p className="text-base sm:text-lg font-bold text-gray-900 break-words">
+                  {ticket.customerPayment || "—"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-1.5">
+                  {t("profileOrderDetails.paymentDate")}
+                </p>
+                <p className="text-base sm:text-lg font-bold text-gray-900 break-words">
+                  {ticket.paymentDate || "—"}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {ticketStatus === "complete" && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
+              <div>
+                <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-1.5">
+                  {t("profileOrderDetails.sellingPrice")}
+                </p>
+                <p className="text-base sm:text-lg font-bold text-gray-900 break-words">
+                  {ticket.sellingPrice || "—"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-1.5">
+                  {t("profileOrderDetails.zone")}
+                </p>
+                <p className="text-base sm:text-lg font-bold text-gray-900 break-words">
+                  {ticket.zone || "—"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-1.5">
+                  {t("profileOrderDetails.row")}
+                </p>
+                <p className="text-base sm:text-lg font-bold text-gray-900 break-words">
+                  {ticket.row || "—"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs sm:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-1.5">
+                  {t("profileOrderDetails.seat")}
+                </p>
+                <p className="text-base sm:text-lg font-bold text-gray-900 break-words">
+                  {ticket.seat || "—"}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-6 sm:mt-8">

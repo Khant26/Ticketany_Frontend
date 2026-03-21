@@ -271,6 +271,12 @@ function Profile() {
           price: t?.fst_pt || "",
           status: t?.status || "Pending",
           refundStatus: t?.refund_status || "none",
+          customerPayment: t?.customer_payment || "",
+          paymentDate: t?.payment_date || "",
+          sellingPrice: t?.selling_price || "",
+          zone: t?.zone || "",
+          row: t?.row || "",
+          seat: t?.seat || "",
         }));
 
         if (mappedTickets.length === 0) {
@@ -284,6 +290,12 @@ function Profile() {
             thirdPriorityTicket: "",
             status: "Pending",
             refundStatus: "none",
+            customerPayment: "",
+            paymentDate: "",
+            sellingPrice: "",
+            zone: "",
+            row: "",
+            seat: "",
           });
         }
 
@@ -730,8 +742,8 @@ function Profile() {
             {!loading && displayedGroups.length === 0 && (
               <div className="text-center py-12 text-gray-500 transition-all duration-300">
                 {activeTab === "orders"
-                  ? "No pending or cancelled tickets found."
-                  : "No received tickets found."}
+                  ? t("profile.noOrdersFound")
+                  : t("profile.noTicketsFound")}
               </div>
             )}
 
@@ -913,7 +925,7 @@ function Profile() {
                 className="w-24 h-24 object-contain mb-2"
               />
               <h2 className="text-2xl text-gray-800 mt-4">
-                Change Your Password
+                {t("changepw.title")}
               </h2>
             </div>
 
@@ -937,7 +949,7 @@ function Profile() {
                 <>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Old Password
+                      {t("changepw.oldPassword")}
                     </label>
                     <input
                       type="password"
@@ -949,7 +961,7 @@ function Profile() {
                         })
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                      placeholder="Enter your current password"
+                      placeholder={t("changepw.enterOldPassword")}
                       disabled={changingPassword}
                     />
                   </div>

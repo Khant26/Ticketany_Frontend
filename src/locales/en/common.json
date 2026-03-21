@@ -80,5 +80,18 @@
   "orderDetails.seat": "Seat",
   "orderDetails.price": "Price",
   "orderDetails.status": "Status",
-  "orderDetails.paymentInfo": "Payment info at 'Tickets Anywhere'"
+  "orderDetails.paymentInfo": "Payment info at 'Tickets Anywhere'",
+  "profile.noOrdersFound": "No orders found.",
+  "profile.noTicketsFound": "No received tickets found.",
+  "orderDetails.customerPayment": "Customer Payment",
+  "orderDetails.paymentDate": "Payment Date",
+  "orderDetails.sellingPrice": "Selling Price",
+  "profileOrderDetails.zone": "Zone",
+  "profileOrderDetails.row": "Row",
+  "profileOrderDetails.seat": "Seat",
+  "profileOrderDetails.paymentInfo": "Payment info at 'Tickets Anywhere'",
+  "profileOrderDetails.sellingPrice": "Selling Price",
+  "profileOrderDetails.paymentDate": "Payment Date",
+  "profileOrderDetails.customerPayment": "Customer Payment",
+  "changepw.enterOldPassword": "Enter your current password"
 }

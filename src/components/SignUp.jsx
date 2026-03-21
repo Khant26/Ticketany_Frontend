@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Logo from "../assets/logo.jpg";
 import { useTranslation } from "react-i18next";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+
+const OTP_RESEND_DELAY_SECONDS = 60;
 
 function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
   const { t } = useTranslation();
@@ -15,6 +17,21 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
+
+  useEffect(() => {
+    if (!isOpen || !showOtpVerification || resendCountdown <= 0) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      setResendCountdown((currentCountdown) => currentCountdown - 1);
+    }, 1000);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [isOpen, showOtpVerification, resendCountdown]);
 
   const handleChange = (e) => {
     setFormData({
@@ -95,12 +112,60 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
 
       setSuccess("✅ Registration successful! Check your email for OTP code.");
       setShowOtpVerification(true);
+      setResendCountdown(OTP_RESEND_DELAY_SECONDS);
       setLoading(false);
     } catch (err) {
       console.error("Registration error:", err);
       setError(
         "Error during registration. Please check your internet connection.",
       );
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendCountdown > 0 || loading) {
+      return;
+    }
+
+    setError("");
+    setSuccess("");
+    setLoading(true);
+
+    try {
+      const API_BASE_URL =
+        import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
+
+      const resendRes = await fetch(`${API_BASE_URL}auth/resend-otp/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email.trim() }),
+      });
+
+      const data = await resendRes.json().catch(() => ({}));
+
+      if (!resendRes.ok) {
+        let errorMessage = "Unable to resend OTP. Please try again.";
+
+        if (data?.message) errorMessage = data.message;
+        else if (data?.error) errorMessage = data.error;
+        else if (data?.detail) errorMessage = data.detail;
+        else if (data?.email && Array.isArray(data.email))
+          errorMessage = data.email[0];
+        else if (data?.non_field_errors && Array.isArray(data.non_field_errors))
+          errorMessage = data.non_field_errors[0];
+
+        setError(errorMessage);
+        setLoading(false);
+        return;
+      }
+
+      setSuccess(data?.message || "✅ A new OTP code has been sent to your email.");
+      setResendCountdown(OTP_RESEND_DELAY_SECONDS);
+      setLoading(false);
+    } catch (err) {
+      console.error("Resend OTP error:", err);
+      setError("Error while resending OTP. Please check your internet connection.");
       setLoading(false);
     }
   };
@@ -171,6 +236,7 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
         setFormData({ email: "", password: "" });
         setOtpCode("");
         setShowOtpVerification(false);
+        setResendCountdown(0);
       }, 2000);
       setLoading(false);
     } catch (err) {
@@ -319,6 +385,9 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
               <p className="text-sm text-gray-600 mb-2">
                 Check your email ({formData.email}) for the 6-digit OTP code
               </p>
+              <p className="text-xs text-gray-600 mb-3">
+                This code will expire in 10 minutes.
+              </p>
               <input
                 type="text"
                 id="otpCode"
@@ -336,6 +405,21 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
               <p className="text-xs text-gray-600 mt-1">
                 Enter the 6-digit code from your email
               </p>
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                disabled={resendCountdown > 0 || loading}
+                className="mt-3 text-sm font-medium text-pink-600 hover:text-pink-700 disabled:text-gray-400 disabled:cursor-not-allowed"
+                style={{
+                  backgroundColor: "transparent",
+                  border: "none",
+                  padding: 0,
+                }}
+              >
+                {resendCountdown > 0
+                  ? `Send OTP again in ${String(Math.floor(resendCountdown / 60)).padStart(2, "0")}:${String(resendCountdown % 60).padStart(2, "0")}`
+                  : "Send OTP again"}
+              </button>
             </div>
           )}
 

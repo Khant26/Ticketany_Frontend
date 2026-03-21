@@ -80,5 +80,17 @@
   "orderDetails.seat": "ထိုင်ခုံ",
   "orderDetails.price": "စျေးနှုန်း",
   "orderDetails.status": "အခြေအနေ",
-  "orderDetails.paymentInfo": "Tickets Anywhere တွင် ငွေပေးချေသည့်အချက်အလက်"
+  "orderDetails.paymentInfo": "Tickets Anywhere တွင် ငွေပေးချေသည့်အချက်အလက်",
+  "profile.noOrdersFound": "Order မတွေ့ပါ",
+  "profile.noTicketsFound": "လက်မှတ် မတွေ့ပါ",
+  "orderDetails.customerPayment": "ဖောက်သည်ငွေပေးချေမှု",
+  "orderDetails.paymentDate": "ငွေပေးချေသည့်နေ့စွဲ",
+  "orderDetails.sellingPrice": "ရောင်းချသောစျေးနှုန်း",
+  "profileOrderDetails.zone": "ဇုံ",
+  "profileOrderDetails.row": "အတန်း",
+  "profileOrderDetails.seat": "ထိုင်ခုံ",
+  "profileOrderDetails.customerPayment": "ဖောက်သည်ငွေပေးချေမှု",
+  "profileOrderDetails.paymentDate": "ငွေပေးချေသည့်နေ့စွဲ",
+  "profileOrderDetails.sellingPrice": "ရောင်းချသောစျေးနှုန်း",
+  "changepw.enterOldPassword": "သင့်ရဲ့ လက်ရှိ password ကို ထည့်ပါ"
 }

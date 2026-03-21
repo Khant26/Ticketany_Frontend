@@ -13,10 +13,15 @@ function OrderComplete({
   eventLocation,
   eventImage,
 }) {
-  const receiptRef = useRef(null);
+  const modalRef = useRef(null);
+  const autoSavedImageRef = useRef(false);
+  const savingRef = useRef(false);
   const [saving, setSaving] = useState(false);
-  const savedRef = useRef(false); 
-  const autoSavedImageRef = useRef(false); 
+  const savedRef = React.useRef(false);
+
+  useEffect(() => {
+    savingRef.current = saving;
+  }, [saving]);
 
   useEffect(() => {
     if (isOpen && allOrders.length > 0 && orderId && !savedRef.current) {
@@ -62,27 +67,53 @@ function OrderComplete({
   ]);
 
   const saveImage = useCallback(async () => {
-    if (!receiptRef.current || saving) return;
+    if (!modalRef.current || savingRef.current) return;
     setSaving(true);
     try {
       await new Promise((res) => {
         requestAnimationFrame(() => setTimeout(res, 100));
       });
 
-      const el = receiptRef.current;
+      const el = modalRef.current;
       if (!el || el.offsetWidth === 0 || el.offsetHeight === 0) {
-        throw new Error("Receipt not rendered");
+        throw new Error("Modal not rendered");
       }
 
-      const canvas = await html2canvas(el, {
-        backgroundColor: "#ffffff",
-        scale: 1,
+      const exportWrapper = document.createElement("div");
+      exportWrapper.style.position = "fixed";
+      exportWrapper.style.left = "-10000px";
+      exportWrapper.style.top = "0";
+      exportWrapper.style.padding = "24px";
+      exportWrapper.style.background = "transparent";
+      exportWrapper.style.zIndex = "-1";
+
+      const exportNode = el.cloneNode(true);
+      exportNode.style.width = "520px";
+      exportNode.style.maxWidth = "520px";
+      exportNode.style.maxHeight = "none";
+      exportNode.style.overflow = "visible";
+      exportNode.style.boxSizing = "border-box";
+
+      exportNode
+        .querySelectorAll("[data-export-ignore='true']")
+        .forEach((node) => node.remove());
+
+      exportWrapper.appendChild(exportNode);
+      document.body.appendChild(exportWrapper);
+
+      const canvas = await html2canvas(exportNode, {
+        backgroundColor: null,
+        scale: 2,
         useCORS: true,
         allowTaint: false,
         logging: false,
-        width: el.offsetWidth,
-        height: el.offsetHeight,
+        width: exportNode.scrollWidth,
+        height: exportNode.scrollHeight,
+        windowWidth: exportNode.scrollWidth,
+        windowHeight: exportNode.scrollHeight,
       });
+
+      document.body.removeChild(exportWrapper);
 
       const dataUrl = canvas.toDataURL("image/png", 0.9);
       if (!dataUrl || dataUrl === "data:,")
@@ -101,15 +132,18 @@ function OrderComplete({
     } finally {
       setSaving(false);
     }
-  }, [saving, orderId]);
+  }, [orderId]);
 
   useEffect(() => {
     if (!isOpen) {
       autoSavedImageRef.current = false;
-      return;
+      return undefined;
     }
 
-    if (autoSavedImageRef.current) return;
+    if (autoSavedImageRef.current) {
+      return undefined;
+    }
+
     autoSavedImageRef.current = true;
 
     const timer = setTimeout(() => {
@@ -132,11 +166,11 @@ function OrderComplete({
       aria-modal="true"
     >
       <div
+        ref={modalRef}
         className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-[500px] relative max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div
-          ref={receiptRef}
           className="select-none"
           style={{
             backgroundColor: "#ffffff",
@@ -225,7 +259,7 @@ function OrderComplete({
           )}
         </div>
 
-        <div className="mt-8 flex justify-center gap-4">
+        <div className="mt-8 flex justify-center gap-4" data-export-ignore="true">
           <button
             onClick={saveImage}
             disabled={saving}
