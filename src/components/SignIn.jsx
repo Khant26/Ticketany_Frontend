@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Logo from "../assets/logo.jpg";
 import { useTranslation } from "react-i18next";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
@@ -18,12 +18,110 @@ function SignIn({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showVerifyOtp, setShowVerifyOtp] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  useEffect(() => {
+    if (!isOpen || !showVerifyOtp || resendCountdown <= 0) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      setResendCountdown((currentCountdown) => currentCountdown - 1);
+    }, 1000);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [isOpen, showVerifyOtp, resendCountdown]);
+
+  const handleResendOtp = async () => {
+    if (resendCountdown > 0 || otpLoading) {
+      return;
+    }
+
+    setOtpLoading(true);
+    try {
+      const baseUrl =
+        import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
+      const response = await fetch(`${baseUrl}auth/resend-otp/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setError("✅ OTP code sent to your email.");
+        setResendCountdown(60);
+      } else {
+        setError(
+          data.error || data.message || data.detail || "Unable to resend OTP. Please try again.",
+        );
+      }
+    } catch (err) {
+      setError("Network error. Please try again.");
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (!otpCode.trim() || otpCode.length !== 6) {
+      setError("Please enter a valid 6-digit OTP code");
+      return;
+    }
+
+    setOtpLoading(true);
+    try {
+      const baseUrl =
+        import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
+      const response = await fetch(`${baseUrl}auth/verify-email/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          otp_code: otpCode,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setError("✅ Email verified! You can now sign in.");
+        setTimeout(() => {
+          setShowVerifyOtp(false);
+          setOtpCode("");
+        }, 1500);
+      } else {
+        setError(
+          data.error || data.detail || data.message || "OTP verification failed",
+        );
+      }
+    } catch (err) {
+      setError("Network error. Please try again.");
+    } finally {
+      setOtpLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -80,9 +178,14 @@ function SignIn({
         onClose && onClose();
         setFormData({ email: "", password: "" });
       } else {
-        setError(
-          data.error || data.detail || data.message || "Authentication failed",
-        );
+        const errorMsg = data.error || data.detail || data.message || "Authentication failed";
+        // Check if error is about unverified email
+        if (errorMsg.toLowerCase().includes('verify')) {
+          setError("📧 " + errorMsg);
+          setShowVerifyOtp(true);
+        } else {
+          setError(errorMsg);
+        }
       }
     } catch (err) {
       setError("Network error. Please try again.");
@@ -134,73 +237,129 @@ function SignIn({
           </h2>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-2xl font-medium text-gray-700 mb-1"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-3 text-black py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
-              placeholder={t("signIn.emailPlaceholder")}
-              required
-            />
-          </div>
+        <form onSubmit={showVerifyOtp ? handleVerifyOtp : handleSubmit} className="space-y-4">
+          {!showVerifyOtp && (
+            <>
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-2xl font-medium text-gray-700 mb-1"
+                >
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-3 text-black py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
+                  placeholder={t("signIn.emailPlaceholder")}
+                  required
+                />
+              </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-2xl font-medium text-gray-700 mb-1"
-            >
-              Password
-            </label>
-            <div className="relative">
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-2xl font-medium text-gray-700 mb-1"
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full px-3 text-black py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
+                    placeholder={t("signIn.passwordPlaceholder")}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="cursor-pointer absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <AiOutlineEyeInvisible size={20} />
+                    ) : (
+                      <AiOutlineEye size={20} />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {showVerifyOtp && (
+            <div>
+              <label
+                htmlFor="otpCode"
+                className="block text-2xl font-medium text-gray-700 mb-1"
+              >
+                Verify Your Email
+              </label>
+              <p className="text-sm text-gray-600 mb-2">
+                Enter the 6-digit OTP code sent to {formData.email}
+              </p>
               <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-3 text-black py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
-                placeholder={t("signIn.passwordPlaceholder")}
+                type="text"
+                id="otpCode"
+                value={otpCode}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                  setOtpCode(value);
+                }}
+                className="w-full px-3 text-black py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-center text-2xl tracking-widest font-mono"
+                placeholder="000000"
+                maxLength="6"
+                inputMode="numeric"
                 required
               />
+              <div className="flex gap-3 mt-4 justify-center">
+                <button
+                  type="button"
+                  onClick={handleResendOtp}
+                  disabled={resendCountdown > 0 || otpLoading}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-white rounded-lg transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed hover:opacity-90"
+                  style={{
+                    backgroundColor: resendCountdown > 0 ? "#ccc" : "#ee6786ff",
+                  }}
+                >
+                  {resendCountdown > 0
+                    ? `Resend ${String(Math.floor(resendCountdown / 60)).padStart(2, "0")}:${String(resendCountdown % 60).padStart(2, "0")}`
+                    : "Resend OTP"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowVerifyOtp(false)}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-pink-600 border-2 border-pink-600 rounded-lg hover:bg-pink-50 transition-all duration-200"
+                >
+                  ← Back
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end pt-1">
+            {!showVerifyOtp && (
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="cursor-pointer absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition"
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                onClick={onSwitchToForgotPassword}
+                className="text-sm text-pink-600 hover:text-pink-700 font-medium transition-colors duration-200"
+                style={{
+                  backgroundColor: "transparent",
+                  border: "none",
+                  padding: 0,
+                  marginTop: 0,
+                }}
               >
-                {showPassword ? (
-                  <AiOutlineEyeInvisible size={20} />
-                ) : (
-                  <AiOutlineEye size={20} />
-                )}
+                {t("signIn.forgotPassword")}
               </button>
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center text-sm py-1">
-            <button
-              type="button"
-              onClick={onSwitchToForgotPassword}
-              className="text-blue-600 hover:text-blue-800 cursor-pointer font-inherit ml-65"
-              style={{
-                backgroundColor: "transparent",
-                border: "none",
-                padding: 0,
-                marginTop: 0,
-              }}
-            >
-              {t("signIn.forgotPassword")}
-            </button>
+            )}
           </div>
           {error && (
             <div className="text-red-600 text-sm text-center bg-red-50 border border-red-200 rounded-md p-2">
@@ -210,27 +369,31 @@ function SignIn({
 
           <button
             type="submit"
-            className="w-full text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200"
+            className="w-full text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               backgroundColor: "#ee6786ff",
             }}
-            disabled={loading}
+            disabled={loading || otpLoading}
           >
-            {loading
-              ? t("signIn.signingIn") || "Signing in..."
-              : t("signIn.signIn")}
+            {otpLoading
+              ? "Verifying OTP..."
+              : loading
+                ? t("signIn.signingIn") || "Signing in..."
+                : showVerifyOtp
+                  ? "Verify Email"
+                  : t("signIn.signIn")}
           </button>
 
-          <div>
-            <span className="text-black ml-15">{t("signIn.noAccount")}</span>
+          <div className="text-center pt-2 border-t border-gray-200">
+            <p className="text-sm text-gray-600 mb-2">{t("signIn.noAccount")}</p>
             <button
               type="button"
               onClick={onSwitchToSignUp}
-              className="text-blue-600 hover:text-blue-800"
+              className="text-pink-600 hover:text-pink-700 font-semibold transition-colors duration-200"
               style={{
                 backgroundColor: "transparent",
                 border: "none",
-                padding: 4,
+                padding: 0,
                 margin: 0,
               }}
             >

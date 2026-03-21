@@ -93,19 +93,33 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
 
       if (!registerRes.ok) {
         let errorMessage = "Registration failed. Please try again.";
+        let isAlreadyRegistered = false;
 
         // Handle various error formats
         if (data?.message) errorMessage = data.message;
         else if (data?.error) errorMessage = data.error;
         else if (data?.detail) errorMessage = data.detail;
-        else if (data?.email && Array.isArray(data.email))
+        else if (data?.email && Array.isArray(data.email)) {
           errorMessage = data.email[0];
+          // Check if email already exists
+          if (errorMessage.toLowerCase().includes('already') || errorMessage.toLowerCase().includes('exist')) {
+            isAlreadyRegistered = true;
+            errorMessage = "📧 This email is already registered! Please enter your OTP code to verify.";
+          }
+        }
         else if (data?.password && Array.isArray(data.password))
           errorMessage = data.password[0];
         else if (data?.non_field_errors && Array.isArray(data.non_field_errors))
           errorMessage = data.non_field_errors[0];
 
-        setError(errorMessage);
+        // If email already registered, show OTP verification instead of error
+        if (isAlreadyRegistered) {
+          setSuccess(errorMessage);
+          setShowOtpVerification(true);
+          setResendCountdown(OTP_RESEND_DELAY_SECONDS);
+        } else {
+          setError(errorMessage);
+        }
         setLoading(false);
         return;
       }
@@ -405,21 +419,28 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
               <p className="text-xs text-gray-600 mt-1">
                 Enter the 6-digit code from your email
               </p>
-              <button
-                type="button"
-                onClick={handleResendOtp}
-                disabled={resendCountdown > 0 || loading}
-                className="mt-3 text-sm font-medium text-pink-600 hover:text-pink-700 disabled:text-gray-400 disabled:cursor-not-allowed"
-                style={{
-                  backgroundColor: "transparent",
-                  border: "none",
-                  padding: 0,
-                }}
-              >
-                {resendCountdown > 0
-                  ? `Send OTP again in ${String(Math.floor(resendCountdown / 60)).padStart(2, "0")}:${String(resendCountdown % 60).padStart(2, "0")}`
-                  : "Send OTP again"}
-              </button>
+              <div className="flex gap-3 mt-4 justify-center">
+                <button
+                  type="button"
+                  onClick={handleResendOtp}
+                  disabled={resendCountdown > 0 || loading}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-white rounded-lg transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed hover:opacity-90"
+                  style={{
+                    backgroundColor: resendCountdown > 0 ? "#ccc" : "#ee6786ff",
+                  }}
+                >
+                  {resendCountdown > 0
+                    ? `Resend ${String(Math.floor(resendCountdown / 60)).padStart(2, "0")}:${String(resendCountdown % 60).padStart(2, "0")}`
+                    : "Resend OTP"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowOtpVerification(false)}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-pink-600 border-2 border-pink-600 rounded-lg hover:bg-pink-50 transition-all duration-200"
+                >
+                  ← Back
+                </button>
+              </div>
             </div>
           )}
 
@@ -437,16 +458,16 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
                 ? "Verify Email"
                 : t("signUp.signUp")}
           </button>
-          <div>
-            <span className="text-black ml-15">{t("signUp.Already")}</span>
+          <div className="text-center pt-2 border-t border-gray-200">
+            <p className="text-sm text-gray-600 mb-2">{t("signUp.Already")}</p>
             <button
               type="button"
               onClick={onSwitchToSignIn}
-              className="text-blue-600 hover:text-blue-800"
+              className="text-pink-600 hover:text-pink-700 font-semibold transition-colors duration-200"
               style={{
                 backgroundColor: "transparent",
                 border: "none",
-                padding: 4,
+                padding: 0,
                 margin: 0,
               }}
             >
