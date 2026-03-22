@@ -14,67 +14,79 @@ function ImageSlider({ banner }) {
   };
 
   return (
-    <div className="w-full max-w-[1060px] mx-auto rounded-xl overflow-hidden shadow-md">
-      <div className="relative w-full h-[200px] sm:h-[240px] md:h-[280px] lg:h-[320px] xl:h-[360px] overflow-hidden">
-        <img
-          src={
-            banner[currentImageIndex].banner_image_url ||
-            banner[currentImageIndex].image
-          }
-          alt={banner[currentImageIndex].description}
-          className="w-full h-full object-cover transition-transform duration-500 ease-in-out transform-gpu will-change-transform hover:scale-[1.03]"
-        />
+  <div className="w-full max-w-[1060px] mx-auto rounded-xl overflow-hidden shadow-md">
+    <div className="relative w-full h-[200px] sm:h-[240px] md:h-[280px] lg:h-[320px] xl:h-[360px] 2xl:h-[400px] overflow-hidden rounded-xl">
+      <img
+        src={
+          banner[currentImageIndex]?.banner_image_url ||
+          banner[currentImageIndex]?.image
+        }
+        alt={banner[currentImageIndex]?.description || "Banner"}
+        className="block w-full h-full object-cover object-center"
+        onError={(e) => {
+          e.currentTarget.src =
+            "https://via.placeholder.com/1060x400/e2e8f0/64748b?text=Banner+Image";
+        }}
+      />
 
-        <button
-          onClick={prevImage}
-          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:scale-110 hover:bg-opacity-70 transition-all duration-200"
+      <div className="absolute inset-0 bg-black/10 pointer-events-none" />
+
+      <button
+        onClick={prevImage}
+        className="hidden md:flex absolute left-3 lg:left-4 top-1/2 -translate-y-1/2 z-20 items-center justify-center w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-black/45 text-white backdrop-blur-sm hover:bg-black/65 hover:scale-110 transition-all duration-200 cursor-pointer"
+        aria-label="Previous banner"
+      >
+        <svg
+          className="w-5 h-5 lg:w-6 lg:h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+      </button>
 
-        <button
-          onClick={nextImage}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:scale-110 hover:bg-opacity-70 transition-all duration-200"
+      <button
+        onClick={nextImage}
+        className="hidden md:flex absolute right-3 lg:right-4 top-1/2 -translate-y-1/2 z-20 items-center justify-center w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-black/45 text-white backdrop-blur-sm hover:bg-black/65 hover:scale-110 transition-all duration-200 cursor-pointer"
+        aria-label="Next banner"
+      >
+        <svg
+          className="w-5 h-5 lg:w-6 lg:h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
-      </div>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </button>
 
-      <div className="flex justify-center items-center gap-2 bg-white py-5 rounded-b-xl">
+      <div className="absolute bottom-3 sm:bottom-4 md:bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 rounded-full bg-black/35 backdrop-blur-sm">
         {banner.map((_, idx) => (
-          <span
+          <button
             key={idx}
-            className={`h-2 w-2 rounded-full ${
-              idx === currentImageIndex ? "bg-black" : "bg-black/30"
+            onClick={() => setCurrentImageIndex(idx)}
+            aria-label={`Go to banner ${idx + 1}`}
+            className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 cursor-pointer ${
+              idx === currentImageIndex
+                ? "bg-white scale-110"
+                : "bg-white/60 hover:bg-white"
             }`}
           />
         ))}
       </div>
     </div>
+  </div>
   );
 }
 

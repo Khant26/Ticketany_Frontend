@@ -1,29 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import Logo from "../assets/logo.jpg";
 import { HiOutlineGlobeAlt } from "react-icons/hi2";
 import { FiLogOut } from "react-icons/fi";
 import { HiMiniUser } from "react-icons/hi2";
 import { HiBars3, HiXMark } from "react-icons/hi2";
-import { Link, Navigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import SignUp from "./SignUp";
 import SignIn from "./SignIn";
 import ForgotPassword from "./ForgotPassword";
-import { useNavigate, useLocation } from "react-router-dom";
 
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const isProfilePage = location.pathname === "/profile";
+  const isHomePage = location.pathname === "/";
+
   const { t, i18n } = useTranslation();
   const [showSignUp, setShowSignUp] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState(null); // was hard‑coded 'HybridDev'
+  const [userName, setUserName] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef(null);
+  const menuButtonRef = useRef(null);
 
   const updateLoginState = () => {
     try {
@@ -40,13 +43,14 @@ function Navbar() {
           parsed?.user?.email,
         ];
         const first = candidates.find(
-          (v) => typeof v === "string" && v.trim().length > 0,
+          (v) => typeof v === "string" && v.trim().length > 0
         );
         const display = first
           ? first.includes("@")
             ? first.split("@")[0]
             : first
           : "User";
+
         setUserName(display);
         setIsLoggedIn(true);
       } else {
@@ -63,7 +67,6 @@ function Navbar() {
     updateLoginState();
 
     window.addEventListener("storage", updateLoginState);
-
     window.addEventListener("userLoginChanged", updateLoginState);
 
     return () => {
@@ -71,6 +74,31 @@ function Navbar() {
       window.removeEventListener("userLoginChanged", updateLoginState);
     };
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        isMobileMenuOpen &&
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target) &&
+        menuButtonRef.current &&
+        !menuButtonRef.current.contains(event.target)
+      ) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMobileMenuOpen]);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
   const handleSignUpClick = () => {
     setShowSignUp(true);
@@ -105,6 +133,7 @@ function Navbar() {
   const handleLogin = (payload) => {
     const normalize = (val) => {
       if (typeof val === "string") return val;
+
       if (val && typeof val === "object") {
         const candidates = [
           val.name,
@@ -115,38 +144,47 @@ function Navbar() {
           val.email,
         ];
         const first = candidates.find(
-          (v) => typeof v === "string" && v.trim().length > 0,
+          (v) => typeof v === "string" && v.trim().length > 0
         );
+
         return first
           ? first.includes("@")
             ? first.split("@")[0]
             : first
           : "User";
       }
+
       return "User";
     };
+
     setUserName(normalize(payload));
     setIsLoggedIn(true);
     closeModals();
   };
+
   const handleSignout = () => {
     try {
       const raw = localStorage.getItem("user_data");
+
       if (raw) {
         try {
           const parsed = JSON.parse(raw);
           const uid = parsed?.id || parsed?.user?.id || parsed?.userId;
+
           if (uid != null) {
             const cacheKey = `userOrders_${uid}`;
-            if (localStorage.getItem(cacheKey))
+            if (localStorage.getItem(cacheKey)) {
               localStorage.removeItem(cacheKey);
+            }
           }
         } catch {}
       }
+
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
       localStorage.removeItem("user_data");
     } catch {}
+
     setUserName(null);
     setIsLoggedIn(false);
     setShowSignOutConfirm(false);
@@ -162,23 +200,57 @@ function Navbar() {
     setShowSignOutConfirm(true);
   };
 
+  const getDisplayName = () => {
+    if (typeof userName === "string") return userName;
+
+    const dn =
+      userName?.name ||
+      userName?.username ||
+      userName?.user?.name ||
+      userName?.user?.username ||
+      userName?.user?.email ||
+      "User";
+
+    return typeof dn === "string"
+      ? dn.includes("@")
+        ? dn.split("@")[0]
+        : dn
+      : "User";
+  };
+
+  const getUserInitial = () => {
+    const dn =
+      typeof userName === "string"
+        ? userName
+        : userName?.name ||
+          userName?.username ||
+          userName?.user?.name ||
+          userName?.user?.username ||
+          userName?.user?.email ||
+          "U";
+
+    const initial = String(dn).trim().charAt(0) || "U";
+    return initial.toUpperCase();
+  };
+
   return (
     <>
-      <div className="navbar fixed top-0 left-0 right-0 bg-white shadow-md z-40 py-1">
-        <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
-          {/* ================= MOBILE NAVBAR (sm only) ================= */}
-          <div className="flex flex-col md:hidden w-full">
-            {/* Top row: Logo left, menu right */}
+      <div className="navbar fixed top-0 left-0 right-0 bg-white shadow-md z-40 py-1 transition-opacity duration-300">
+        <div className="w-full max-w-7xl mx-auto px-4 py-1 md:py-2 sm:px-4 md:px-6 lg:px-8">
+          {/* ================= MOBILE / TABLET NAVBAR (below lg) ================= */}
+          <div className="flex flex-col lg:hidden w-full">
+            {/* Top row */}
             <div className="flex items-center justify-between w-full">
               <Link to="/">
                 <img
                   src={Logo}
                   alt="Logo"
-                  className="w-14 h-14 object-contain transition duration-200 hover:scale-105"
+                  className="w-10 h-10 sm:w-15 sm:h-15 object-contain transition duration-200 hover:scale-105"
                 />
               </Link>
 
               <button
+                ref={menuButtonRef}
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-2 text-gray-700 hover:text-[#e51f4b] transition-colors"
               >
@@ -190,8 +262,8 @@ function Navbar() {
               </button>
             </div>
 
-            {/* Search bar below (hide on profile page if you want same behavior) */}
-            {!isProfilePage && (
+            {/* Search bar below logo/menu - HOME ONLY */}
+            {isHomePage && (
               <div className="mt-2 w-full">
                 <div className="relative w-full">
                   <input
@@ -202,9 +274,9 @@ function Navbar() {
                     onKeyDown={(e) => {
                       if (e.key === "Enter") handleSearch();
                     }}
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-200 rounded text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white transition-all duration-200"
+                    className="w-full pl-10 pr-4 py-1.5 lg:py-2 bg-gray-200 rounded text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white transition-all duration-200"
                   />
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2">
                     <svg
                       className="w-5 h-5 text-gray-400"
                       fill="none"
@@ -225,9 +297,10 @@ function Navbar() {
 
             {/* Mobile dropdown menu */}
             {isMobileMenuOpen && (
-              <div className="mt-2 bg-white border rounded-lg shadow-md p-3 flex flex-col gap-3">
+              <div ref={mobileMenuRef} 
+                    className="mt-2 bg-white border rounded-lg shadow-md p-3 flex flex-col gap-3">
                 {/* Language switcher */}
-                <div className="flex items-center justify-center text-black gap-2 border-b pb-3">
+                <div className="flex items-center j`ustify-center text-black gap-2 border-b pb-3">
                   <button
                     onClick={() => {
                       i18n.changeLanguage("en");
@@ -280,39 +353,11 @@ function Navbar() {
                       >
                         <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center mr-2">
                           <span className="text-xs font-medium text-gray-600">
-                            {(() => {
-                              const dn =
-                                typeof userName === "string"
-                                  ? userName
-                                  : userName?.name ||
-                                    userName?.username ||
-                                    userName?.user?.name ||
-                                    userName?.user?.username ||
-                                    userName?.user?.email ||
-                                    "U";
-                              const initial = String(dn).trim().charAt(0) || "U";
-                              return initial.toUpperCase();
-                            })()}
+                            {getUserInitial()}
                           </span>
                         </div>
 
-                        <span className="font-medium">
-                          {(() => {
-                            if (typeof userName === "string") return userName;
-                            const dn =
-                              userName?.name ||
-                              userName?.username ||
-                              userName?.user?.name ||
-                              userName?.user?.username ||
-                              userName?.user?.email ||
-                              "User";
-                            return typeof dn === "string"
-                              ? dn.includes("@")
-                                ? dn.split("@")[0]
-                                : dn
-                              : "User";
-                          })()}
-                        </span>
+                        <span className="font-medium">{getDisplayName()}</span>
                       </Link>
                     )}
 
@@ -346,8 +391,8 @@ function Navbar() {
             )}
           </div>
 
-          {/* ================= DESKTOP NAVBAR (md and above) ================= */}
-          <div className="hidden md:flex flex-wrap items-center w-full">
+          {/* ================= DESKTOP NAVBAR (lg and above) ================= */}
+          <div className="hidden lg:flex flex-wrap items-center w-full">
             <Link to="/">
               <img
                 src={Logo}
@@ -356,7 +401,8 @@ function Navbar() {
               />
             </Link>
 
-            {!isProfilePage ? (
+            {/* Search - HOME ONLY */}
+            {isHomePage ? (
               <div className="flex items-center flex-auto mx-3 min-w-[300px]">
                 <div className="relative flex-1">
                   <input
@@ -369,7 +415,7 @@ function Navbar() {
                     }}
                     className="w-full pl-10 pr-6 py-3 bg-gray-200 rounded text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white transition-all duration-200"
                   />
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2">
                     <svg
                       className="w-6 h-6 text-gray-400"
                       fill="none"
@@ -390,7 +436,7 @@ function Navbar() {
                   type="button"
                   onClick={handleSearch}
                   disabled={!searchQuery.trim()}
-                  className="text-white px-6 py-3 rounded ml-3 transition duration-200 hover:scale-105 bg-[#ee6786] hover:opacity-80 active:bg-[#d45573]"
+                  className="text-white px-6 py-3 rounded ml-3 transition duration-200 hover:scale-105 bg-[#ee6786] hover:opacity-80 active:bg-[#d45573] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {t("nav.search")}
                 </button>
@@ -443,9 +489,9 @@ function Navbar() {
             </div>
 
             {/* User/Profile */}
-            <div className="relative ml-4 lg:ml-10 min-w-[180px] md:min-w-[220px] flex justify-start">
+            <div className="relative ml-4 xl:ml-10 min-w-[180px] lg:min-w-[220px] flex justify-start">
               {isLoggedIn ? (
-                <div className="flex items-center gap-5 md:gap-7">
+                <div className="flex items-center gap-5 xl:gap-7">
                   {!isProfilePage && (
                     <Link
                       to="/profile"
@@ -454,39 +500,11 @@ function Navbar() {
                     >
                       <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center mr-2">
                         <span className="text-xs font-medium text-gray-600">
-                          {(() => {
-                            const dn =
-                              typeof userName === "string"
-                                ? userName
-                                : userName?.name ||
-                                  userName?.username ||
-                                  userName?.user?.name ||
-                                  userName?.user?.username ||
-                                  userName?.user?.email ||
-                                  "U";
-                            const initial = String(dn).trim().charAt(0) || "U";
-                            return initial.toUpperCase();
-                          })()}
+                          {getUserInitial()}
                         </span>
                       </div>
 
-                      <span className="font-medium">
-                        {(() => {
-                          if (typeof userName === "string") return userName;
-                          const dn =
-                            userName?.name ||
-                            userName?.username ||
-                            userName?.user?.name ||
-                            userName?.user?.username ||
-                            userName?.user?.email ||
-                            "User";
-                          return typeof dn === "string"
-                            ? dn.includes("@")
-                              ? dn.split("@")[0]
-                              : dn
-                            : "User";
-                        })()}
-                      </span>
+                      <span className="font-medium">{getDisplayName()}</span>
                     </Link>
                   )}
 
@@ -525,7 +543,7 @@ function Navbar() {
         onClose={closeModals}
         onSwitchToSignUp={handleSignUpClick}
         onSwitchToForgotPassword={handleForgotPasswordClick}
-        onLogin={handleLogin} // call with username inside SignIn submit
+        onLogin={handleLogin}
       />
       <ForgotPassword
         isOpen={showForgotPassword}

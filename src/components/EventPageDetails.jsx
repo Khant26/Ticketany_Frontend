@@ -14,6 +14,7 @@ function EventPageDetails() {
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     const accessToken = localStorage.getItem("access_token");
     const userData = localStorage.getItem("user_data");
@@ -67,6 +68,27 @@ function EventPageDetails() {
     };
   }, []);
 
+  useEffect(() => {
+      const navbar = document.querySelector(".navbar");
+
+      if (navbar) {
+        if (isFullscreenOpen) {
+          navbar.style.opacity = "0";
+          navbar.style.pointerEvents = "none";
+        } else {
+          navbar.style.opacity = "1";
+          navbar.style.pointerEvents = "auto";
+        }
+      }
+
+      return () => {
+        if (navbar) {
+          navbar.style.opacity = "1";
+          navbar.style.pointerEvents = "auto";
+        }
+      };
+    }, [isFullscreenOpen]);
+
   const eventDetail =
     eventDetails.find((event) => event.id === parseInt(id)) || eventDetails[0];
   if (eventDetails.length === 0) {
@@ -84,7 +106,7 @@ function EventPageDetails() {
   if (id && !eventDetail) {
     return (
       <div className="mt-16 lg:mb-10 lg:px-100 md:mt-24 px-4 md:px-8 py-6 text-center">
-        <div className="text-red-600 text-xl font-semibold">
+        <div className="text-red-600 text-xl font-bold">
           {t("generic.noEvent")}
         </div>
         <p className="text-gray-600 mt-2">Event with ID {id} not found</p>
@@ -243,7 +265,7 @@ function EventPageDetails() {
     <>
       <div className="flex flex-col items-center min-h-screen bg-gray-50">
         <div className="mt-16 md:mt-24 px-4 md:px-8 py-6 relative z-10 w-full">
-          <div className="max-w-[1360px] mx-auto pt-16 flex flex-col lg:flex-row lg:pt-0 gap-6 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-[1360px] mx-auto pt-0 flex flex-col lg:flex-row lg:pt-0 gap-6 px-4 sm:px-6 lg:px-8">
             {/* Left column - Event Detail */}
             <div className="w-full lg:w-2/3 bg-white shadow-md rounded-xl pb-4 sm:pb-6 md:pb-8 flex flex-col overflow-hidden">
               <div className="flex flex-col gap-4 sm:gap-5 md:gap-6">
@@ -253,9 +275,10 @@ function EventPageDetails() {
                     <img
                       src={images[currentImageIndex]}
                       alt={`${eventDetail?.event_name || "Event"} - Image ${currentImageIndex + 1}`}
-                      className={`w-full h-52 sm:h-64 md:h-80 lg:h-[420px] xl:h-[480px] object-cover rounded-t-xl transition-opacity duration-150 ease-out ${
+                      className={`w-full h-52 sm:h-64 md:h-80 lg:h-[420px] xl:h-[480px] object-cover rounded-t-xl transition-opacity duration-150 ease-out cursor-pointer ${
                         isImageFading ? "opacity-80" : "opacity-100"
                       }`}
+                      onClick={() => setIsFullscreenOpen(true)}
                       onLoad={() => setIsImageFading(false)}
                       onError={(e) => {
                         e.target.style.display = "none";
@@ -329,55 +352,88 @@ function EventPageDetails() {
                     </div>
                   )}
                 </div>
+                {/* Fullscreen modal at very end */}
+                {isFullscreenOpen && images.length > 0 && (
+                  <div
+                    className="fixed inset-0 z-[99999] bg-black/95 flex items-center justify-center p-4"
+                    onClick={() => setIsFullscreenOpen(false)}
+                  >
+                    <button
+                      onClick={() => setIsFullscreenOpen(false)}
+                      className="absolute top-4 right-4 text-white bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors z-[100000]"
+                    >
+                      <svg
+                        className="w-6 h-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+
+                    <img
+                      src={images[currentImageIndex]}
+                      alt={`${eventDetail?.event_name || "Event"} - Fullscreen`}
+                      className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                )}
 
                 {/* Detail Section */}
-                <div className="w-full flex flex-col justify-between px-4 sm:px-5 md:px-6 pt-2 sm:pt-4 cursor-default">
-                  <h3 className="text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl font-bold text-gray-800 mb-4 sm:mb-5 md:mb-6 leading-snug break-words">
+                <div className="w-full flex flex-col justify-between lg:items-center px-4 sm:px-5 md:px-6 pt-2 sm:pt-4 cursor-default">
+                  <h3 className="text-xl md:text-2xl lg:text-2xl xl:text-3xl font-bold lg:font-semibold text-gray-800 mb-4 sm:mb-5 md:mb-6 leading-snug break-words">
                     {eventDetail?.event_name || "Event Details"}
                   </h3>
 
                   <div className="flex-1 space-y-3 sm:space-y-4 md:space-y-5">
                     <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-0">
-                      <span className="text-sm sm:text-base md:text-lg font-semibold min-w-[70px] sm:min-w-[80px] text-gray-700">
+                      <span className="text-base md:text-lg font-base lg:font-semibold min-w-[70px] sm:min-w-[80px] text-gray-700">
                         {t("event.date")}
                       </span>
-                      <span className="text-sm sm:text-base md:text-lg font-semibold sm:ml-4 text-gray-800 break-words">
+                      <span className="text-base md:text-lg font-bold lg:font-semibold sm:ml-4 text-gray-800 break-words">
                         {formatEventDates(eventDetail?.event_date)}
                       </span>
                     </div>
 
                     <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-0">
-                      <span className="text-sm sm:text-base md:text-lg font-semibold min-w-[70px] sm:min-w-[80px] text-gray-700">
+                      <span className="text-base md:text-lg font-base lg:font-semibold min-w-[70px] sm:min-w-[80px] text-gray-700">
                         {t("event.time")}
                       </span>
-                      <span className="text-sm sm:text-base md:text-lg font-semibold sm:ml-4 text-gray-800 break-words">
+                      <span className="text-base md:text-lg font-bold lg:font-semibold sm:ml-4 text-gray-800 break-words">
                         {eventDetail?.event_time || "TBD"}
                       </span>
                     </div>
 
                     <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-0">
-                      <span className="text-sm sm:text-base md:text-lg font-semibold min-w-[70px] sm:min-w-[80px] text-gray-700">
+                      <span className="text-base md:text-lg font-base lg:font-semibold min-w-[70px] sm:min-w-[80px] text-gray-700">
                         {t("event.location")}
                       </span>
-                      <span className="text-sm sm:text-base md:text-lg font-semibold sm:ml-4 text-gray-800 break-words whitespace-normal">
+                      <span className="text-base md:text-lg font-bold lg:font-semibold sm:ml-4 text-gray-800 break-words whitespace-normal">
                         {eventDetail?.event_location || "TBD"}
                       </span>
                     </div>
 
                     <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-0">
-                      <span className="text-sm sm:text-base md:text-lg font-semibold min-w-[70px] sm:min-w-[80px] text-gray-700">
+                      <span className="text-base md:text-lg font-base lg:font-semibold min-w-[70px] sm:min-w-[80px] text-gray-700">
                         {t("event.sale")}
                       </span>
-                      <span className="text-sm sm:text-base md:text-lg font-semibold sm:ml-4 text-gray-800 break-words">
+                      <span className="text-base md:text-lg font-bold lg:font-semibold sm:ml-4 text-gray-800 break-words">
                         {eventDetail?.sale_date || "TBD"}
                       </span>
                     </div>
 
                     <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-0">
-                      <span className="text-sm sm:text-base md:text-lg font-semibold min-w-[70px] sm:min-w-[80px] text-gray-700">
+                      <span className="text-base md:text-lg font-base lg:font-semibold min-w-[70px] sm:min-w-[80px] text-gray-700">
                         {t("event.price")}
                       </span>
-                      <span className="text-sm sm:text-base md:text-lg font-semibold sm:ml-4 text-gray-800 break-words whitespace-normal">
+                      <span className="text-base md:text-lg font-bold lg:font-semibold sm:ml-4 text-gray-800 break-words whitespace-normal">
                         {formatTicketPrices(eventDetail?.ticket_price)}
                       </span>
                     </div>
@@ -385,7 +441,7 @@ function EventPageDetails() {
 
                   <button
                     onClick={handleOrderNowClick}
-                    className="mt-5 sm:mt-6 w-full sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-white rounded-lg hover:opacity-80 hover:scale-105 transition-all duration-200 font-semibold bg-[#ee6786] active:bg-[#d45573] cursor-pointer"
+                    className="mt-5 sm:mt-6 w-full sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3 px-4 sm:px-6 py-2.5 sm:py-3 text-base sm:text-lg text-white rounded-lg hover:opacity-80 hover:scale-105 transition-all duration-200 font-bold bg-[#ee6786] active:bg-[#d45573] cursor-pointer"
                   >
                     {t("event.orderNow")}
                   </button>
