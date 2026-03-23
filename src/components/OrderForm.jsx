@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import OrderConfirm from "./OrderConfirm";
 import OrderComplete from "./OrderComplete";
 import { useTranslation } from "react-i18next";
+import { authFetch } from "../services/apiClient";
 
 function OrderForm({
   isOpen,
@@ -14,8 +15,6 @@ function OrderForm({
   eventPrices,
   eventId,
 }) {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
-
   const { t } = useTranslation();
  
 
@@ -139,8 +138,6 @@ function OrderForm({
     setSubmitError("");
 
     try {
-      const token = localStorage.getItem("access_token");
-      
       const ticketsPayload = allOrders.map(entry => ({
         passport_name: entry.userName,
         facebook_name: entry.facebookName,
@@ -151,11 +148,11 @@ function OrderForm({
         trd_pt: entry.thirdPriorityTicket || null,
       }));
 
-      const response = await fetch(`${API_BASE_URL}tickets/`, {
+      const response = await authFetch("tickets/", {
+        auth: true,
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           event: eventId,
@@ -169,6 +166,11 @@ function OrderForm({
           ? response.json()
           : response.text();
       })();
+
+      if (response.status === 401 || responseData?.code === "token_not_valid") {
+        setSubmitError("Your session has expired. Please sign in again.");
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(

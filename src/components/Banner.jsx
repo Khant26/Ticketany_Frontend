@@ -8,7 +8,7 @@ function Banner() {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const response = await apiService.get("banners/");
+        const response = await apiService.get("banners/", { auth: false });
         const bannerData = response.map((b) => ({
           id: b.id,
           image:

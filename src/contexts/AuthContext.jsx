@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import axios from "axios";
-import { setOnTokenExpired } from "../services/apiClient";
-import { showError, showWarning, showSessionExpired } from "../utils/toastNotification";
+import { AUTH_REQUIRED_EVENT, clearAuthStorage, setOnTokenExpired } from "../services/apiClient";
+import { showError, showSessionExpired } from "../utils/toastNotification";
 
 const AuthContext = createContext();
 
@@ -29,9 +29,12 @@ const AuthContextProvider = ({ children}) => {
         } catch (error) {
             if (error.response?.status === 401) {
                 console.log('Unauthenticated - invalid token');
-                localStorage.removeItem("access_token");
-                localStorage.removeItem("refresh_token");
+                clearAuthStorage();
                 setUser(null);
+                window.dispatchEvent(new Event("userLoginChanged"));
+                window.dispatchEvent(new CustomEvent(AUTH_REQUIRED_EVENT, {
+                    detail: { reason: "sessionExpired" },
+                }));
                 showSessionExpired();
             } else {
                 console.error('Error fetching user:', error);
@@ -72,12 +75,18 @@ const AuthContextProvider = ({ children}) => {
         }
     }
 
-    let logout = () => {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("user_data");
+    let logout = ({ showToast = true, requireReauth = false } = {}) => {
+        clearAuthStorage();
         setUser(null);
-        showSessionExpired();
+        window.dispatchEvent(new Event("userLoginChanged"));
+        if (showToast) {
+            showSessionExpired();
+        }
+        if (requireReauth) {
+            window.dispatchEvent(new CustomEvent(AUTH_REQUIRED_EVENT, {
+                detail: { reason: "sessionExpired" },
+            }));
+        }
     }
 
     useEffect(() => {
@@ -85,7 +94,7 @@ const AuthContextProvider = ({ children}) => {
         if (token) getUser();
         
         // Register logout callback for when token expires during API calls
-        setOnTokenExpired(logout);
+        setOnTokenExpired(() => logout({ showToast: true, requireReauth: true }));
     }, [])
 
     console.log(user)

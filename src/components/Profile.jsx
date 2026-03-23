@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import OrderDetails from "./OrderDetails";
 import Logo from "../assets/logo.jpg";
+import { authFetch } from "../services/apiClient";
 
 function Profile() {
   const tabRefs = useRef({});
@@ -159,27 +160,18 @@ function Profile() {
   }, [userId]);
 
   const fetchData = async () => {
-    const API_BASE_URL =
-      import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
-
     if (!userId) {
       setOrders([]);
       return;
     }
 
-    const token = localStorage.getItem("access_token");
-    const headers = {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-
     setLoading(true);
     setError("");
     try {
       const [ordersRes, ticketsRes, eventsRes] = await Promise.all([
-        fetch(`${API_BASE_URL}orders/`, { headers }),
-        fetch(`${API_BASE_URL}tickets/`, { headers }),
-        fetch(`${API_BASE_URL}events/`, { headers }),
+        authFetch("orders/", { auth: true }),
+        authFetch("tickets/", { auth: true }),
+        authFetch("events/", { auth: false }),
       ]);
 
       const parseMaybeJson = async (res) => {
@@ -198,6 +190,10 @@ function Profile() {
         parseMaybeJson(ticketsRes),
         parseMaybeJson(eventsRes),
       ]);
+
+      if (ordersRes.status === 401 || ticketsRes.status === 401) {
+        return;
+      }
 
       if (!ordersRes.ok)
         throw new Error(

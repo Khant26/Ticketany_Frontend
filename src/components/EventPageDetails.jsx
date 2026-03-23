@@ -5,6 +5,7 @@ import OrderForm from "./OrderForm";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
 import apiService from "../services/apiService";
+import { AUTH_REQUIRED_EVENT, ensureValidSession } from "../services/apiClient";
 
 function EventPageDetails() {
   const { t } = useTranslation();
@@ -61,12 +62,21 @@ function EventPageDetails() {
       setIsLoggedIn(newLoggedInState);
     };
 
+    const handleAuthRequired = () => {
+      setIsLoggedIn(false);
+      setShowOrderForm(false);
+      setShowSignUp(false);
+      setShowSignIn(false);
+    };
+
     window.addEventListener("userLoginChanged", updateLoginState);
     window.addEventListener("storage", updateLoginState);
+    window.addEventListener(AUTH_REQUIRED_EVENT, handleAuthRequired);
 
     return () => {
       window.removeEventListener("userLoginChanged", updateLoginState);
       window.removeEventListener("storage", updateLoginState);
+      window.removeEventListener(AUTH_REQUIRED_EVENT, handleAuthRequired);
     };
   }, []);
 
@@ -242,12 +252,19 @@ function EventPageDetails() {
     return isLoggedIn;
   };
 
-  const handleOrderNowClick = () => {
-    if (isUserLoggedIn()) {
-      setShowOrderForm(true);
-    } else {
+  const handleOrderNowClick = async () => {
+    if (!isUserLoggedIn()) {
       setShowSignIn(true);
+      return;
     }
+
+    const isValid = await ensureValidSession({ notify: true });
+    if (!isValid) {
+      setShowOrderForm(false);
+      return;
+    }
+
+    setShowOrderForm(true);
   };
 
   return (

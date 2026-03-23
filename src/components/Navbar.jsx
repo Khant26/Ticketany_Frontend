@@ -9,6 +9,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import SignUp from "./SignUp";
 import SignIn from "./SignIn";
 import ForgotPassword from "./ForgotPassword";
+import { AUTH_REQUIRED_EVENT, ensureValidSession } from "../services/apiClient";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -68,12 +69,51 @@ function Navbar() {
   useEffect(() => {
     updateLoginState();
 
+    const validateCurrentSession = async () => {
+      const hasAccessToken = !!localStorage.getItem("access_token");
+      const hasUserData = !!localStorage.getItem("user_data");
+
+      if (!hasAccessToken || !hasUserData) {
+        updateLoginState();
+        return;
+      }
+
+      const isValid = await ensureValidSession({ notify: true });
+      if (isValid) {
+        updateLoginState();
+      }
+    };
+
+    const handleAuthRequired = () => {
+      setUserName(null);
+      setIsLoggedIn(false);
+      setShowForgotPassword(false);
+      setShowSignUp(false);
+      setShowSignIn(true);
+      setShowSignOutConfirm(false);
+      setIsMobileMenuOpen(false);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        void validateCurrentSession();
+      }
+    };
+
+    void validateCurrentSession();
+
     window.addEventListener("storage", updateLoginState);
     window.addEventListener("userLoginChanged", updateLoginState);
+    window.addEventListener("focus", validateCurrentSession);
+    window.addEventListener(AUTH_REQUIRED_EVENT, handleAuthRequired);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       window.removeEventListener("storage", updateLoginState);
       window.removeEventListener("userLoginChanged", updateLoginState);
+      window.removeEventListener("focus", validateCurrentSession);
+      window.removeEventListener(AUTH_REQUIRED_EVENT, handleAuthRequired);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
