@@ -61,7 +61,7 @@ function OrderDetails({ isOpen, onClose, order, ticket, meta = {} }) {
 
   const getPrice = (ticket) => {
     if (ticket?.price) {
-      return `${ticket.price} THB`;
+      return `${ticket.price}`;
     }
     return "—";
   };

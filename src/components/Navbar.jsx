@@ -15,6 +15,8 @@ function Navbar() {
   const location = useLocation();
   const isProfilePage = location.pathname === "/profile";
   const isHomePage = location.pathname === "/";
+  const isSearchResultsPage = location.pathname.toLowerCase() === "/events/all";
+  const shouldShowSearchBar = isHomePage || isSearchResultsPage;
 
   const { t, i18n } = useTranslation();
   const [showSignUp, setShowSignUp] = useState(false);
@@ -126,7 +128,7 @@ function Navbar() {
 
   const handleSearch = () => {
     const q = searchQuery.trim();
-    const target = `/events/all${q ? `?q=${encodeURIComponent(q)}` : ""}`;
+    const target = `/events/All${q ? `?q=${encodeURIComponent(q)}` : ""}`;
     navigate(target);
   };
 
@@ -263,7 +265,7 @@ function Navbar() {
             </div>
 
             {/* Search bar below logo/menu - HOME ONLY */}
-            {isHomePage && (
+            {shouldShowSearchBar && (
               <div className="mt-2 w-full">
                 <div className="relative w-full">
                   <input
@@ -402,7 +404,7 @@ function Navbar() {
             </Link>
 
             {/* Search - HOME ONLY */}
-            {isHomePage ? (
+            {shouldShowSearchBar ? (
               <div className="flex items-center flex-auto mx-3 min-w-[300px]">
                 <div className="relative flex-1">
                   <input
