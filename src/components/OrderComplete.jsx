@@ -262,7 +262,7 @@ function OrderComplete({
           <button
             onClick={saveImage}
             disabled={saving}
-            className="px-10 py-4 w-100 h-15 text-white rounded-lg font-semibold hover:scale-105 hover:opacity-80 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-pink-500 transition bg-[#ee6786] active:bg-[#d45573]"
+            className="px-10 py-4 w-100 h-15 text-white rounded-lg font-semibold hover:scale-105 hover:opacity-80 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-pink-500 transition bg-[#f28fa5] active:bg-[#d45573]"
           >
             {saving ? "Saving..." : "Save Image"}
           </button>

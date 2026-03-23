@@ -283,13 +283,13 @@ function OrderConfirm({
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 justify-center mt-4 sm:mt-6">
             <button
               onClick={() => setShowPrompt(true)}
-              className="cursor-pointer px-4 sm:px-8 md:px-10 py-2 sm:py-3 md:py-4 text-white text-sm sm:text-base rounded-lg font-semibold hover:opacity-80 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 transition bg-[#ee6786] active:bg-[#d45573]"
+              className="cursor-pointer px-4 sm:px-8 md:px-10 py-2 sm:py-3 md:py-4 text-white text-sm sm:text-base rounded-lg font-semibold hover:opacity-80 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 transition bg-[#f28fa5] active:bg-[#d45573]"
             >
               {t("order.Confirm")}
             </button>
             <button
               onClick={onAddMore}
-              className="cursor-pointer px-4 sm:px-8 md:px-10 py-2 sm:py-3 md:py-4 text-white text-sm sm:text-base rounded-lg font-semibold hover:opacity-80 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 transition bg-[#ee6786] active:bg-[#d45573]"
+              className="cursor-pointer px-4 sm:px-8 md:px-10 py-2 sm:py-3 md:py-4 text-white text-sm sm:text-base rounded-lg font-semibold hover:opacity-80 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 transition bg-[#f28fa5] active:bg-[#d45573]"
             >
               {t("order.AddMore")}
             </button>

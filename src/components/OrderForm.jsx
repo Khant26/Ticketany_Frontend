@@ -34,6 +34,7 @@ function OrderForm({
   const [isEditingOrder, setIsEditingOrder] = useState(null);
 
   const [showOrderComplete, setShowOrderComplete] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [orderId, setOrderId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -177,7 +178,13 @@ function OrderForm({
 
       setOrderId(String(responseData.order_id || ""));
       setShowOrderConfirm(false);
-      setShowOrderComplete(true);
+      setIsTransitioning(true);
+      
+      // Simulate loading delay before showing order complete
+      setTimeout(() => {
+        setIsTransitioning(false);
+        setShowOrderComplete(true);
+      }, 1500);
       
     } catch (err) {
       const msg = err?.message || "Failed to submit order";
@@ -194,8 +201,8 @@ function OrderForm({
     resetForm();
     onClose();
   };
-  const anyOpen = isOpen || showOrderConfirm || showOrderComplete;
-  const formVisible = isOpen && !showOrderConfirm && !showOrderComplete;
+  const anyOpen = isOpen || showOrderConfirm || showOrderComplete || isTransitioning;
+  const formVisible = isOpen && !showOrderConfirm && !showOrderComplete && !isTransitioning;
   if (!anyOpen) return null;
 
   const parseDates = (dateString) => {
@@ -484,7 +491,7 @@ function OrderForm({
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 md:gap-8 justify-center mt-6 sm:mt-8 md:mt-10">
                   <button
                     type="submit"
-                    className="cursor-pointer w-full sm:w-1/2 text-white py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-sm sm:text-base md:text-lg bg-[#ee6786] active:bg-[#d45573]"
+                    className="cursor-pointer w-full sm:w-1/2 text-white py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-sm sm:text-base md:text-lg bg-[#f28fa5] active:bg-[#d45573]"
                   >
                     {isEditingOrder !== null ? "Update Order" : "Next"}
                   </button>
@@ -496,7 +503,7 @@ function OrderForm({
                         setShowBackButton(false);
                         setShowOrderConfirm(true);
                       }}
-                      className="cursor-pointer w-full sm:w-1/2 text-white py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-sm sm:text-base md:text-lg bg-[#ee6786] active:bg-[#d45573]"
+                      className="cursor-pointer w-full sm:w-1/2 text-white py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-sm sm:text-base md:text-lg bg-[#f28fa5] active:bg-[#d45573]"
                     >
                       Back to Orders
                     </button>
@@ -504,6 +511,21 @@ function OrderForm({
                 </div>
               </form>
             </div>
+          </div>
+        </div>
+      )}
+
+      {isTransitioning && (
+        <div
+          className="cursor-default fixed inset-0 flex items-center justify-center px-4"
+          style={{
+            zIndex: 9999,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4 shadow-lg">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#f28fa5]"></div>
+            <p className="text-gray-600 font-medium">Completing your order...</p>
           </div>
         </div>
       )}

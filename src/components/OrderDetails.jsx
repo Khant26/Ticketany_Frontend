@@ -204,7 +204,7 @@ function OrderDetails({ isOpen, onClose, order, ticket, meta = {} }) {
               <select
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 text-sm sm:text-base font-medium focus:outline-none focus:border-[#ee6786] focus:ring-2 focus:ring-pink-200 transition"
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 text-sm sm:text-base font-medium focus:outline-none focus:border-[#f28fa5] focus:ring-2 focus:ring-pink-200 transition"
               >
                 {parsedDates.map((d, idx) => (
                   <option key={idx} value={d}>
@@ -244,7 +244,7 @@ function OrderDetails({ isOpen, onClose, order, ticket, meta = {} }) {
                 <select
                   value={selectedPrice}
                   onChange={(e) => setSelectedPrice(e.target.value)}
-                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 text-sm sm:text-base font-medium focus:outline-none focus:border-[#ee6786] focus:ring-2 focus:ring-pink-200 transition"
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 text-sm sm:text-base font-medium focus:outline-none focus:border-[#f28fa5] focus:ring-2 focus:ring-pink-200 transition"
                 >
                   {parsedPrices.map((p, idx) => (
                     <option key={idx} value={p}>
@@ -339,7 +339,7 @@ function OrderDetails({ isOpen, onClose, order, ticket, meta = {} }) {
             href="https://www.facebook.com/profile.php?id=100088835078200"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full rounded-lg py-3 sm:py-4 text-sm sm:text-base font-semibold flex items-center justify-center gap-3 text-white bg-[#ee6786] hover:opacity-90 hover:scale-105 active:bg-[#d45573] transition duration-200 shadow-lg"
+            className="w-full rounded-lg py-3 sm:py-4 text-sm sm:text-base font-semibold flex items-center justify-center gap-3 text-white bg-[#f28fa5] hover:opacity-90 hover:scale-105 active:bg-[#d45573] transition duration-200 shadow-lg"
           >
             {t("orderDetails.paymentInfo")}
             <FaFacebookMessenger className="text-base sm:text-lg" />

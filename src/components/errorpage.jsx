@@ -30,7 +30,7 @@ function ErrorPage() {
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Link
             to="/"
-            className="rounded-xl bg-[#ee6786] px-6 py-3 font-semibold text-white transition hover:scale-[1.02] hover:bg-[#d45573]"
+            className="rounded-xl bg-[#f28fa5] px-6 py-3 font-semibold text-white transition hover:scale-[1.02] hover:bg-[#d45573]"
           >
             Back to Home
           </Link>

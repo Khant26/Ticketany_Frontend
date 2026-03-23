@@ -96,7 +96,7 @@ function EventPageDetails() {
   if (eventDetails.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
-        <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 border-[3px] sm:border-4 border-pink-200 border-t-[#ee6786]"></div>
+        <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 border-[3px] sm:border-4 border-pink-200 border-t-[#f28fa5]"></div>
 
         <p className="mt-4 sm:mt-5 text-sm sm:text-base md:text-lg lg:text-xl font-medium text-gray-600">
           Loading event details...
@@ -214,6 +214,8 @@ function EventPageDetails() {
   };
 
   const images = eventDetail ? getEventImages(eventDetail) : [];
+
+  const goToImage = (nextIndex) => {
     if (!images.length) return;
     if (nextIndex === currentImageIndex) return;
 
@@ -310,7 +312,7 @@ function EventPageDetails() {
                             <span
                               className={`block rounded-full transition-all duration-200 ${
                                 currentImageIndex === index
-                                  ? "w-2.5 h-2.5 sm:w-3 sm:h-3 bg-[#ee6786ff] scale-110 shadow-[0_0_0_3px_rgba(238,103,134,0.4)]"
+                                  ? "w-2.5 h-2.5 sm:w-3 sm:h-3 bg-[#f28fa5] scale-110 shadow-[0_0_0_3px_rgba(242,143,165,0.4)]"
                                   : "w-2 h-2 sm:w-2.5 sm:h-2.5 bg-black/50 hover:bg-black/70"
                               }`}
                             />
@@ -374,61 +376,68 @@ function EventPageDetails() {
                 )}
 
                 {/* Detail Section */}
-                <div className="w-full flex flex-col justify-between lg:items-center px-4 sm:px-5 md:px-6 pt-2 sm:pt-4 cursor-default">
-                  <h3 className="text-xl md:text-2xl lg:text-2xl xl:text-3xl font-bold lg:font-semibold text-gray-800 mb-4 sm:mb-5 md:mb-6 leading-snug break-words">
+                <div className="w-full flex flex-col justify-between px-4 sm:px-5 md:px-6 pt-2 sm:pt-4 cursor-default">
+                  <h3 className="text-xl md:text-2xl lg:text-2xl xl:text-3xl font-bold lg:font-semibold text-gray-800 mb-4 sm:mb-6 md:mb-8 leading-snug break-words">
                     {eventDetail?.event_name || "Event Details"}
                   </h3>
 
-                  <div className="flex-1 space-y-3 sm:space-y-4 md:space-y-5">
-                    <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-0">
-                      <span className="text-base md:text-lg font-base lg:font-semibold min-w-[70px] sm:min-w-[80px] text-gray-700">
-                        {t("event.date")}
-                      </span>
-                      <span className="text-base md:text-lg font-bold lg:font-semibold sm:ml-4 text-gray-800 break-words">
-                        {formatEventDates(eventDetail?.event_date)}
-                      </span>
-                    </div>
+                  <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                      {/* Date */}
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-5">
+                        <p className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                          {t("event.date")}
+                        </p>
+                        <p className="text-sm sm:text-base md:text-lg font-bold text-gray-900 break-words">
+                          {formatEventDates(eventDetail?.event_date)}
+                        </p>
+                      </div>
 
-                    <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-0">
-                      <span className="text-base md:text-lg font-base lg:font-semibold min-w-[70px] sm:min-w-[80px] text-gray-700">
-                        {t("event.time")}
-                      </span>
-                      <span className="text-base md:text-lg font-bold lg:font-semibold sm:ml-4 text-gray-800 break-words">
-                        {eventDetail?.event_time || "TBD"}
-                      </span>
-                    </div>
+                      {/* Time */}
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-5">
+                        <p className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                          {t("event.time")}
+                        </p>
+                        <p className="text-sm sm:text-base md:text-lg font-bold text-gray-900 break-words">
+                          {eventDetail?.event_time || "TBD"}
+                        </p>
+                      </div>
 
-                    <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-0">
-                      <span className="text-base md:text-lg font-base lg:font-semibold min-w-[70px] sm:min-w-[80px] text-gray-700">
-                        {t("event.location")}
-                      </span>
-                      <span className="text-base md:text-lg font-bold lg:font-semibold sm:ml-4 text-gray-800 break-words whitespace-normal">
-                        {eventDetail?.event_location || "TBD"}
-                      </span>
-                    </div>
+                      {/* Location */}
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-5">
+                        <p className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                          {t("event.location")}
+                        </p>
+                        <p className="text-sm sm:text-base md:text-lg font-bold text-gray-900 break-words whitespace-normal">
+                          {eventDetail?.event_location || "TBD"}
+                        </p>
+                      </div>
 
-                    <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-0">
-                      <span className="text-base md:text-lg font-base lg:font-semibold min-w-[70px] sm:min-w-[80px] text-gray-700">
-                        {t("event.sale")}
-                      </span>
-                      <span className="text-base md:text-lg font-bold lg:font-semibold sm:ml-4 text-gray-800 break-words">
-                        {eventDetail?.sale_date || "TBD"}
-                      </span>
-                    </div>
+                      {/* Sale Date */}
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-5">
+                        <p className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                          {t("event.sale")}
+                        </p>
+                        <p className="text-sm sm:text-base md:text-lg font-bold text-gray-900 break-words">
+                          {eventDetail?.sale_date || "TBD"}
+                        </p>
+                      </div>
 
-                    <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-0">
-                      <span className="text-base md:text-lg font-base lg:font-semibold min-w-[70px] sm:min-w-[80px] text-gray-700">
-                        {t("event.price")}
-                      </span>
-                      <span className="text-base md:text-lg font-bold lg:font-semibold sm:ml-4 text-gray-800 break-words whitespace-normal">
-                        {formatTicketPrices(eventDetail?.ticket_price)}
-                      </span>
+                      {/* Price */}
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-5 sm:col-span-2">
+                        <p className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                          {t("event.price")}
+                        </p>
+                        <p className="text-sm sm:text-base md:text-lg font-bold text-gray-900 break-words whitespace-normal">
+                          {formatTicketPrices(eventDetail?.ticket_price)}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
                   <button
                     onClick={handleOrderNowClick}
-                    className="mt-5 sm:mt-6 w-full sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3 px-4 sm:px-6 py-2.5 sm:py-3 text-base sm:text-lg text-white rounded-lg hover:opacity-80 hover:scale-105 transition-all duration-200 font-bold bg-[#ee6786] active:bg-[#d45573] cursor-pointer"
+                    className="w-full sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3 mx-auto px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg text-white rounded-lg hover:opacity-90 hover:scale-105 transition-all duration-200 font-bold bg-[#f28fa5] active:bg-[#d45573] cursor-pointer shadow-md"
                   >
                     {t("event.orderNow")}
                   </button>

@@ -29,7 +29,7 @@ function Footer() {
             <a
               href="https://www.facebook.com/profile.php?id=100088835078200"
               target="_blank"
-              className=" hover:text-[#ee6786ff] transition transform hover:scale-125"
+              className=" hover:text-[#f28fa5] transition transform hover:scale-125"
             >
               <FaFacebookF className="w-6 h-6" />
             </a>
@@ -37,7 +37,7 @@ function Footer() {
             <a
               href="https://www.facebook.com/messages/t/115097331446124"
               target="_blank"
-              className="hover:text-[#ee6786ff] transition transform hover:scale-125"
+              className="hover:text-[#f28fa5] transition transform hover:scale-125"
             >
               <FaFacebookMessenger className="w-6 h-6" />
             </a>
@@ -45,7 +45,7 @@ function Footer() {
             <a
               href="https://www.instagram.com/tickets_anywhere/"
               target="_blank"
-              className=" hover:text-[#ee6786ff] transition transform hover:scale-125 "
+              className=" hover:text-[#f28fa5] transition transform hover:scale-125 "
             >
               <FaInstagram className="w-7 h-7" />
             </a>
@@ -53,7 +53,7 @@ function Footer() {
             <a
               href="https://t.me/ticketanywhereSnB"
               target="_blank"
-              className=" hover:text-[#ee6786ff] transition transform hover:scale-125"
+              className=" hover:text-[#f28fa5] transition transform hover:scale-125"
             >
               <FaTelegramPlane className="w-7 h-7" />
             </a>

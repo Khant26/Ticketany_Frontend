@@ -21,6 +21,61 @@ class ApiService {
         return true;
     }
 
+    // Convenience methods for common HTTP verbs
+    async get(endpoint) {
+        const result = await this.apiRequest(endpoint, { method: 'GET' });
+        if (result.success) {
+            return result.data;
+        } else {
+            throw new Error(result.error || 'Failed to fetch data');
+        }
+    }
+
+    async post(endpoint, data) {
+        const result = await this.apiRequest(endpoint, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+        if (result.success) {
+            return result.data;
+        } else {
+            throw new Error(result.error || 'Failed to post data');
+        }
+    }
+
+    async patch(endpoint, data) {
+        const result = await this.apiRequest(endpoint, {
+            method: 'PATCH',
+            body: JSON.stringify(data)
+        });
+        if (result.success) {
+            return result.data;
+        } else {
+            throw new Error(result.error || 'Failed to patch data');
+        }
+    }
+
+    async put(endpoint, data) {
+        const result = await this.apiRequest(endpoint, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+        if (result.success) {
+            return result.data;
+        } else {
+            throw new Error(result.error || 'Failed to put data');
+        }
+    }
+
+    async delete(endpoint) {
+        const result = await this.apiRequest(endpoint, { method: 'DELETE' });
+        if (result.success) {
+            return result.data;
+        } else {
+            throw new Error(result.error || 'Failed to delete data');
+        }
+    }
+
     // Generic API request with authentication
     async apiRequest(endpoint, options = {}) {
         try {

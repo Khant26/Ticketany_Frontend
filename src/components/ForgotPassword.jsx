@@ -191,7 +191,7 @@ function ForgotPassword({ isOpen, onClose, onSwitchToSignIn, onSwitchToSignUp })
                 type='submit'
                 disabled={isLoading}
                 className='w-full text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 transform hover:scale-105 transition-all duration-200'
-                style={{ backgroundColor: '#ee6786ff' }}
+                style={{ backgroundColor: '#f28fa5' }}
               >
                 {isLoading ? 'Sending OTP...' : 'Send OTP'}
               </button>
@@ -208,7 +208,7 @@ function ForgotPassword({ isOpen, onClose, onSwitchToSignIn, onSwitchToSignUp })
                     type='button'
                     onClick={handleSendOTP}
                     disabled={isLoading}
-                    className='text-xs text-[#ee6786] hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed'
+                    className='text-xs text-[#f28fa5] hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed'
                     style={{ backgroundColor: 'transparent', border: 'none', padding: 0 }}
                   >
                     Resend OTP
@@ -261,7 +261,7 @@ function ForgotPassword({ isOpen, onClose, onSwitchToSignIn, onSwitchToSignUp })
                 type='submit'
                 disabled={isLoading}
                 className='w-full text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 transform hover:scale-105 transition-all duration-200'
-                style={{ backgroundColor: '#ee6786ff' }}
+                style={{ backgroundColor: '#f28fa5' }}
               >
                 {isLoading ? 'Resetting Password...' : 'Reset Password'}
               </button>

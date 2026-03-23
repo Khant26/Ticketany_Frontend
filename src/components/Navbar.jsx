@@ -436,7 +436,7 @@ function Navbar() {
                   type="button"
                   onClick={handleSearch}
                   disabled={!searchQuery.trim()}
-                  className="text-white px-6 py-3 rounded ml-3 transition duration-200 hover:scale-105 bg-[#ee6786] hover:opacity-80 active:bg-[#d45573] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="text-white px-6 py-3 rounded ml-3 transition duration-200 hover:scale-105 bg-[#f28fa5] hover:opacity-80 active:bg-[#d45573] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {t("nav.search")}
                 </button>
@@ -578,7 +578,7 @@ function Navbar() {
               </button>
               <button
                 onClick={handleSignout}
-                className="px-4 py-2 text-white bg-[#ee6786] rounded-lg hover:opacity-90 transition-colors duration-200 font-medium"
+                className="px-4 py-2 text-white bg-[#f28fa5] rounded-lg hover:opacity-90 transition-colors duration-200 font-medium"
               >
                 Sign Out
               </button>

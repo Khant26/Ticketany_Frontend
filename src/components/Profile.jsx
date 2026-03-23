@@ -379,14 +379,12 @@ function Profile() {
         return;
       }
 
-      console.log(
-        "[handleSendOTP] Starting password verification for email:",
-        userEmail,
-      );
-
       try {
-        console.log("[handleSendOTP] Verifying old password...");
         const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const loginRes = await fetch(`${API_BASE_URL}auth/login/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: userEmail,
             password: passwordFormData.oldPassword,
@@ -395,23 +393,13 @@ function Profile() {
         });
 
         clearTimeout(timeoutId);
-        console.log(
-          "[handleSendOTP] Login verification response status:",
-          loginRes.status,
-        );
 
         if (!loginRes.ok) {
           const loginData = await loginRes.json().catch(() => ({}));
-          console.log(
-            "[handleSendOTP] Password verification failed:",
-            loginData,
-          );
           setPasswordError("❌ Old password is incorrect. Please try again.");
           setChangingPassword(false);
           return;
         }
-
-        console.log("[handleSendOTP] Old password verified successfully!");
       } catch (loginError) {
         console.error("[handleSendOTP] Login error:", loginError);
         if (loginError.name === "AbortError") {
@@ -428,24 +416,15 @@ function Profile() {
       }
 
       try {
-        console.log("[handleSendOTP] Sending OTP to:", userEmail);
-        console.log("[handleSendOTP] API Base URL:", API_BASE_URL);
-
         const otpRes = await fetch(`${API_BASE_URL}auth/forgot-password/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: userEmail }),
         });
 
-        console.log("[handleSendOTP] OTP API response status:", otpRes.status);
         const otpData = await otpRes.json().catch(() => ({}));
-        console.log("[handleSendOTP] OTP API response data:", otpData);
 
         if (!otpRes.ok) {
-          console.log(
-            "[handleSendOTP] OTP send failed with status:",
-            otpRes.status,
-          );
           setPasswordError(
             otpData?.message ||
               otpData?.error ||
@@ -455,18 +434,14 @@ function Profile() {
           return;
         }
 
-        console.log("[handleSendOTP] OTP sent successfully!");
         setPasswordSuccess("✅ Password verified! OTP sent to your email.");
         setOtpSent(true);
       } catch (otpError) {
-        console.error("[handleSendOTP] OTP error:", otpError);
-        console.error("[handleSendOTP] OTP error details:", otpError.message);
         setPasswordError("Error sending OTP. Please try again.");
         setChangingPassword(false);
         return;
       }
     } catch (e) {
-      console.error("[handleSendOTP] Unexpected error:", e);
       setPasswordError("An unexpected error occurred. Please try again.");
       setChangingPassword(false);
     } finally {
@@ -509,9 +484,6 @@ function Profile() {
         return;
       }
 
-      console.log(
-        "[handleResetPassword] Calling reset-password API with OTP validation...",
-      );
       const resetRes = await fetch(`${API_BASE_URL}auth/reset-password/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -522,14 +494,8 @@ function Profile() {
         }),
       });
 
-      console.log(
-        "[handleResetPassword] Reset password response status:",
-        resetRes.status,
-      );
-
       if (!resetRes.ok) {
         const data = await resetRes.json().catch(() => ({}));
-        console.log("[handleResetPassword] Reset password failed:", data);
         setPasswordError(
           data?.message ||
             data?.error ||
@@ -568,22 +534,22 @@ function Profile() {
     const refund = ticket.refundStatus?.toLowerCase();
     switch (status) {
       case "pending":
-        return "border-orange-500 text-orange-600 bg-orange-50";
+        return "bg-yellow-100 text-yellow-800 px-3 py-1 rounded text-xs font-medium";
       case "paid":
-        return "border-blue-500 text-blue-600 bg-blue-50";
+        return "bg-blue-100 text-blue-800 px-3 py-1 rounded text-xs font-medium";
       case "complete":
-        return "border-green-500 text-green-600 bg-green-50";
+        return "bg-green-100 text-green-800 px-3 py-1 rounded text-xs font-medium";
       case "cancel":
       case "cancelled":
         if (refund === "refunded") {
-          return "border-blue-500 text-blue-600 bg-blue-50";
+          return "bg-blue-100 text-blue-800 px-3 py-1 rounded text-xs font-medium";
         }
         if (refund === "in_process") {
-          return "border-yellow-500 text-yellow-600 bg-yellow-50";
+          return "bg-yellow-100 text-yellow-800 px-3 py-1 rounded text-xs font-medium";
         }
-        return "border-gray-500 text-gray-600 bg-gray-50";
+        return "bg-red-100 text-red-800 px-3 py-1 rounded text-xs font-medium";
       default:
-        return "border-gray-500 text-gray-600";
+        return "bg-gray-100 text-gray-800 px-3 py-1 rounded text-xs font-medium";
     }
   };
 
@@ -598,7 +564,6 @@ function Profile() {
     const status = (ticket.status || "Pending").toLowerCase();
     if (status === "complete") return "Completed";
     if (status === "cancel" || status === "cancelled") {
-      console.log("TICKET OBJECT:", ticket);
        const refund = (ticket.refundStatus || "none").toLowerCase();
 
       if (refund === "in_process") return "Cancelled (In Process)";
@@ -632,14 +597,13 @@ function Profile() {
           <div className="flex flex-col sm:flex-row sm:items-center gap-8">
             {/* Name & Actions */}
             <div className="flex flex-wrap items-center gap-1 sm:gap-3">
-              <h1 className="text-lg sm:text-2xl font-semibold text-black relative pb-4 sm:pb-2 after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-[#ee6786ff] transition-all duration-300 cursor-default">
+              <h1 className="text-lg sm:text-2xl font-semibold text-black relative pb-4 sm:pb-2 after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-[#f28fa5] transition-all duration-300 cursor-default">
                 {user.name}
               </h1>
             </div>
             <button
               onClick={() => setShowChangePassword(true)}
-              className="text-white px-4 py-2 rounded-lg hover:opacity-80 hover:scale-105 transition-all duration-200 font-medium text-sm sm:text-base w-full sm:w-auto
-              bg-[#ee6786] active:bg-[#d45573]"
+              className="text-white px-4 py-2 rounded-lg hover:opacity-80 hover:scale-105 transition-all duration-200 font-medium text-sm sm:text-base w-full sm:w-auto bg-[#f28fa5] active:bg-[#d45573]"
             >
               {t("profile.changePassword")}
             </button>
@@ -654,10 +618,10 @@ function Profile() {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 ref={(el) => (tabRefs.current[tab] = el)}
-                className={`relative pb-3 sm:pb-4 px-1 font-medium text-base sm:text-lg transition-colors duration-300 ${
+                className={`relative pb-4 px-1 font-medium text-lg sm:text-xl transition-colors duration-300 ${
                   activeTab === tab
-                    ? "text-gray-700 cursor-default"
-                    : "text-gray-700 hover:text-gray-1000 cursor-pointer"
+                    ? "text-gray-900 cursor-default"
+                    : "text-gray-600 hover:text-gray-900 cursor-pointer"
                 }`}
               >
                 {t(`profile.my${tab.charAt(0).toUpperCase() + tab.slice(1)}`)}
@@ -666,7 +630,7 @@ function Profile() {
 
             {/* underline */}
             <div
-              className="absolute bottom-0 h-[2px] bg-[#ee6786ff] rounded transition-all duration-300"
+              className="absolute bottom-0 h-[2px] bg-[#f28fa5] rounded transition-all duration-300"
               style={{
                 width: underlineStyle.width,
                 left: underlineStyle.left,
@@ -674,7 +638,7 @@ function Profile() {
             />
           </div>
 
-          <div className="border-b border-[#ee6786ff]" />
+          <div className="border-b border-gray-200" />
 
           {/* Orders / Tickets Table */}
           <div className="px-4 sm:px-4 overflow-x-auto ">
@@ -708,7 +672,7 @@ function Profile() {
               </div>
             </div>
           </div>
-          <div className="border-b border-[#ee6786ff]" />
+          <div className="border-b border-[#f28fa5]" />
         </div>
 
         <div className="bg-white shadow-sm pt-1 px-3 sm:px-4 pb-6">
@@ -949,7 +913,7 @@ function Profile() {
                     type="button"
                     onClick={handleSendOTP}
                     disabled={changingPassword}
-                    className="w-full px-4 py-2 text-white bg-[#ee6786] hover:opacity-80 hover:scale-105 transition-all duration-200 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-2 text-white bg-[#f28fa5] hover:opacity-80 hover:scale-105 transition-all duration-200 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {changingPassword ? "Sending OTP..." : "Send OTP"}
                   </button>
@@ -967,7 +931,7 @@ function Profile() {
                         type="button"
                         onClick={handleSendOTP}
                         disabled={changingPassword}
-                        className="text-xs text-[#ee6786] hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="text-xs text-[#f28fa5] hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Resend OTP
                       </button>
@@ -1033,7 +997,7 @@ function Profile() {
                     type="button"
                     onClick={handleResetPassword}
                     disabled={changingPassword}
-                    className="w-full px-4 py-2 text-white bg-[#ee6786] hover:opacity-80 hover:scale-105 transition-all duration-200 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-2 text-white bg-[#f28fa5] hover:opacity-80 hover:scale-105 transition-all duration-200 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {changingPassword
                       ? "Changing Password..."

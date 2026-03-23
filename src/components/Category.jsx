@@ -62,8 +62,8 @@ function Category({ selectedCategory, setSelectedCategory }) {
             className={`relative flex items-center justify-center lg:justify-start gap-2 px-3 py-2.5 lg:px-4 lg:py-2 transition-all duration-300 rounded-xl lg:rounded-none border lg:border-0 lg:pb-3
               ${
                 selectedCategory === cat.category_name
-                  ? "bg-pink-50 border-[#ee6786] text-[#e51f4b] font-semibold shadow-sm lg:bg-transparent lg:shadow-none lg:text-gray-800"
-                  : "bg-white border-gray-200 text-gray-600 font-medium hover:border-[#ee6786] hover:text-[#e51f4b] lg:bg-transparent lg:hover:border-transparent lg:text-gray-500 lg:font-semibold"
+                  ? "bg-pink-50 border-[#f28fa5] text-[#e51f4b] font-semibold shadow-sm lg:bg-transparent lg:shadow-none lg:text-gray-800"
+                  : "bg-white border-gray-200 text-gray-600 font-medium hover:border-[#f28fa5] hover:text-[#e51f4b] lg:bg-transparent lg:hover:border-transparent lg:text-gray-500 lg:font-semibold"
               }`}
           >
             {cat.category_image_url && (

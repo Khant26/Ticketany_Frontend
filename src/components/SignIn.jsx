@@ -328,7 +328,7 @@ function SignIn({
                   disabled={resendCountdown > 0 || otpLoading}
                   className="flex-1 px-4 py-2 text-sm font-medium text-white rounded-lg transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed hover:opacity-90"
                   style={{
-                    backgroundColor: resendCountdown > 0 ? "#ccc" : "#ee6786ff",
+                    backgroundColor: resendCountdown > 0 ? "#ccc" : "#f28fa5",
                   }}
                 >
                   {resendCountdown > 0
@@ -368,7 +368,7 @@ function SignIn({
             type="submit"
             className="w-full text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
-              backgroundColor: "#ee6786ff",
+              backgroundColor: "#f28fa5",
             }}
             disabled={loading || otpLoading}
           >
