@@ -565,24 +565,23 @@ function Navbar() {
         >
           <div className="bg-white rounded-lg shadow-2xl p-6 sm:p-8 max-w-sm w-full">
             <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
-              Confirm Sign Out
+              {t("signOut.Confirm")}
             </h3>
             <p className="text-gray-600 text-sm sm:text-base mb-6">
-              Are you sure you want to sign out? You will need to sign in again
-              to access your account.
+              {t("signOut.ConfirmText")}
             </p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowSignOutConfirm(false)}
                 className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium"
               >
-                Cancel
+                {t("signOut.Cancel")}
               </button>
               <button
                 onClick={handleSignout}
                 className="px-4 py-2 text-white bg-[#f28fa5] rounded-lg hover:opacity-90 transition-colors duration-200 font-medium"
               >
-                Sign Out
+                {t("signOut.SignOut")}
               </button>
             </div>
           </div>

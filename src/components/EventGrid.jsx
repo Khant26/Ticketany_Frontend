@@ -103,7 +103,7 @@ function EventGrid({ selectedCategory, variant = "user" }) {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {filteredEvents.map((event) => {
           const eventImage = getEventImage(event);
           return (
@@ -132,11 +132,11 @@ function EventGrid({ selectedCategory, variant = "user" }) {
                 )}
               </div>
               <div className="flex flex-col p-4 gap-2">
-                <div className="text-md font-medium text-[#e51f4b]">
+                <div className="sm:text-md text-sm font-medium text-[#e51f4b]">
                   {formatCardEventDate(event.event_date)}
                 </div>
-                <div className="text-lg font-semibold">{event.event_name}</div>
-                <div className="text-md text-gray-500">
+                <div className="sm:text-lg text-md font-semibold">{event.event_name}</div>
+                <div className="sm:text-md text-sm text-gray-500">
                   {event.event_location}
                 </div>
               </div>

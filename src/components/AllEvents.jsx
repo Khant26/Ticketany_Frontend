@@ -100,14 +100,14 @@ function AllEventsPage({ selectedCategory: propCategory }) {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <div className="flex-1 pt-20">
+      <div className="flex-1 pt-16">
         <div className="mx-auto w-full max-w-[1060px] pt-10 pb-7 px-4 lg:px-auto lg:pt-7">
           <h2 className="text-2xl font-bold mb-6 text-center">
             {pageTitle}
           </h2>
 
           {filteredEvents.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {filteredEvents.map((event) => {
                 const eventImage = getCoverImageFromEvent(event);
                 return (
@@ -137,13 +137,13 @@ function AllEventsPage({ selectedCategory: propCategory }) {
                     )}
 
                     <div className="flex flex-col p-4 gap-2">
-                      <div className="text-md font-medium text-red-500">
+                      <div className="sm:text-md text-sm font-medium text-red-500">
                         {formatCardEventDate(event.event_date)}
                       </div>
-                      <div className="text-lg font-semibold">
+                      <div className="sm:text-lg text-md font-semibold">
                         {event.event_name}
                       </div>
-                      <div className="text-md text-gray-500">
+                      <div className="sm:text-sm text-sm text-gray-500">
                         {event.event_location}
                       </div>
                     </div>

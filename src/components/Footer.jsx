@@ -13,8 +13,8 @@ function Footer() {
       className=" bg-white border-t border-gray-300 shadow-lg pb-[env(safe-area-inset-bottom)]"
     >
       <div className="mx-auto max-w-7xl px-12 sm:px-14">
-        <div className="flex flex-wrap items-center justify-center sm:justify-between gap-x-4 gap-y-2 py-2 sm:py-3">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-center sm:justify-between gap-x-4 gap-y-3 py-3 sm:py-3">
+          <div className="hidden sm:flex items-center gap-3">
             <img
               src={Logo}
               alt="Tickets Anywhere logo"
@@ -58,9 +58,12 @@ function Footer() {
               <FaTelegramPlane className="w-7 h-7" />
             </a>
           </div>
+          <span className="sm:hidden text-gray-700 text-xs text-center">
+            © 2026 Tickets Anywhere. made by HybridDev.
+          </span>
 
-          <span className="text-gray-700 text-xs sm:text-sm text-center cursor-default">
-            Made by HybridDev. © 2025
+          <span className="hidden sm:block text-gray-700 text-xs sm:text-sm text-center ">
+            Made by HybridDev. © 2026
           </span>
         </div>
       </div>

@@ -534,20 +534,20 @@ function Profile() {
     const refund = ticket.refundStatus?.toLowerCase();
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-800 px-3 py-1 rounded text-xs font-medium";
+        return "border-2 border-orange-500 bg-orange-50 text-orange-600 px-3 py-1 rounded text-xs";
       case "paid":
-        return "bg-blue-100 text-blue-800 px-3 py-1 rounded text-xs font-medium";
+        return "border-2 border-blue-500 bg-blue-50 text-blue-600 px-3 py-1 rounded text-xs font-medium";
       case "complete":
-        return "bg-green-100 text-green-800 px-3 py-1 rounded text-xs font-medium";
+        return "border-2 border-green-500 bg-green-50 text-green-600 px-3 py-1 rounded text-xs font-medium";
       case "cancel":
       case "cancelled":
         if (refund === "refunded") {
-          return "bg-blue-100 text-blue-800 px-3 py-1 rounded text-xs font-medium";
+          return "border-2 border-gray-500 bg-gray-50 text-gray-600 px-3 py-1 rounded text-xs font-medium";
         }
         if (refund === "in_process") {
-          return "bg-yellow-100 text-yellow-800 px-3 py-1 rounded text-xs font-medium";
+          return "border-2 border-gray-500 bg-gray-50 text-gray-600 px-3 py-1 rounded text-xs font-medium";
         }
-        return "bg-red-100 text-red-800 px-3 py-1 rounded text-xs font-medium";
+        return "border-2 border-gray-500 bg-gray-50 text-gray-600 px-3 py-1 rounded text-xs font-medium";
       default:
         return "bg-gray-100 text-gray-800 px-3 py-1 rounded text-xs font-medium";
     }
@@ -594,7 +594,7 @@ function Profile() {
       <div className="w-full max-w-[1350px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Profile Header */}
         <div className="bg-white shadow-sm p-6 sm:p-8 mb-6 transition-all duration-300">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-8 gap-2">
             {/* Name & Actions */}
             <div className="flex flex-wrap items-center gap-1 sm:gap-3">
               <h1 className="text-lg sm:text-2xl font-semibold text-black relative pb-4 sm:pb-2 after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-[#f28fa5] transition-all duration-300 cursor-default">
@@ -612,7 +612,7 @@ function Profile() {
 
         {/* Tabs */}
         <div className="bg-white shadow-sm">
-          <div className="relative flex flex-wrap items-end gap-6 sm:pt-8 sm:gap-12 mb-4 sm:mb-8 px-4 sm:px-8">
+          <div className="relative flex flex-wrap items-end gap-6 pt-6 sm:pt-8 sm:gap-12 mb-4 sm:mb-8 px-4 sm:px-8">
             {["orders", "tickets"].map((tab) => (
               <button
                 key={tab}

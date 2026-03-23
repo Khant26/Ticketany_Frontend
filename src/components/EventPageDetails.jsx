@@ -254,7 +254,7 @@ function EventPageDetails() {
     <>
       <div className="flex flex-col items-center min-h-screen bg-gray-50">
         <div className="mt-16 md:mt-24 px-4 md:px-8 py-6 relative z-10 w-full">
-          <div className="max-w-[1360px] mx-auto pt-0 flex flex-col lg:flex-row lg:pt-0 gap-6 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-[1360px] mx-auto pt-0 flex flex-col lg:flex-row">
             {/* Left column - Event Detail */}
             <div className="w-full lg:w-2/3 bg-white shadow-md rounded-xl pb-4 sm:pb-6 md:pb-8 flex flex-col overflow-hidden">
               <div className="flex flex-col gap-4 sm:gap-5 md:gap-6">
