@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useParams, useLocation } from "react-router-dom";
+import apiService from "../services/apiService";
 
 function AllEventsPage({ selectedCategory: propCategory }) {
   const [events, setEvents] = useState([]);
@@ -17,22 +18,24 @@ function AllEventsPage({ selectedCategory: propCategory }) {
 
   useEffect(() => {
     const fetchEvents = async () => {
-      const baseUrl =
-        import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
-      const response = await fetch(`${baseUrl}events/`);
-      const data = await response.json();
-      setEvents(data);
+      try {
+        const data = await apiService.get("events/");
+        setEvents(data);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
     };
     fetchEvents();
   }, []);
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const baseUrl =
-        import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
-      const response = await fetch(`${baseUrl}categories/`);
-      const data = await response.json();
-      setCategories(data);
+      try {
+        const data = await apiService.get("categories/");
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
     };
     fetchCategories();
   }, []);

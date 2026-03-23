@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import apiService from "../services/apiService";
 
 function Category({ selectedCategory, setSelectedCategory }) {
   const [categories, setCategories] = useState([]);
@@ -8,10 +9,7 @@ function Category({ selectedCategory, setSelectedCategory }) {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const baseUrl =
-          import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
-        const response = await fetch(`${baseUrl}categories/`);
-        const data = await response.json();
+        const data = await apiService.get("categories/");
 
         setCategories(data);
 
