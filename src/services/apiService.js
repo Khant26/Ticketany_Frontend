@@ -22,8 +22,8 @@ class ApiService {
     }
 
     // Convenience methods for common HTTP verbs
-    async get(endpoint) {
-        const result = await this.apiRequest(endpoint, { method: 'GET' });
+    async get(endpoint, options = {}) {
+        const result = await this.apiRequest(endpoint, { method: 'GET', ...options });
         if (result.success) {
             return result.data;
         } else {
@@ -79,13 +79,14 @@ class ApiService {
     // Generic API request with authentication
     async apiRequest(endpoint, options = {}) {
         try {
+            const { auth = true, ...requestOptions } = options;
             const response = await authFetch(endpoint, {
-                auth: true,
-                ...options,
+                auth,
+                ...requestOptions,
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    ...options.headers
+                    ...requestOptions.headers
                 }
             });
 

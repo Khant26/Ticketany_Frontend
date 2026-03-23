@@ -9,7 +9,7 @@ function Category({ selectedCategory, setSelectedCategory }) {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await apiService.get("categories/");
+        const data = await apiService.get("categories/", { auth: false });
 
         setCategories(data);
 

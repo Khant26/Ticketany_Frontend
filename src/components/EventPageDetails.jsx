@@ -31,7 +31,7 @@ function EventPageDetails() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const data = await apiService.get("events/");
+        const data = await apiService.get("events/", { auth: false });
         setEventDetails(data);
 
         if (data.length > 0) {

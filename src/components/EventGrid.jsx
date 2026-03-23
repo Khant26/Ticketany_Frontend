@@ -15,7 +15,7 @@ function EventGrid({ selectedCategory, variant = "user" }) {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const data = await apiService.get("events/");
+        const data = await apiService.get("events/", { auth: false });
         setEvents(data);
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -27,7 +27,7 @@ function EventGrid({ selectedCategory, variant = "user" }) {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await apiService.get("categories/");
+        const data = await apiService.get("categories/", { auth: false });
         setCategories(data);
       } catch (error) {
         console.error("Error fetching categories:", error);
