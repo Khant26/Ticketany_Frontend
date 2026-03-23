@@ -1,4 +1,5 @@
 import { API_CONFIG, getApiUrl } from "../config/api";
+import { showSessionExpired } from "../utils/toastNotification";
 
 const ACCESS_TOKEN_KEY = "access_token";
 const REFRESH_TOKEN_KEY = "refresh_token";
@@ -31,6 +32,7 @@ export function clearTokens() {
 function handleTokenExpiration() {
   console.log('🔐 Token expired - logging out');
   clearTokens();
+  showSessionExpired();
   if (onTokenExpiredCallback) {
     onTokenExpiredCallback();
   }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Logo from "../assets/logo.jpg";
 import { useTranslation } from "react-i18next";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import { showSuccess, showError, showWarning, showInfo } from "../utils/toastNotification";
 
 function SignIn({
   isOpen,
@@ -67,15 +68,16 @@ function SignIn({
       const data = await response.json();
 
       if (response.ok) {
-        setError("✅ OTP code sent to your email.");
+        showSuccess("OTP code sent to your email.");
         setResendCountdown(60);
       } else {
-        setError(
-          data.error || data.message || data.detail || "Unable to resend OTP. Please try again.",
-        );
+        const errorMsg = data.error || data.message || data.detail || "Unable to resend OTP. Please try again.";
+        showError(errorMsg);
+        setError("");
       }
     } catch (err) {
-      setError("Network error. Please try again.");
+      showError("Network error. Please try again.");
+      setError("");
     } finally {
       setOtpLoading(false);
     }
@@ -84,7 +86,7 @@ function SignIn({
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     if (!otpCode.trim() || otpCode.length !== 6) {
-      setError("Please enter a valid 6-digit OTP code");
+      showWarning("Please enter a valid 6-digit OTP code");
       return;
     }
 
@@ -107,18 +109,17 @@ function SignIn({
       const data = await response.json();
 
       if (response.ok) {
-        setError("✅ Email verified! You can now sign in.");
+        showSuccess("Email verified! You can now sign in.");
         setTimeout(() => {
           setShowVerifyOtp(false);
           setOtpCode("");
         }, 1500);
       } else {
-        setError(
-          data.error || data.detail || data.message || "OTP verification failed",
-        );
+        const errorMsg = data.error || data.detail || data.message || "OTP verification failed";
+        showError(errorMsg);
       }
     } catch (err) {
-      setError("Network error. Please try again.");
+      showError("Network error. Please try again.");
     } finally {
       setOtpLoading(false);
     }
@@ -172,6 +173,7 @@ function SignIn({
         };
 
         const displayName = extractDisplayName(data) || "User";
+        showSuccess(`Welcome, ${displayName}! You've successfully signed in.`);
         window.dispatchEvent(new Event("userLoginChanged"));
         if (onLogin) onLogin(displayName);
 
@@ -181,14 +183,14 @@ function SignIn({
         const errorMsg = data.error || data.detail || data.message || "Authentication failed";
         // Check if error is about unverified email
         if (errorMsg.toLowerCase().includes('verify')) {
-          setError("📧 " + errorMsg);
+          showWarning(errorMsg);
           setShowVerifyOtp(true);
         } else {
-          setError(errorMsg);
+          showError(errorMsg);
         }
       }
     } catch (err) {
-      setError("Network error. Please try again.");
+      showError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -361,11 +363,6 @@ function SignIn({
               </button>
             )}
           </div>
-          {error && (
-            <div className="text-red-600 text-sm text-center bg-red-50 border border-red-200 rounded-md p-2">
-              {error}
-            </div>
-          )}
 
           <button
             type="submit"
