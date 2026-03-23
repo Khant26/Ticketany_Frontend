@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import ImageSlider from "./ImageSlider";
-import axios from "axios";
+import apiService from "../services/apiService";
 
 function Banner() {
   const [banner, setBanner] = useState([]);
@@ -8,10 +8,8 @@ function Banner() {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const baseUrl =
-          import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
-        const response = await axios.get(`${baseUrl}banners/`);
-        const bannerData = response.data.map((b) => ({
+        const response = await apiService.get("banners/");
+        const bannerData = response.map((b) => ({
           id: b.id,
           image:
             b.banner_image_url ||
@@ -19,14 +17,6 @@ function Banner() {
           banner_image_url: b.banner_image_url,
           description: b.banner_name || "Event Banner",
         }));
-        console.log(
-          "Banner data:",
-          bannerData.map((b) => ({
-            id: b.id,
-            name: b.description,
-            hasImage: !!b.banner_image_url,
-          })),
-        );
         setBanner(bannerData);
       } catch (error) {
         console.error("Error fetching banners:", error);

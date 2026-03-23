@@ -86,7 +86,6 @@ function OrderForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Order form submitted:", formData);
 
     if (isEditingOrder !== null) {
       // Edit existing order
@@ -179,8 +178,6 @@ function OrderForm({
       setOrderId(String(responseData.order_id || ""));
       setShowOrderConfirm(false);
       setShowOrderComplete(true);
-      
-      console.log(`Successfully created ${responseData.total_tickets} tickets in order ${responseData.order_id}`);
       
     } catch (err) {
       const msg = err?.message || "Failed to submit order";

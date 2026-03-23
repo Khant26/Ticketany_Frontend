@@ -53,7 +53,6 @@ function OrderComplete({
       parsedOrders.push(orderData);
       localStorage.setItem("userOrders", JSON.stringify(parsedOrders));
       savedRef.current = true;
-      console.log("Order saved to profile:", orderData);
     }
   }, [
     isOpen,

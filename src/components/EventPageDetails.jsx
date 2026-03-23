@@ -182,14 +182,13 @@ function EventPageDetails() {
 
   const getEventImages = (event) => {
     if (event?.images?.length > 0) {
-      console.log("getEventImages - Using images array with image_url");
       return event.images.map((img) => img.image_url).filter(Boolean);
     }
 
     if (event.event_image && typeof event.event_image === "string") {
       if (event.event_image.includes("|||SEPARATOR|||")) {
         const images = event.event_image
-          .split("|||SEPARATOR|||")
+          .split("|||SEPARATOR|||") 
           .filter(Boolean);
 
         return images;
@@ -201,32 +200,18 @@ function EventPageDetails() {
     if (event.event_images && Array.isArray(event.event_images)) {
       const processedImages = event.event_images
         .map((img, index) => {
-          console.log(
-            `getEventImages - Processing image ${index}:`,
-            typeof img,
-            img?.substring?.(0, 50),
-          );
           if (typeof img === "string") return img;
           return img.data || img.image || img.url || img;
         })
         .filter(Boolean);
 
-      console.log(
-        "getEventImages - Processed images array:",
-        processedImages.length,
-        "items",
-      );
       return processedImages;
     }
 
-    console.log("getEventImages - No images found");
     return [];
   };
 
   const images = eventDetail ? getEventImages(eventDetail) : [];
-  console.log("EventPageDetails - Final images array:", images.length, "items");
-
-  const goToImage = (nextIndex) => {
     if (!images.length) return;
     if (nextIndex === currentImageIndex) return;
 

@@ -1,18 +1,39 @@
 import { createBrowserRouter } from "react-router"
-import App from "../pages/App"
+import { lazy, Suspense } from "react"
 import Layout from "../Layout"
-import EventPageDetails from "../components/EventPageDetails"
-import Home from "../pages/Home"
-import SignUp from "../components/SignUp"
-import SignIn from "../components/SignIn"
-import Profile from "../components/Profile"
-import AllEvents from "../components/AllEvents"
-import ErrorPage from "../components/errorpage"
+import App from "../pages/App"
+
+// Lazy load components for code splitting
+const Home = lazy(() => import("../pages/Home"))
+const SignUp = lazy(() => import("../components/SignUp"))
+const SignIn = lazy(() => import("../components/SignIn"))
+const Profile = lazy(() => import("../components/Profile"))
+const AllEvents = lazy(() => import("../components/AllEvents"))
+const EventPageDetails = lazy(() => import("../components/EventPageDetails"))
+const ErrorPage = lazy(() => import("../components/errorpage"))
+
+// Loading fallback component
+const LoadingSpinner = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto"></div>
+      <p className="mt-4 text-gray-600">Loading...</p>
+    </div>
+  </div>
+)
+
+// Wrapper component to provide Suspense boundary
+const withSuspense = (Component) => (props) => (
+  <Suspense fallback={<LoadingSpinner />}>
+    <Component {...props} />
+  </Suspense>
+)
 
 let router = createBrowserRouter([
   {
     path: "/",
     Component: Layout,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: "/",
@@ -20,33 +41,36 @@ let router = createBrowserRouter([
       },
       {
         path: "/signup",
-        Component: SignUp,
+        Component: withSuspense(SignUp),
       },
       {
         path: "/signin",
-        Component: SignIn,
+        Component: withSuspense(SignIn),
       },
       {
         path: "/home",
-        Component: Home,
+        Component: withSuspense(Home),
       },
       {
         path: "/profile",
-        Component: Profile,
+        Component: withSuspense(Profile),
       },
-      { path: "/events/:category",
-        Component: AllEvents,
+      {
+        path: "/events/:category",
+        Component: withSuspense(AllEvents),
       },
       {
         path: "EventPageDetails/:id",
-        Component: EventPageDetails,
+        Component: withSuspense(EventPageDetails),
       },
       {
         path: "*",
-        Component: ErrorPage,
+        Component: withSuspense(ErrorPage),
       },
     ],
   }
 ])
+
+export default router
 
 export default router

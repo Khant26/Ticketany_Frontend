@@ -78,18 +78,13 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
         password: formData.password,
       };
 
-      console.log("[handleRegister] Payload:", payload);
-      console.log("[handleRegister] API URL:", `${API_BASE_URL}auth/register/`);
-
       const registerRes = await fetch(`${API_BASE_URL}auth/register/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      console.log("[handleRegister] Response status:", registerRes.status);
       const data = await registerRes.json().catch(() => ({}));
-      console.log("[handleRegister] Response data:", data);
 
       if (!registerRes.ok) {
         let errorMessage = "Registration failed. Please try again.";
@@ -210,21 +205,13 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
         otp_code: otpCode.trim(),
       };
 
-      console.log("[handleVerifyEmail] Payload:", payload);
-      console.log(
-        "[handleVerifyEmail] API URL:",
-        `${API_BASE_URL}auth/verify-email/`,
-      );
-
       const verifyRes = await fetch(`${API_BASE_URL}auth/verify-email/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      console.log("[handleVerifyEmail] Response status:", verifyRes.status);
       const data = await verifyRes.json().catch(() => ({}));
-      console.log("[handleVerifyEmail] Response data:", data);
 
       if (!verifyRes.ok) {
         let errorMessage = "OTP verification failed. Please try again.";

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { useTranslation, initReactI18next } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import OrderDetails from "./OrderDetails";
 import Logo from "../assets/logo.jpg";
 
@@ -78,17 +78,10 @@ function Profile() {
     try {
       const raw = localStorage.getItem("user_data");
       if (!raw) {
-        console.log("[getUserEmail] No user_data in localStorage");
         return "";
       }
       const parsed = JSON.parse(raw);
       const email = parsed?.email || parsed?.user?.email || "";
-      console.log(
-        "[getUserEmail] Retrieved email:",
-        email,
-        "from user_data:",
-        parsed,
-      );
       return email;
     } catch (e) {
       console.error("[getUserEmail] Error parsing user_data:", e);
@@ -236,7 +229,6 @@ function Profile() {
       const allOrdersArray = toArray(ordersDataRaw);
       const allTicketsArray = toArray(ticketsDataRaw);
       const allEventsArray = toArray(eventsDataRaw);
-      console.log("ALL TICKETS ARRAY FROM API:", allTicketsArray);
 
       const eventsById = allEventsArray.reduce((acc, ev) => {
         const id = normalizeId(ev?.id);
@@ -321,14 +313,6 @@ function Profile() {
                 imageUrl = ev.event_image;
               }
 
-              console.log("[Profile] Event object for image extraction:", {
-                id: ev.id,
-                name: ev.event_name,
-                has_images_array: !!Array.isArray(ev.images),
-                images_count: ev.images?.length || 0,
-                extracted_image: imageUrl,
-              });
-
               return {
                 date: ev.event_date,
                 time: ev.event_time,
@@ -403,11 +387,6 @@ function Profile() {
       try {
         console.log("[handleSendOTP] Verifying old password...");
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-        const loginRes = await fetch(`${API_BASE_URL}auth/login/`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email: userEmail,
             password: passwordFormData.oldPassword,
