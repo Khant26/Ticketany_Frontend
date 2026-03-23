@@ -119,7 +119,7 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
         return;
       }
 
-      setSuccess("✅ Registration successful! Check your email for OTP code.");
+      setSuccess(t("signUp.registrationSuccess"));
       setShowOtpVerification(true);
       setResendCountdown(OTP_RESEND_DELAY_SECONDS);
       setLoading(false);
@@ -381,13 +381,13 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
                 htmlFor="otpCode"
                 className="block text-2xl font-medium text-gray-700 mb-1"
               >
-                OTP Code
+                {t("signUp.otpCode")}
               </label>
               <p className="text-sm text-gray-600 mb-2">
-                Check your email ({formData.email}) for the 6-digit OTP code
+                {t("signUp.otpInstructions", { email: formData.email })}
               </p>
               <p className="text-xs text-gray-600 mb-3">
-                This code will expire in 10 minutes.
+                {t("signUp.otpExpiry")}
               </p>
               <input
                 type="text"
@@ -404,7 +404,7 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
                 required
               />
               <p className="text-xs text-gray-600 mt-1">
-                Enter the 6-digit code from your email
+                {t("signUp.otpHint")}
               </p>
               <div className="flex gap-3 mt-4 justify-center">
                 <button
@@ -417,15 +417,15 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
                   }}
                 >
                   {resendCountdown > 0
-                    ? `Resend ${String(Math.floor(resendCountdown / 60)).padStart(2, "0")}:${String(resendCountdown % 60).padStart(2, "0")}`
-                    : "Resend OTP"}
+                    ? `${t("signUp.resendOtp")} ${String(Math.floor(resendCountdown / 60)).padStart(2, "0")}:${String(resendCountdown % 60).padStart(2, "0")}`
+                    : t("signUp.resendOtp")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowOtpVerification(false)}
                   className="flex-1 px-4 py-2 text-sm font-medium text-pink-600 border-2 border-pink-600 rounded-lg hover:bg-pink-50 transition-all duration-200"
                 >
-                  ← Back
+                  {t("signUp.back")}
                 </button>
               </div>
             </div>
@@ -439,10 +439,10 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
           >
             {loading
               ? showOtpVerification
-                ? "Verifying..."
-                : "Registering..."
+                ? t("signUp.verifying")
+                : t("signUp.registering")
               : showOtpVerification
-                ? "Verify Email"
+                ? t("signUp.verifyEmail")
                 : t("signUp.signUp")}
           </button>
           <div className="text-center pt-2 border-t border-gray-200">
