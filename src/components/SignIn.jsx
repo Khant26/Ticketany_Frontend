@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import Logo from "../assets/logo.jpg";
 import { useTranslation } from "react-i18next";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { showSuccess, showError, showWarning, showInfo } from "../utils/toastNotification";
+import { showSuccess, showError, showWarning } from "../utils/toastNotification";
+
+const ACTIVE_SUBMIT_COLOR = "#e05680";
+const INACTIVE_SUBMIT_COLOR = "#f7c7d4";
 
 function SignIn({
   isOpen,
@@ -23,6 +26,13 @@ function SignIn({
   const [otpCode, setOtpCode] = useState("");
   const [otpLoading, setOtpLoading] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
+  const trimmedEmail = formData.email.trim();
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail);
+  const isPasswordValid = formData.password.trim().length >= 8;
+  const isOtpValid = otpCode.trim().length === 6;
+  const isSubmitReady = showVerifyOtp
+    ? isOtpValid
+    : isEmailValid && isPasswordValid;
 
   const handleChange = (e) => {
     setFormData({
@@ -366,11 +376,20 @@ function SignIn({
 
           <button
             type="submit"
-            className="w-full text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`w-full text-white py-2 px-4 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transition-all duration-200 ${
+              isSubmitReady && !(loading || otpLoading)
+                ? "hover:opacity-95 transform hover:scale-105"
+                : "cursor-not-allowed"
+            }`}
             style={{
-              backgroundColor: "#f28fa5",
+              backgroundColor: isSubmitReady
+                ? ACTIVE_SUBMIT_COLOR
+                : INACTIVE_SUBMIT_COLOR,
+              boxShadow: isSubmitReady
+                ? "0 10px 24px rgba(224, 86, 128, 0.28)"
+                : "none",
             }}
-            disabled={loading || otpLoading}
+            disabled={loading || otpLoading || !isSubmitReady}
           >
             {otpLoading
               ? "Verifying OTP..."

@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const OTP_RESEND_DELAY_SECONDS = 60;
+const ACTIVE_SUBMIT_COLOR = "#e05680";
+const INACTIVE_SUBMIT_COLOR = "#f7c7d4";
 
 function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
   const { t } = useTranslation();
@@ -18,6 +20,13 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
   const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
+  const trimmedEmail = formData.email.trim();
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail);
+  const isPasswordValid = formData.password.trim().length >= 8;
+  const isOtpValid = otpCode.trim().length === 6;
+  const isSubmitReady = showOtpVerification
+    ? isOtpValid
+    : isEmailValid && isPasswordValid;
 
   useEffect(() => {
     if (!isOpen || !showOtpVerification || resendCountdown <= 0) {
@@ -433,9 +442,20 @@ function SignUp({ isOpen, onClose, onSwitchToSignIn }) {
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ backgroundColor: "#f28fa5" }}
+            disabled={loading || !isSubmitReady}
+            className={`w-full text-white py-2 px-4 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transition-all duration-200 mt-4 ${
+              isSubmitReady && !loading
+                ? "hover:opacity-95 transform hover:scale-105"
+                : "cursor-not-allowed"
+            }`}
+            style={{
+              backgroundColor: isSubmitReady
+                ? ACTIVE_SUBMIT_COLOR
+                : INACTIVE_SUBMIT_COLOR,
+              boxShadow: isSubmitReady
+                ? "0 10px 24px rgba(224, 86, 128, 0.28)"
+                : "none",
+            }}
           >
             {loading
               ? showOtpVerification

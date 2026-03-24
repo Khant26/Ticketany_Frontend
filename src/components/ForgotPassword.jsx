@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react'
 import Logo from '../assets/logo.jpg'
 import { useTranslation } from 'react-i18next'
 
+const ACTIVE_SUBMIT_COLOR = '#e05680';
+const INACTIVE_SUBMIT_COLOR = '#f7c7d4';
+
 function ForgotPassword({ isOpen, onClose, onSwitchToSignIn, onSwitchToSignUp }) {
 
   const { t } = useTranslation();
@@ -15,6 +18,14 @@ function ForgotPassword({ isOpen, onClose, onSwitchToSignIn, onSwitchToSignUp })
   const [success, setSuccess] = useState('');
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
+  const trimmedEmail = email.trim();
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail);
+  const isOtpValid = otpCode.trim().length === 6;
+  const isNewPasswordValid = newPassword.trim().length >= 8;
+  const isConfirmPasswordValid = confirmPassword.length > 0 && newPassword === confirmPassword;
+  const isSubmitReady = otpSent
+    ? isEmailValid && isOtpValid && isNewPasswordValid && isConfirmPasswordValid
+    : isEmailValid;
 
   useEffect(() => {
     if (!isOpen) {
@@ -189,9 +200,16 @@ function ForgotPassword({ isOpen, onClose, onSwitchToSignIn, onSwitchToSignUp })
 
               <button
                 type='submit'
-                disabled={isLoading}
-                className='w-full text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 transform hover:scale-105 transition-all duration-200'
-                style={{ backgroundColor: '#f28fa5' }}
+                disabled={isLoading || !isSubmitReady}
+                className={`w-full text-white py-2 px-4 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-200 ${
+                  isSubmitReady && !isLoading
+                    ? 'hover:opacity-95 transform hover:scale-105'
+                    : 'cursor-not-allowed'
+                }`}
+                style={{
+                  backgroundColor: isSubmitReady ? ACTIVE_SUBMIT_COLOR : INACTIVE_SUBMIT_COLOR,
+                  boxShadow: isSubmitReady ? '0 10px 24px rgba(224, 86, 128, 0.28)' : 'none',
+                }}
               >
                 {isLoading ? 'Sending OTP...' : 'Send OTP'}
               </button>
@@ -218,10 +236,11 @@ function ForgotPassword({ isOpen, onClose, onSwitchToSignIn, onSwitchToSignUp })
                 <input
                   type='text'
                   value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value)}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   className='w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500'
                   placeholder='Enter OTP code'
                   maxLength='6'
+                  inputMode='numeric'
                   required
                   disabled={isLoading}
                 />
@@ -259,9 +278,16 @@ function ForgotPassword({ isOpen, onClose, onSwitchToSignIn, onSwitchToSignUp })
 
               <button
                 type='submit'
-                disabled={isLoading}
-                className='w-full text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 transform hover:scale-105 transition-all duration-200'
-                style={{ backgroundColor: '#f28fa5' }}
+                disabled={isLoading || !isSubmitReady}
+                className={`w-full text-white py-2 px-4 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-200 ${
+                  isSubmitReady && !isLoading
+                    ? 'hover:opacity-95 transform hover:scale-105'
+                    : 'cursor-not-allowed'
+                }`}
+                style={{
+                  backgroundColor: isSubmitReady ? ACTIVE_SUBMIT_COLOR : INACTIVE_SUBMIT_COLOR,
+                  boxShadow: isSubmitReady ? '0 10px 24px rgba(224, 86, 128, 0.28)' : 'none',
+                }}
               >
                 {isLoading ? 'Resetting Password...' : 'Reset Password'}
               </button>

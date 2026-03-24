@@ -3,6 +3,9 @@ import html2canvas from "html2canvas";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 
+const ACTIVE_SUBMIT_COLOR = "#e05680";
+const INACTIVE_SUBMIT_COLOR = "#f7c7d4";
+
 function OrderConfirm({
   isOpen,
   onClose,
@@ -12,6 +15,8 @@ function OrderConfirm({
   eventTitle,
   onEditOrder,
   onDeleteOrder,
+  submitting = false,
+  submitError = "",
 }) {
   const { t } = useTranslation();
 
@@ -73,6 +78,8 @@ function OrderConfirm({
     setCurrentOrderIndex(index);
   };
 
+  const canConfirm = allOrders.length > 0 && !submitting;
+
   if (!isOpen || !allOrders || allOrders.length === 0) return null;
   const currentOrder = allOrders[currentOrderIndex];
 
@@ -119,6 +126,7 @@ function OrderConfirm({
               <div className="flex flex-wrap gap-2 sm:gap-2">
                 <button
                   onClick={() => onEditOrder(currentOrderIndex)}
+                  disabled={submitting}
                   className="cursor-pointer px-2 sm:px-3 py-1 border-2 border-gray-350 rounded text-xs sm:text-sm hover:scale-105 transition-all duration-200"
                 >
                   {t("order.Edit")}
@@ -131,7 +139,8 @@ function OrderConfirm({
                         setCurrentOrderIndex(Math.max(0, allOrders.length - 2));
                       }
                     }}
-                    className="cursor-pointer px-2 sm:px-3 py-1 border-2 border-red-400 text-red-400 hover:scale-105 rounded text-xs sm:text-sm transition-all duration-200"
+                    disabled={submitting}
+                    className="cursor-pointer px-2 sm:px-3 py-1 border-2 border-red-400 text-red-400 hover:scale-105 rounded text-xs sm:text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {t("order.Delete")}
                   </button>
@@ -282,10 +291,24 @@ function OrderConfirm({
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 justify-center mt-4 sm:mt-6">
             <button
+              type="button"
               onClick={() => setShowPrompt(true)}
-              className="cursor-pointer px-4 sm:px-8 md:px-10 py-2 sm:py-3 md:py-4 text-white text-sm sm:text-base rounded-lg font-semibold hover:opacity-80 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 transition bg-[#f28fa5] active:bg-[#d45573]"
+              disabled={!canConfirm}
+              className={`px-4 sm:px-8 md:px-10 py-2 sm:py-3 md:py-4 text-white text-sm sm:text-base rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-200 ${
+                canConfirm
+                  ? "cursor-pointer hover:opacity-95 hover:scale-105"
+                  : "cursor-not-allowed"
+              }`}
+              style={{
+                backgroundColor: canConfirm
+                  ? ACTIVE_SUBMIT_COLOR
+                  : INACTIVE_SUBMIT_COLOR,
+                boxShadow: canConfirm
+                  ? "0 10px 24px rgba(224, 86, 128, 0.28)"
+                  : "none",
+              }}
             >
-              {t("order.Confirm")}
+              {submitting ? "Submitting..." : t("order.Confirm")}
             </button>
             <button
               onClick={onAddMore}
@@ -295,6 +318,12 @@ function OrderConfirm({
             </button>
           </div>
 
+          {submitError && (
+            <p className="mt-4 text-center text-sm text-red-500 font-medium">
+              {submitError}
+            </p>
+          )}
+
           {showPrompt && (
             <div
               className="fixed inset-0 flex items-center justify-center px-3 sm:px-4"
@@ -303,7 +332,7 @@ function OrderConfirm({
                 backgroundColor: "rgba(0, 0, 0, 0.5)",
               }}
               onClick={(e) => {
-                if (e.target === e.currentTarget) {
+                if (!submitting && e.target === e.currentTarget) {
                   setShowPrompt(false);
                 }
               }}
@@ -317,21 +346,28 @@ function OrderConfirm({
                 </p>
                 <div className="flex gap-3 sm:gap-4">
                   <button
-                    onClick={() => {
-                      setShowPrompt(false);
-                      onConfirmOrder();
-                    }}
-                    className="cursor-pointer flex-1 py-2 sm:py-3 rounded-md text-sm sm:text-base text-black font-medium transition-all duration-200  hover:scale-105"
+                    onClick={onConfirmOrder}
+                    disabled={!canConfirm}
+                    className={`flex-1 py-2 sm:py-3 rounded-md text-sm sm:text-base text-white font-medium transition-all duration-200 ${
+                      canConfirm
+                        ? "cursor-pointer hover:scale-105"
+                        : "cursor-not-allowed"
+                    }`}
                     style={{
-                      backgroundColor: "white",
-                      boxShadow: "0 0 4px rgba(0,0,0,0.5)",
+                      backgroundColor: canConfirm
+                        ? ACTIVE_SUBMIT_COLOR
+                        : INACTIVE_SUBMIT_COLOR,
+                      boxShadow: canConfirm
+                        ? "0 10px 24px rgba(224, 86, 128, 0.28)"
+                        : "none",
                     }}
                   >
-                    Yes
+                    {submitting ? "Submitting..." : "Yes"}
                   </button>
                   <button
                     onClick={() => setShowPrompt(false)}
-                    className="cursor-pointer flex-1 py-2 sm:py-3 rounded-md text-sm sm:text-base text-black font-medium transition-all duration-200  hover:scale-105"
+                    disabled={submitting}
+                    className="cursor-pointer flex-1 py-2 sm:py-3 rounded-md text-sm sm:text-base text-black font-medium transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{
                       backgroundColor: "white",
                       boxShadow: "0 0 4px rgba(0,0,0,0.5)",

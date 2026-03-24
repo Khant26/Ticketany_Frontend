@@ -10,6 +10,8 @@ import { AUTH_REQUIRED_EVENT, ensureValidSession } from "../services/apiClient";
 function EventPageDetails() {
   const { t } = useTranslation();
   let { id } = useParams();
+  const touchStartXRef = useRef(null);
+  const touchDeltaXRef = useRef(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageFading, setIsImageFading] = useState(false);
   const fadeTimeoutRef = useRef(null);
@@ -248,6 +250,32 @@ function EventPageDetails() {
     goToImage(nextIndex);
   };
 
+  const handleTouchStart = (e) => {
+    if (images.length <= 1) return;
+    touchStartXRef.current = e.touches[0].clientX;
+    touchDeltaXRef.current = 0;
+  };
+
+  const handleTouchMove = (e) => {
+    if (touchStartXRef.current === null) return;
+    touchDeltaXRef.current = e.touches[0].clientX - touchStartXRef.current;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartXRef.current === null) return;
+
+    const swipeThreshold = 50;
+
+    if (touchDeltaXRef.current <= -swipeThreshold) {
+      nextImage();
+    } else if (touchDeltaXRef.current >= swipeThreshold) {
+      prevImage();
+    }
+
+    touchStartXRef.current = null;
+    touchDeltaXRef.current = 0;
+  };
+
   const isUserLoggedIn = () => {
     return isLoggedIn;
   };
@@ -278,18 +306,24 @@ function EventPageDetails() {
                 {/* Image Section */}
                 <div className="w-full">
                   {images.length > 0 ? (
-                    <img
-                      src={images[currentImageIndex]}
-                      alt={`${eventDetail?.event_name || "Event"} - Image ${currentImageIndex + 1}`}
-                      className={`w-full h-52 sm:h-64 md:h-80 lg:h-[420px] xl:h-[480px] object-cover rounded-t-xl transition-opacity duration-150 ease-out cursor-pointer ${
-                        isImageFading ? "opacity-80" : "opacity-100"
-                      }`}
-                      onClick={() => setIsFullscreenOpen(true)}
-                      onLoad={() => setIsImageFading(false)}
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                      }}
-                    />
+                    <div
+                      onTouchStart={handleTouchStart}
+                      onTouchMove={handleTouchMove}
+                      onTouchEnd={handleTouchEnd}
+                    >
+                      <img
+                        src={images[currentImageIndex]}
+                        alt={`${eventDetail?.event_name || "Event"} - Image ${currentImageIndex + 1}`}
+                        className={`w-full h-52 sm:h-64 md:h-80 lg:h-[420px] xl:h-[480px] object-cover rounded-t-xl transition-opacity duration-150 ease-out cursor-pointer ${
+                          isImageFading ? "opacity-80" : "opacity-100"
+                        }`}
+                        onClick={() => setIsFullscreenOpen(true)}
+                        onLoad={() => setIsImageFading(false)}
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    </div>
                   ) : (
                     <div className="w-full h-52 sm:h-64 md:h-80 lg:h-[420px] xl:h-[480px] bg-gray-200 flex items-center justify-center rounded-t-xl">
                       <span className="text-sm sm:text-base text-gray-500">
@@ -363,6 +397,9 @@ function EventPageDetails() {
                   <div
                     className="fixed inset-0 z-[99999] bg-black/95 flex items-center justify-center p-4"
                     onClick={() => setIsFullscreenOpen(false)}
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
                   >
                     <button
                       onClick={() => setIsFullscreenOpen(false)}

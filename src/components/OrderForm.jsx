@@ -4,6 +4,9 @@ import OrderComplete from "./OrderComplete";
 import { useTranslation } from "react-i18next";
 import { authFetch } from "../services/apiClient";
 
+const ACTIVE_SUBMIT_COLOR = "#e05680";
+const INACTIVE_SUBMIT_COLOR = "#f7c7d4";
+
 function OrderForm({
   isOpen,
   onClose,
@@ -274,6 +277,11 @@ function OrderForm({
   const availablePricesForThird = availablePrices.filter(
     (price) => price !== formData.firstPriorityTicket && price !== formData.secondPriorityTicket
   );
+  const isOrderFormReady =
+    formData.userName.trim().length > 0 &&
+    formData.facebookName.trim().length > 0 &&
+    formData.priorityDate.trim().length > 0 &&
+    formData.firstPriorityTicket.trim().length > 0;
 
   return (
     <>
@@ -312,6 +320,10 @@ function OrderForm({
                   : t("order.FillFormTitle")}
               </p>
 
+              <p className="text-sm text-gray-500">
+                <span className="text-red-500 font-semibold">*</span> Required fields
+              </p>
+
               {allOrders.length > 0 && (
                 <p className="text-gray-600 text-sm sm:text-base md:text-lg">
                   {isEditingOrder !== null
@@ -340,6 +352,7 @@ function OrderForm({
                     className="block text-sm sm:text-base md:text-lg font-medium text-gray-700 min-w-full sm:min-w-[150px] md:min-w-[180px]"
                   >
                     {t("order.UserName")}
+                    <span className="text-red-500 ml-1">*</span>
                   </label>
                   <input
                     type="text"
@@ -360,6 +373,7 @@ function OrderForm({
                     className="block text-sm sm:text-base md:text-lg font-medium text-gray-700 min-w-full sm:min-w-[150px] md:min-w-[180px]"
                   >
                     {t("order.FacebookName")}
+                    <span className="text-red-500 ml-1">*</span>
                   </label>
                   <input
                     type="text"
@@ -399,6 +413,7 @@ function OrderForm({
                     className="block text-sm sm:text-base md:text-lg font-medium text-gray-700 min-w-full sm:min-w-[150px] md:min-w-[180px]"
                   >
                     {t("order.PriorityDate")}
+                    <span className="text-red-500 ml-1">*</span>
                   </label>
                   <select
                     id="priorityDate"
@@ -406,6 +421,7 @@ function OrderForm({
                     value={formData.priorityDate}
                     onChange={handleChange}
                     className="cursor-pointer w-full sm:flex-1 px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-gray-600 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 sm:ml-4 md:ml-8"
+                    required
                   >
                     <option value="">{t("select.PriorityDate")}</option>
                     {availableDates.map((date, index) => (
@@ -423,6 +439,7 @@ function OrderForm({
                     className="block text-sm sm:text-base md:text-lg font-medium text-gray-700 min-w-full sm:min-w-[150px] md:min-w-[180px]"
                   >
                     {t("order.FirstPriorityTicket")}
+                    <span className="text-red-500 ml-1">*</span>
                   </label>
                   <select
                     id="firstPriorityTicket"
@@ -493,7 +510,20 @@ function OrderForm({
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 md:gap-8 justify-center mt-6 sm:mt-8 md:mt-10">
                   <button
                     type="submit"
-                    className="cursor-pointer w-full sm:w-1/2 text-white py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-sm sm:text-base md:text-lg bg-[#f28fa5] active:bg-[#d45573]"
+                    disabled={!isOrderFormReady}
+                    className={`w-full sm:w-1/2 text-white py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transition-all duration-200 text-sm sm:text-base md:text-lg ${
+                      isOrderFormReady
+                        ? "cursor-pointer hover:opacity-95 transform hover:scale-105"
+                        : "cursor-not-allowed"
+                    }`}
+                    style={{
+                      backgroundColor: isOrderFormReady
+                        ? ACTIVE_SUBMIT_COLOR
+                        : INACTIVE_SUBMIT_COLOR,
+                      boxShadow: isOrderFormReady
+                        ? "0 10px 24px rgba(224, 86, 128, 0.28)"
+                        : "none",
+                    }}
                   >
                     {isEditingOrder !== null ? "Update Order" : "Next"}
                   </button>
