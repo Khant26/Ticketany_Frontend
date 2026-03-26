@@ -491,7 +491,7 @@ function EventPageDetails() {
 
                   <button
                     onClick={handleOrderNowClick}
-                    className="w-full sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3 mx-auto px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg text-white rounded-lg hover:opacity-90 hover:scale-105 transition-all duration-200 font-bold bg-[#f28fa5] active:bg-[#d45573] cursor-pointer shadow-md"
+                    className="w-full sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3 mx-auto px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg text-white rounded-lg hover:opacity-90 hover:scale-105 transition-all duration-200 font-bold bg-[#e05680] active:bg-[#e05680] cursor-pointer shadow-md"
                   >
                     {t("event.orderNow")}
                   </button>

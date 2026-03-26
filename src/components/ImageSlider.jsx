@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 function ImageSlider({ banner }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const touchStartXRef = useRef(null);
+  const touchDeltaXRef = useRef(0);
 
   if (!banner || banner.length === 0) return null;
 
@@ -13,9 +15,40 @@ function ImageSlider({ banner }) {
     setCurrentImageIndex((prev) => (prev === 0 ? banner.length - 1 : prev - 1));
   };
 
+  const handleTouchStart = (e) => {
+    if (banner.length <= 1) return;
+    touchStartXRef.current = e.touches[0].clientX;
+    touchDeltaXRef.current = 0;
+  };
+
+  const handleTouchMove = (e) => {
+    if (touchStartXRef.current === null) return;
+    touchDeltaXRef.current = e.touches[0].clientX - touchStartXRef.current;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartXRef.current === null) return;
+
+    const swipeThreshold = 50;
+
+    if (touchDeltaXRef.current <= -swipeThreshold) {
+      nextImage();
+    } else if (touchDeltaXRef.current >= swipeThreshold) {
+      prevImage();
+    }
+
+    touchStartXRef.current = null;
+    touchDeltaXRef.current = 0;
+  };
+
   return (
   <div className="w-full max-w-[1060px] mx-auto rounded-xl overflow-hidden shadow-md">
-    <div className="relative w-full h-[200px] sm:h-[240px] md:h-[280px] lg:h-[320px] xl:h-[360px] 2xl:h-[400px] overflow-hidden rounded-xl">
+    <div
+      className="relative w-full h-[200px] sm:h-[240px] md:h-[280px] lg:h-[320px] xl:h-[360px] 2xl:h-[400px] overflow-hidden rounded-xl"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       <img
         src={
           banner[currentImageIndex]?.banner_image_url ||

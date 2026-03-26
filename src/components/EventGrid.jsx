@@ -8,7 +8,9 @@ function EventGrid({ selectedCategory, variant = "user" }) {
   const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([]);
   const isAdmin = variant === "admin";
-  const seeAllBase = isAdmin ? "/admin/events" : "/events";
+  const seeAllHref = isAdmin
+    ? `/admin/events/${selectedCategory || "all"}`
+    : "/events/all";
   const cardHref = (id) => isAdmin ? `/admin/events/${id}/edit` : `/EventPageDetails/${id}`;
   const IMAGE_SEPARATOR = "|||SEPARATOR|||";
 
@@ -83,7 +85,7 @@ function EventGrid({ selectedCategory, variant = "user" }) {
     <div className="mx-auto w-full max-w-[1060px]">
       <div className="flex justify-end mb-4">
         <Link
-          to={`${seeAllBase}/${selectedCategory || "all"}`}
+          to={seeAllHref}
           className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-[#e51f4b] transition-colors duration-200"
         >
           <span>{t("home.viewAll")}</span>
