@@ -35,7 +35,7 @@ function Footer() {
             </a>
 
             <a
-              href="https://www.facebook.com/messages/t/115097331446124"
+              href="https://www.facebook.com/profile.php?id=100088835078200"
               target="_blank"
               className="hover:text-[#f28fa5] transition transform hover:scale-125"
             >
