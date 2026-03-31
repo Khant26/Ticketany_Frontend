@@ -11,6 +11,8 @@ import SignIn from "./SignIn";
 import ForgotPassword from "./ForgotPassword";
 import { AUTH_REQUIRED_EVENT, ensureValidSession } from "../services/apiClient";
 
+const BRAND_NAME = "Home";
+
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -283,12 +285,15 @@ function Navbar() {
           <div className="flex flex-col lg:hidden w-full">
             {/* Top row */}
             <div className="flex items-center justify-between w-full">
-              <Link to="/">
+              <Link to="/" className="flex items-center gap-2 sm:gap-3">
                 <img
                   src={Logo}
                   alt="Logo"
                   className="w-10 h-10 sm:w-15 sm:h-15 object-contain transition duration-200 hover:scale-105"
                 />
+                <span className="text-sm font-medium text-gray-700 whitespace-nowrap hover:text-[#e51f4b] transition-colors duration-200">
+                  {BRAND_NAME}
+                </span>
               </Link>
 
               <button
@@ -384,6 +389,14 @@ function Navbar() {
                   </button>
                 </div>
 
+                <Link
+                  to="/"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center text-gray-700 p-2 rounded hover:bg-gray-100 hover:text-red-600 transition-colors border-b pb-3"
+                >
+                  <span className="font-medium">Home</span>
+                </Link>
+
                 {/* User/Profile actions */}
                 {isLoggedIn ? (
                   <div className="flex flex-col gap-2">
@@ -435,12 +448,15 @@ function Navbar() {
 
           {/* ================= DESKTOP NAVBAR (lg and above) ================= */}
           <div className="hidden lg:flex flex-wrap items-center w-full">
-            <Link to="/">
+            <Link to="/" className="flex items-center gap-3">
               <img
                 src={Logo}
                 alt="Logo"
                 className="w-16 h-16 object-contain transition duration-200 hover:scale-105"
               />
+              <span className="text-sm lg:text-base font-medium text-gray-700 whitespace-nowrap hover:text-[#e51f4b] transition-colors duration-200">
+                {BRAND_NAME}
+              </span>
             </Link>
 
             {/* Search - HOME ONLY */}

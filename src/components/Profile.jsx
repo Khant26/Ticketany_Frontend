@@ -4,6 +4,9 @@ import OrderDetails from "./OrderDetails";
 import Logo from "../assets/logo.jpg";
 import { authFetch } from "../services/apiClient";
 
+const ACTIVE_SUBMIT_COLOR = "#e05680";
+const INACTIVE_SUBMIT_COLOR = "#f7c7d4";
+
 function Profile() {
   const tabRefs = useRef({});
   const [underlineStyle, setUnderlineStyle] = useState({ width: 0, left: 0 });
@@ -28,6 +31,8 @@ function Profile() {
   const [showOrderDetails, setShowOrderDetails] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const isSendOtpReady = passwordFormData.oldPassword.trim().length > 0;
+  const isResetPasswordReady = passwordFormData.otpCode.trim().length === 6;
 
   useEffect(() => {
     window.scrollTo(0, 0); 
@@ -599,7 +604,11 @@ function Profile() {
             </div>
             <button
               onClick={() => setShowChangePassword(true)}
-              className="text-white px-4 py-2 rounded-lg hover:opacity-80 hover:scale-105 transition-all duration-200 font-medium text-sm sm:text-base w-full sm:w-auto bg-[#f28fa5] active:bg-[#d45573]"
+              className="text-white px-4 py-2 rounded-lg hover:opacity-95 hover:scale-105 transition-all duration-200 font-medium text-sm sm:text-base w-full sm:w-auto"
+              style={{
+                backgroundColor: ACTIVE_SUBMIT_COLOR,
+                boxShadow: "0 10px 24px rgba(224, 86, 128, 0.28)",
+              }}
             >
               {t("profile.changePassword")}
             </button>
@@ -908,8 +917,20 @@ function Profile() {
                   <button
                     type="button"
                     onClick={handleSendOTP}
-                    disabled={changingPassword}
-                    className="w-full px-4 py-2 text-white bg-[#f28fa5] hover:opacity-80 hover:scale-105 transition-all duration-200 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={changingPassword || !isSendOtpReady}
+                    className={`w-full px-4 py-2 text-white transition-all duration-200 rounded-lg font-medium ${
+                      isSendOtpReady && !changingPassword
+                        ? "hover:opacity-95 hover:scale-105"
+                        : "cursor-not-allowed"
+                    }`}
+                    style={{
+                      backgroundColor: isSendOtpReady
+                        ? ACTIVE_SUBMIT_COLOR
+                        : INACTIVE_SUBMIT_COLOR,
+                      boxShadow: isSendOtpReady
+                        ? "0 10px 24px rgba(224, 86, 128, 0.28)"
+                        : "none",
+                    }}
                   >
                     {changingPassword ? "Sending OTP..." : "Send OTP"}
                   </button>
@@ -993,7 +1014,19 @@ function Profile() {
                     type="button"
                     onClick={handleResetPassword}
                     disabled={changingPassword}
-                    className="w-full px-4 py-2 text-white bg-[#f28fa5] hover:opacity-80 hover:scale-105 transition-all duration-200 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`w-full px-4 py-2 text-white transition-all duration-200 rounded-lg font-medium ${
+                      isResetPasswordReady && !changingPassword
+                        ? "hover:opacity-95 hover:scale-105"
+                        : "cursor-pointer"
+                    }`}
+                    style={{
+                      backgroundColor: isResetPasswordReady
+                        ? ACTIVE_SUBMIT_COLOR
+                        : INACTIVE_SUBMIT_COLOR,
+                      boxShadow: isResetPasswordReady
+                        ? "0 10px 24px rgba(224, 86, 128, 0.28)"
+                        : "none",
+                    }}
                   >
                     {changingPassword
                       ? "Changing Password..."

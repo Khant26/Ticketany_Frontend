@@ -312,7 +312,11 @@ function OrderConfirm({
             </button>
             <button
               onClick={onAddMore}
-              className="cursor-pointer px-4 sm:px-8 md:px-10 py-2 sm:py-3 md:py-4 text-white text-sm sm:text-base rounded-lg font-semibold hover:opacity-80 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 transition bg-[#f28fa5] active:bg-[#d45573]"
+              className="cursor-pointer px-4 sm:px-8 md:px-10 py-2 sm:py-3 md:py-4 text-white text-sm sm:text-base rounded-lg font-semibold hover:opacity-95 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-200"
+              style={{
+                backgroundColor: ACTIVE_SUBMIT_COLOR,
+                boxShadow: "0 10px 24px rgba(224, 86, 128, 0.28)",
+              }}
             >
               {t("order.AddMore")}
             </button>

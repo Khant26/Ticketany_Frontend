@@ -535,7 +535,11 @@ function OrderForm({
                         setShowBackButton(false);
                         setShowOrderConfirm(true);
                       }}
-                      className="cursor-pointer w-full sm:w-1/2 text-white py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-sm sm:text-base md:text-lg bg-[#f28fa5] active:bg-[#d45573]"
+                      className="cursor-pointer w-full sm:w-1/2 text-white py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 text-sm sm:text-base md:text-lg"
+                      style={{
+                        backgroundColor: ACTIVE_SUBMIT_COLOR,
+                        boxShadow: "0 10px 24px rgba(224, 86, 128, 0.28)",
+                      }}
                     >
                       Back to Orders
                     </button>
