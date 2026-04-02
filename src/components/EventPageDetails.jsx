@@ -500,10 +500,15 @@ function EventPageDetails() {
             </div>
 
             {/* Right column - How to Order */}
-            <div className="cursor-default w-full lg:w-1/3 bg-white shadow-md rounded-lg p-5 sm:p-6 lg:p-5 xl:p-6 min-h-[400px] lg:min-h-[500px] mt-6 lg:mt-0">
+            <div className="cursor-default w-full lg:w-1/3 bg-white shadow-md rounded-lg p-5 sm:p-6 lg:p-5 xl:p-6 min-h-[400px] lg:min-h-[500px] mt-6 lg:mt-0 flex flex-col">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-4">
                 How to Order
               </h3>
+              <img 
+                src="/howtoorder.jpg" 
+                alt="How to Order Guide" 
+                className="w-full h-auto object-contain rounded-lg"
+              />
             </div>
           </div>
         </div>
