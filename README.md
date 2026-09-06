@@ -26,8 +26,8 @@ Django REST API for the TicketsAnywhere event-discovery and ticket-ordering plat
 ## Local setup
 
 ```bash
-git clone https://github.com/Khant26/TicketsAnywhere_Backend.git
-cd TicketsAnywhere_Backend
+git clone https://github.com/Khant26/ticketsany-api.git
+cd ticketsany-api
 python -m venv .venv
 ```
 
