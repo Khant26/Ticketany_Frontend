@@ -25,7 +25,7 @@ function Profile() {
   const [changingPassword, setChangingPassword] = useState(false);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [, setError] = useState("");
   const [userId, setUserId] = useState(null);
 
   const [showOrderDetails, setShowOrderDetails] = useState(false);
@@ -339,6 +339,7 @@ function Profile() {
           localStorage.removeItem("userOrders");
         }
       } catch {
+        // Ignore malformed cached orders and continue with server data.
       }
     } catch (e) {
       console.error("Failed to load profile orders:", e);
@@ -350,6 +351,7 @@ function Profile() {
 
   useEffect(() => {
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- reload when the authenticated user changes
   }, [userId]);
 
   const openOrderDetails = (orderGroup, ticket) => {
@@ -396,7 +398,7 @@ function Profile() {
         clearTimeout(timeoutId);
 
         if (!loginRes.ok) {
-          const loginData = await loginRes.json().catch(() => ({}));
+          await loginRes.json().catch(() => ({}));
           setPasswordError("❌ Old password is incorrect. Please try again.");
           setChangingPassword(false);
           return;
@@ -437,12 +439,12 @@ function Profile() {
 
         setPasswordSuccess("✅ Password verified! OTP sent to your email.");
         setOtpSent(true);
-      } catch (otpError) {
+      } catch {
         setPasswordError("Error sending OTP. Please try again.");
         setChangingPassword(false);
         return;
       }
-    } catch (e) {
+    } catch {
       setPasswordError("An unexpected error occurred. Please try again.");
       setChangingPassword(false);
     } finally {

@@ -221,13 +221,13 @@ function Navbar() {
               localStorage.removeItem(cacheKey);
             }
           }
-        } catch {}
+        } catch { /* Ignore malformed cached user data during logout. */ }
       }
 
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
       localStorage.removeItem("user_data");
-    } catch {}
+    } catch { /* Logout still clears local state if the API is unavailable. */ }
 
     setUserName(null);
     setIsLoggedIn(false);

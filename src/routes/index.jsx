@@ -3,10 +3,10 @@ import { lazy, Suspense } from "react"
 import Layout from "../Layout"
 import App from "../pages/App"
 
+import Home from "../pages/Home"
+import SignUp from "../components/SignUp"
+import SignIn from "../components/SignIn"
 // Lazy load components for code splitting
-const Home = lazy(() => import("../pages/Home"))
-const SignUp = lazy(() => import("../components/SignUp"))
-const SignIn = lazy(() => import("../components/SignIn"))
 const Profile = lazy(() => import("../components/Profile"))
 const AllEvents = lazy(() => import("../components/AllEvents"))
 const EventPageDetails = lazy(() => import("../components/EventPageDetails"))

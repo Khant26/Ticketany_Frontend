@@ -19,7 +19,7 @@ function SignIn({
     email: "",
     password: "",
   });
-  const [error, setError] = useState("");
+  const [, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showVerifyOtp, setShowVerifyOtp] = useState(false);
@@ -85,7 +85,7 @@ function SignIn({
         showError(errorMsg);
         setError("");
       }
-    } catch (err) {
+    } catch {
       showError("Network error. Please try again.");
       setError("");
     } finally {
@@ -128,7 +128,7 @@ function SignIn({
         const errorMsg = data.error || data.detail || data.message || "OTP verification failed";
         showError(errorMsg);
       }
-    } catch (err) {
+    } catch {
       showError("Network error. Please try again.");
     } finally {
       setOtpLoading(false);
@@ -199,7 +199,7 @@ function SignIn({
           showError(errorMsg);
         }
       }
-    } catch (err) {
+    } catch {
       showError("Network error. Please try again.");
     } finally {
       setLoading(false);

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import OrderConfirm from "./OrderConfirm";
 import OrderComplete from "./OrderComplete";
 import { useTranslation } from "react-i18next";
@@ -12,9 +12,6 @@ function OrderForm({
   onClose,
   eventTitle,
   eventDates,
-  eventTime,
-  eventLocation,
-  eventImage,
   eventPrices,
   eventId,
 }) {
@@ -43,7 +40,6 @@ function OrderForm({
   const [showBackButton, setShowBackButton] = useState(false);
   
   
-  const orderCounterRef = useRef(0);
   const ORDER_ID_LENGTH = 5;
 
   const handleChange = (e) => {

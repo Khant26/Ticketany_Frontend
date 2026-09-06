@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import html2canvas from "html2canvas";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 

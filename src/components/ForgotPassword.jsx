@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 const ACTIVE_SUBMIT_COLOR = '#e05680';
 const INACTIVE_SUBMIT_COLOR = '#f7c7d4';
 
-function ForgotPassword({ isOpen, onClose, onSwitchToSignIn, onSwitchToSignUp }) {
+function ForgotPassword({ isOpen, onClose, onSwitchToSignUp }) {
 
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
@@ -67,7 +67,7 @@ function ForgotPassword({ isOpen, onClose, onSwitchToSignIn, onSwitchToSignUp })
 
       setSuccess('✅ OTP sent to your email');
       setOtpSent(true);
-    } catch (err) {
+    } catch {
       setError('Error sending OTP. Please try again.');
     } finally {
       setIsLoading(false);
@@ -123,7 +123,7 @@ function ForgotPassword({ isOpen, onClose, onSwitchToSignIn, onSwitchToSignUp })
       setTimeout(() => {
         onClose();
       }, 2000);
-    } catch (err) {
+    } catch {
       setError('Error resetting password. Please try again.');
     } finally {
       setIsLoading(false);

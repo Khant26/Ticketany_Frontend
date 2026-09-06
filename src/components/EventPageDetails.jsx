@@ -37,10 +37,6 @@ function EventPageDetails() {
         const data = await apiService.get("events/", { auth: false });
         setEventDetails(data);
 
-        if (data.length > 0) {
-          const targetEvent =
-            data.find((event) => event.id === parseInt(id)) || data[0];
-        }
       } catch (error) {
         console.error("Error fetching events:", error);
       }
@@ -149,7 +145,7 @@ function EventPageDetails() {
       }
 
       return String(dates);
-    } catch (error) {
+    } catch {
       return String(dateData);
     }
   };
@@ -189,7 +185,7 @@ function EventPageDetails() {
       }
 
       return String(prices);
-    } catch (error) {
+    } catch {
       return String(priceData);
     }
   };
@@ -213,7 +209,7 @@ function EventPageDetails() {
 
     if (event.event_images && Array.isArray(event.event_images)) {
       const processedImages = event.event_images
-        .map((img, index) => {
+        .map((img) => {
           if (typeof img === "string") return img;
           return img.data || img.image || img.url || img;
         })

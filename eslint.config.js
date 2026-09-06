@@ -23,7 +23,18 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'no-unused-vars': [
+        'error',
+        { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^[A-Z_]' },
+      ],
     },
+  },
+  {
+    files: ['src/routes/**/*.{js,jsx}'],
+    rules: { 'react-refresh/only-export-components': 'off' },
+  },
+  {
+    files: ['vite.config.js'],
+    languageOptions: { globals: globals.node },
   },
 ])

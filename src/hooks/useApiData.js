@@ -38,7 +38,7 @@ export const useOrdersData = (autoFetch = true) => {
                 setError(result.error);
                 return { success: false, error: result.error };
             }
-        } catch (err) {
+        } catch {
             const errorMsg = 'Failed to fetch orders';
             setError(errorMsg);
             return { success: false, error: errorMsg };
@@ -56,7 +56,7 @@ export const useOrdersData = (autoFetch = true) => {
         try {
             const result = await apiService.fetchOrderById(orderId);
             return result;
-        } catch (err) {
+        } catch {
             return { success: false, error: 'Failed to fetch order' };
         } finally {
             setLoading(false);
@@ -82,7 +82,7 @@ export const useOrdersData = (autoFetch = true) => {
             }
             
             return result;
-        } catch (err) {
+        } catch {
             return { success: false, error: 'Failed to update order status' };
         }
     }, [initialized]);
@@ -101,7 +101,7 @@ export const useOrdersData = (autoFetch = true) => {
             }
             
             return result;
-        } catch (err) {
+        } catch {
             return { success: false, error: 'Failed to search orders' };
         } finally {
             setLoading(false);
@@ -165,7 +165,7 @@ export const useTicketsData = (autoFetch = true) => {
                 setError(result.error);
                 return { success: false, error: result.error };
             }
-        } catch (err) {
+        } catch {
             const errorMsg = 'Failed to fetch tickets';
             setError(errorMsg);
             return { success: false, error: errorMsg };
@@ -183,7 +183,7 @@ export const useTicketsData = (autoFetch = true) => {
         try {
             const result = await apiService.fetchTicketsByOrder(orderId);
             return result;
-        } catch (err) {
+        } catch {
             return { success: false, error: 'Failed to fetch order tickets' };
         } finally {
             setLoading(false);
@@ -209,7 +209,7 @@ export const useTicketsData = (autoFetch = true) => {
             }
             
             return result;
-        } catch (err) {
+        } catch {
             return { success: false, error: 'Failed to update ticket status' };
         }
     }, [initialized]);

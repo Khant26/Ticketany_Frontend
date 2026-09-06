@@ -7,7 +7,6 @@ function OrderDetails({ isOpen, onClose, order, ticket, meta = {} }) {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("");
 
-  const date = meta.date || order?.eventMeta?.date || ticket?.date || "";
   const time = meta.time || order?.eventMeta?.time || ticket?.time || "";
   const venue = meta.venue || order?.eventMeta?.venue || ticket?.venue || "";
   const eventPrices = meta.prices || order?.eventMeta?.prices || "";
@@ -83,6 +82,7 @@ function OrderDetails({ isOpen, onClose, order, ticket, meta = {} }) {
         if (refund === "in_process") {
           return "border-red-500 text-red-600 bg-red-50";
         }
+        return "border-gray-500 text-gray-600 bg-gray-50";
       default:
         return "border-gray-500 text-gray-600 bg-gray-50";
     }
