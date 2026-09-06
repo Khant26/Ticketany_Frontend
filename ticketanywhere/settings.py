@@ -74,8 +74,8 @@ if DEBUG:
 else:
     CORS_ALLOWED_ORIGINS = [
         # Deployed frontend and admin URLs
-        'https://ticketany-frontend.vercel.app/',
-        'https://ticketany-admin-dashboard.vercel.app/',
+        'https://ticketany-frontend.vercel.app',
+        'https://ticketany-admin-dashboard.vercel.app',
         # Environment variable URLs
         os.environ.get('FRONTEND_URL', ''),
         os.environ.get('ADMIN_URL', ''),
@@ -88,7 +88,7 @@ else:
         'http://127.0.0.1:5174',
     ]
     # Remove empty strings
-    CORS_ALLOWED_ORIGINS = [origin for origin in CORS_ALLOWED_ORIGINS if origin]
+    CORS_ALLOWED_ORIGINS = [origin.rstrip('/') for origin in CORS_ALLOWED_ORIGINS if origin]
 
 # Allow all Vercel preview deployments
 CORS_ALLOWED_ORIGIN_REGEXES = [
@@ -202,7 +202,7 @@ LOGIN_REDIRECT_URL = '/api/'
 
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT'))
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER') 
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  

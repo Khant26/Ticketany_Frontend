@@ -120,7 +120,7 @@ class Ticket(models.Model):
         ('complete', 'Complete'),
         ('cancel', 'Cancel')
     ]
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     # for paid status
     customer_payment = models.CharField(max_length=100, null=True, blank=True)
     payment_date = models.CharField(max_length=100, null=True, blank=True)
