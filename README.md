@@ -1,6 +1,6 @@
-# Ticket Admin Dashboard
+# TicketsAnywhere Admin Dashboard
 
-A dedicated admin dashboard for managing the Ticket Anywhere application.
+A dedicated admin dashboard for managing the TicketsAnywhere platform.
 
 ## Product repository
 
