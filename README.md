@@ -1,4 +1,4 @@
-# TicketsAnywhere Backend
+# TicketsAnywhere API
 
 Django REST API for the TicketsAnywhere event-discovery and ticket-ordering platform. It serves the public event catalogue, authenticates customers with JWT, creates ticket orders, and provides staff-only management operations for events, banners, categories, orders, and ticket fulfilment.
 
