@@ -2,6 +2,10 @@
 
 A dedicated admin dashboard for managing the Ticket Anywhere application.
 
+## Product repository
+
+This application is also maintained as the [`admin`](https://github.com/Khant26/ticketsany/tree/admin) branch of the combined [TicketsAnywhere repository](https://github.com/Khant26/ticketsany). The original repository is preserved.
+
 ## Features
 
 - Admin authentication and dashboard
