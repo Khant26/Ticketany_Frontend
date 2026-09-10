@@ -2,6 +2,10 @@
 
 Django REST API for the TicketsAnywhere event-discovery and ticket-ordering platform. It serves the public event catalogue, authenticates customers with JWT, creates ticket orders, and provides staff-only management operations for events, banners, categories, orders, and ticket fulfilment.
 
+## Product repository
+
+This service is also maintained as the [`api`](https://github.com/Khant26/ticketsany/tree/api) branch of the combined [TicketsAnywhere repository](https://github.com/Khant26/ticketsany). The original repository is preserved.
+
 ## Core capabilities
 
 - Customer registration, email verification, login, and password reset using one-time codes
