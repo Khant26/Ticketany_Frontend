@@ -1,16 +1,53 @@
-# React + Vite
+# TicketsAnywhere
 
-## Live site
+Customer-facing event discovery and ticket-booking application for TicketsAnywhere.
 
-https://ticketsany.com/
+**Live:** https://ticketsany.com/
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Product branches
 
-Currently, two official plugins are available:
+| Branch | Application |
+|---|---|
+| [`main`](https://github.com/Khant26/ticketsany/tree/main) | Customer web application |
+| [`admin`](https://github.com/Khant26/ticketsany/tree/admin) | Administrative dashboard |
+| [`api`](https://github.com/Khant26/ticketsany/tree/api) | Django REST API |
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The original component repositories remain available; these branches provide one professional product-level entry point without changing the applications' working directory structure.
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Event discovery, categories, featured events, and search
+- Customer registration, authentication, and profile management
+- Ticket ordering and downloadable ticket views
+- English and Myanmar localization
+- Responsive layouts and API-backed loading/error states
+
+## Tech stack
+
+- React 19 and Vite 7
+- React Router
+- Tailwind CSS
+- Axios
+- i18next
+
+## Local development
+
+```bash
+npm ci
+npm run dev
+```
+
+Set `VITE_API_BASE_URL` to the Django API base URL. Keep real credentials out of committed frontend configuration.
+
+## Quality checks
+
+```bash
+npm run lint
+npm run build
+```
+
+GitHub Actions runs lint and production-build checks on pushes and pull requests.
+
+## License
+
+No open-source license is currently declared. All rights are reserved unless a license is added by the repository owner.
